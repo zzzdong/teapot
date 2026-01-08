@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="using:Teapot.ViewModels"
+             x:DataType="viewmodels:MainWindowViewModel"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="600"
+             x:Class="Teapot.Views.AuxiliaryPanelControl">
+  <TabControl Margin="5">
+    <TabItem Header="Environment">
+      <DockPanel Margin="5">
+        <ComboBox DockPanel.Dock="Top" 
+                  ItemsSource="{Binding Environments}"
+                  DisplayMemberBinding="{Binding Name}"
+                  SelectedItem="{Binding SelectedEnvironment, Mode=TwoWay}"
+                  Margin="0,0,0,10"/>
+
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button Grid.Column="0" Content="Add Variable" Margin="0,0,5,0"/>
+          <Button Grid.Column="1" Content="Save" HorizontalAlignment="Stretch"/>
+        </Grid>
+
+        <DataGrid DockPanel.Dock="Top"
+                  ItemsSource="{Binding SelectedEnvironment.Variables}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="True"
+                  Margin="0,5,0,0">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Key" Binding="{Binding Key}" Width="*"/>
+            <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+    </TabItem>
+    
+    <TabItem Header="Tests">
+      <ScrollViewer Margin="5">
+        <StackPanel>
+          <TextBlock Text="Test Scripts" FontWeight="Bold" Margin="0,0,0,10"/>
+          <TextBox Name="TestEditor" 
+                   Text="{Binding SelectedTestScriptCode, Mode=TwoWay}"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   FontFamily="Consolas"
+                   Height="200"/>
+          <Button Content="Run Tests" Margin="0,10,0,0"/>
+          <ListBox ItemsSource="{Binding CurrentResponse.TestResults}" 
+                   Margin="0,10,0,0">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Border Background="{Binding Passed, Converter={StaticResource BoolToColorConverter}}"
+                        Padding="5" 
+                        Margin="0,2">
+                  <TextBlock Text="{Binding Message}"/>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
+      </ScrollViewer>
+    </TabItem>
+    
+    <TabItem Header="Console">
+      <ScrollViewer Margin="5">
+        <TextBox Name="ConsoleOutput" 
+                 TextWrapping="Wrap"
+                 IsReadOnly="True"
+                 FontFamily="Consolas"/>
+      </ScrollViewer>
+    </TabItem>
+  </TabControl>
+</UserControl>

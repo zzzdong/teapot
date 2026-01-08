@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="using:Teapot.ViewModels"
+             x:DataType="viewmodels:MainWindowViewModel"
+             mc:Ignorable="d" d:DesignWidth="280" d:DesignHeight="600"
+             x:Class="Teapot.Views.SidebarControl">
+  <TabControl Margin="5">
+    <TabItem Header="History">
+      <DockPanel Margin="5">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBox Grid.Column="0" Name="SearchBox" Watermark="Search history..." Margin="0,0,5,0"/>
+          <Button Grid.Column="1" Content="Clear" Width="60" Height="30"/>
+        </Grid>
+        <ListBox Name="HistoryListBox" 
+                 ItemsSource="{Binding History}" 
+                 SelectedItem="{Binding SelectedRequest, Mode=TwoWay}"
+                 Margin="0,5,0,0">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid Margin="5" ColumnDefinitions="Auto,*,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding Method}" Padding="5,2" Background="#E0E0E0" Margin="0,0,5,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" MaxWidth="150" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="{Binding Url}" TextTrimming="CharacterEllipsis" MaxWidth="150" VerticalAlignment="Center" Margin="5,0"/>
+                <TextBlock Grid.Column="3" Text="Recent" VerticalAlignment="Center" Margin="5,0"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </TabItem>
+    
+    <TabItem Header="Collections">
+      <DockPanel Margin="5">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBox Grid.Column="0" Name="CollectionSearchBox" Watermark="Search collections..." Margin="0,0,5,0"/>
+          <Button Grid.Column="1" Content="+" Width="30" Height="30"/>
+        </Grid>
+        <TreeView Name="CollectionsTreeView" 
+                  ItemsSource="{Binding Collections}"
+                  SelectedItem="{Binding SelectedCollection, Mode=TwoWay}"
+                  Margin="0,5,0,0">
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate DataType="viewmodels:CollectionItemViewModel">
+              <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,5,0"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </DockPanel>
+    </TabItem>
+  </TabControl>
+</UserControl>
