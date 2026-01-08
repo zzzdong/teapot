@@ -27,7 +27,6 @@
         <DataGrid DockPanel.Dock="Top"
                   ItemsSource="{Binding SelectedEnvironment.Variables}"
                   AutoGenerateColumns="False"
-                  CanUserAddRows="True"
                   Margin="0,5,0,0">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Key" Binding="{Binding Key}" Width="*"/>

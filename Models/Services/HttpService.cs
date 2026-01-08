@@ -29,7 +29,7 @@ namespace Teapot.Models.Services
                 var uriBuilder = new UriBuilder(request.Url);
                 var query = HttpUtility.ParseQueryString(uriBuilder.Query);
                 
-                foreach (var param in request.QueryParameters)
+                foreach (var param in request.QueryParameters ?? new List<Parameter>())
                 {
                     if (param.IsActive)
                     {
@@ -48,7 +48,7 @@ namespace Teapot.Models.Services
                 };
 
                 // 添加请求头
-                foreach (var header in request.Headers)
+                foreach (var header in request.Headers ?? new List<Header>())
                 {
                     if (header.IsActive)
                     {
@@ -89,28 +89,34 @@ namespace Teapot.Models.Services
                 // 构建响应模型
                 var responseModel = new HttpResponseModel
                 {
-                    RequestId = request.Id,
+                    RequestId = request != null ? request.Id.ToString() : "0", // 修复CS0019错误
                     StatusCode = (int)response.StatusCode,
                     StatusDescription = response.ReasonPhrase,
                     Body = responseBody,
                     ContentType = response.Content.Headers.ContentType?.ToString() ?? string.Empty,
-                    ContentLength = response.Content.Headers.ContentLength ?? 0,
+                    ContentLength = response.Content.Headers.ContentLength.GetValueOrDefault(0),
                     ResponseTime = responseTime
                 };
 
                 // 添加响应头
                 foreach (var header in response.Headers)
                 {
-                    responseModel.Headers.Add(new ResponseHeader { Key = header.Key, Value = string.Join(", ", header.Value) });
-                    responseModel.HeadersDict[header.Key] = string.Join(", ", header.Value);
+                    var headerValue = string.Join(", ", header.Value) ?? string.Empty;
+                    var headerKey = header.Key ?? string.Empty;
+                    responseModel.Headers.Add(new ResponseHeader { Key = headerKey, Value = headerValue });
+                    // 修复CS8601警告：确保使用非null值
+                    responseModel.HeadersDict[headerKey] = headerValue;
                 }
 
                 foreach (var header in response.Content.Headers)
                 {
-                    if (!responseModel.HeadersDict.ContainsKey(header.Key))
+                    var headerKey = header.Key ?? string.Empty;
+                    if (!responseModel.HeadersDict.ContainsKey(headerKey))
                     {
-                        responseModel.Headers.Add(new ResponseHeader { Key = header.Key, Value = string.Join(", ", header.Value) });
-                        responseModel.HeadersDict[header.Key] = string.Join(", ", header.Value);
+                        var headerValue = string.Join(", ", header.Value) ?? string.Empty;
+                        responseModel.Headers.Add(new ResponseHeader { Key = headerKey, Value = headerValue });
+                        // 修复CS8601警告：确保使用非null值
+                        responseModel.HeadersDict[headerKey] = headerValue;
                     }
                 }
 
@@ -142,7 +148,7 @@ namespace Teapot.Models.Services
             {
                 return new HttpResponseModel
                 {
-                    RequestId = request.Id,
+                    RequestId = request != null ? request.Id.ToString() : "0", // 修复CS0019错误
                     StatusCode = 0,
                     StatusDescription = ex.Message,
                     Body = ex.ToString(),

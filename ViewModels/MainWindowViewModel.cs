@@ -28,7 +28,7 @@ public partial class MainWindowViewModel : ObservableObject
     private ObservableCollection<CollectionItemViewModel> _collections;
     
     [ObservableProperty]
-    private CollectionItemViewModel _selectedCollection;
+    private CollectionItemViewModel? _selectedCollection; // 使字段可空
     
     [ObservableProperty]
     private ObservableCollection<EnvironmentModel> _environments;
@@ -113,7 +113,7 @@ public partial class MainWindowViewModel : ObservableObject
     public bool IsBodyVisible => SelectedRequest?.BodyType != "none";
 
     // Methods
-    private async System.Threading.Tasks.Task SendRequestAsync(HttpRequestModel request)
+    private async System.Threading.Tasks.Task SendRequestAsync(HttpRequestModel? request) // 使参数可空
     {
         if (request == null) return;
 

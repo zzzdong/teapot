@@ -39,13 +39,11 @@ namespace Teapot.Models
 
         public HttpResponseModel()
         {
-            // 将字典转换为可绑定的集合
-            if (HeadersDict != null)
+            // HeadersDict已在声明时初始化，无需检查null
+            // 如果需要从HeadersDict同步到Headers列表，可以这样做：
+            foreach (var kvp in HeadersDict)
             {
-                foreach (var kvp in HeadersDict)
-                {
-                    Headers.Add(new ResponseHeader { Key = kvp.Key, Value = kvp.Value });
-                }
+                Headers.Add(new ResponseHeader { Key = kvp.Key, Value = kvp.Value });
             }
         }
 
