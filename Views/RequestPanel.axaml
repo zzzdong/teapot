@@ -1,0 +1,235 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="using:Teapot.ViewModels"
+             xmlns:models="using:Teapot.Models"
+             x:Class="Teapot.Views.RequestPanel"
+             x:DataType="viewmodels:RequestPanelViewModel"
+             Name="MainControl"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600">
+  <ScrollViewer>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!-- 上半部分 - 请求构建器 -->
+      <Border Grid.Row="0"
+              Padding="10"
+              Margin="0,0,0,10">
+        <Grid ColumnDefinitions="120,*,80,80">
+          <ComboBox Grid.Column="0"
+                    Name="MethodComboBox"
+                    Width="120"
+                    ItemsSource="{Binding HttpMethodOptions}"
+                    SelectedItem="{Binding Request.Method, Mode=TwoWay}"/>
+          <TextBox Grid.Column="1"
+                    Text="{Binding Request.Url, Mode=TwoWay}"
+                    Watermark="Enter request URL"
+                    Margin="10,0"/>
+          <Button Grid.Column="2"
+                  Name="SendButton"
+                  Content="Send"
+                  Command="{Binding SendRequestCommand}"
+                  CommandParameter="{Binding Request}"/>
+          <Button Grid.Column="3"
+                  Name="SaveButton"
+                  Content="Save"
+                  Command="{Binding SaveToCollectionCommand}"
+                  CommandParameter="{Binding Request}"/>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TabControl Grid.Row="0">
+          <TabItem Header="Params">
+            <ScrollViewer>
+              <ItemsControl ItemsSource="{Binding Request.QueryParameters}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Grid Margin="5" ColumnDefinitions="30,*,*">
+                      <CheckBox Grid.Column="0" IsChecked="{Binding IsActive, Mode=TwoWay}" VerticalAlignment="Center"/>
+                      <TextBox Grid.Column="1" Text="{Binding Key, Mode=TwoWay}" Watermark="Key" Margin="5,0"/>
+                      <TextBox Grid.Column="2" Text="{Binding Value, Mode=TwoWay}" Watermark="Value" Margin="5,0"/>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </TabItem>
+
+          <TabItem Header="Authorization">
+            <StackPanel Margin="10">
+              <ComboBox Name="AuthTypeComboBox"
+                        ItemsSource="{Binding AuthTypes}"
+                        SelectedItem="{Binding Request.Authentication.Type, Mode=TwoWay}"/>
+
+              <Grid Name="AuthFieldsGrid" IsVisible="{Binding IsAuthFieldsVisible}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="80"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="0" Grid.Column="1"
+                          Text="{Binding Request.Authentication.Username, Mode=TwoWay}"
+                          IsVisible="{Binding IsBasicAuth}" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Password:" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="1"
+                          Text="{Binding Request.Authentication.Password, Mode=TwoWay}"
+                          IsVisible="{Binding IsBasicAuth}" />
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Token:" VerticalAlignment="Center"
+                            IsVisible="{Binding IsBearerToken}"/>
+                <TextBox Grid.Row="0" Grid.Column="1"
+                          Text="{Binding Request.Authentication.Token, Mode=TwoWay}"
+                          IsVisible="{Binding IsBearerToken}" />
+              </Grid>
+            </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Headers">
+            <ScrollViewer>
+              <ItemsControl ItemsSource="{Binding Request.Headers}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Grid Margin="5" ColumnDefinitions="30,*,*">
+                      <CheckBox Grid.Column="0" IsChecked="{Binding IsActive, Mode=TwoWay}" VerticalAlignment="Center"/>
+                      <TextBox Grid.Column="1" Text="{Binding Key, Mode=TwoWay}" Watermark="Key" Margin="5,0"/>
+                      <TextBox Grid.Column="2" Text="{Binding Value, Mode=TwoWay}" Watermark="Value" Margin="5,0"/>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </TabItem>
+
+          <TabItem Header="Body">
+            <StackPanel>
+              <ComboBox Name="BodyTypeComboBox"
+                        ItemsSource="{Binding BodyTypes}"
+                        SelectedItem="{Binding Request.BodyType, Mode=TwoWay}"/>
+
+              <TextBox Name="BodyTextBox"
+                        Text="{Binding Request.Body, Mode=TwoWay}"
+                        AcceptsReturn="True"
+                        TextWrapping="Wrap"
+                        FontFamily="Consolas"
+                        IsVisible="{Binding IsBodyVisible}"
+                        Height="200"/>
+            </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Pre-request Script">
+            <TextBox Name="PreRequestScriptTextBox"
+                      Text="{Binding SelectedPreRequestScriptCode, Mode=TwoWay}"
+                      AcceptsReturn="True"
+                      TextWrapping="Wrap"
+                      FontFamily="Consolas"/>
+          </TabItem>
+
+          <TabItem Header="Tests">
+            <TextBox Name="TestScriptTextBox"
+                      Text="{Binding SelectedTestScriptCode, Mode=TwoWay}"
+                      AcceptsReturn="True"
+                      TextWrapping="Wrap"
+                      FontFamily="Consolas"/>
+          </TabItem>
+        </TabControl>
+        
+        <!-- 下半部分 - 响应查看器 -->
+        <Grid Grid.Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          
+          <!-- 响应信息栏 -->
+          <Border Grid.Row="0" 
+                  Padding="10">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{Binding CurrentResponse.StatusCode, StringFormat='{}Status: {0}'}" FontWeight="Bold" Margin="0,0,15,0"/>
+              <TextBlock Text="{Binding CurrentResponse.StatusDescription}" Margin="0,0,15,0"/>
+              <TextBlock Text="{Binding CurrentResponse.ResponseTime, StringFormat='⏱️ {0}'}" Margin="0,0,15,0"/>
+              <TextBlock Text="{Binding CurrentResponse.ContentLength, StringFormat='📥 {0} bytes'}" />
+            </StackPanel>
+          </Border>
+          
+          <!-- 响应内容 -->
+          <TabControl Grid.Row="1" Margin="0,10,0,0">
+            <TabItem Header="Body">
+              <ScrollViewer>
+                <TextBox Name="ResponseBodyTextBox" 
+                          Text="{Binding CurrentResponse.Body}"
+                          IsReadOnly="True"
+                          AcceptsReturn="True"
+                          TextWrapping="Wrap"
+                          FontFamily="Consolas"/>
+              </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Headers">
+              <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding CurrentResponse.Headers}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="5" ColumnDefinitions="*,*">
+                        <TextBlock Grid.Column="0" Text="{Binding Key}" FontWeight="Bold" Margin="0,0,5,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Cookies">
+              <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding CurrentResponse.Cookies}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="5" ColumnDefinitions="*,*,*">
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" Margin="0,0,5,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" Margin="0,0,5,0"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Domain}" TextWrapping="Wrap"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Test Results">
+              <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding CurrentResponse.TestResults}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="5" ColumnDefinitions="30,*,*">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding Passed}" IsEnabled="False" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding TestName}" FontWeight="Bold" Margin="5,0"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Message}" TextWrapping="Wrap"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </TabItem>
+          </TabControl>
+        </Grid>
+      </Grid>
+      
+    </Grid>
+  </ScrollViewer>
+</UserControl>

@@ -41,24 +41,17 @@
         <StackPanel>
           <TextBlock Text="Test Scripts" FontWeight="Bold" Margin="0,0,0,10"/>
           <TextBox Name="TestEditor" 
-                   Text="{Binding SelectedTestScriptCode, Mode=TwoWay}"
+                   Text="Test scripts are only available per request tab"
                    AcceptsReturn="True"
                    TextWrapping="Wrap"
                    FontFamily="Consolas"
-                   Height="200"/>
-          <Button Content="Run Tests" Margin="0,10,0,0"/>
-          <ListBox ItemsSource="{Binding CurrentResponse.TestResults}" 
-                   Margin="0,10,0,0">
-            <ListBox.ItemTemplate>
-              <DataTemplate>
-                <Border Background="{Binding Passed, Converter={StaticResource BoolToColorConverter}}"
-                        Padding="5" 
-                        Margin="0,2">
-                  <TextBlock Text="{Binding Message}"/>
-                </Border>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
+                   Height="200"
+                   IsEnabled="False"/>
+          <Button Content="Run Tests" Margin="0,10,0,0" IsEnabled="False"/>
+          <TextBlock Text="Test results are only available per request tab" 
+                     Margin="0,10,0,0"
+                     HorizontalAlignment="Center"
+                     FontStyle="Italic"/>
         </StackPanel>
       </ScrollViewer>
     </TabItem>

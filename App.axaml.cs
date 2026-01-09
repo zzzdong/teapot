@@ -4,8 +4,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Projektanker.Icons.Avalonia;
 using Projektanker.Icons.Avalonia.FontAwesome;
-using Teapot.Models.Interfaces;
-using Teapot.Models.Services;
+using Teapot.Services;
 using Teapot.ViewModels;
 using Teapot.Views;
 
@@ -28,8 +27,22 @@ public partial class App : Application
     {
         // 配置依赖注入容器
         var serviceCollection = new ServiceCollection();
+
+        // 基础服务
         serviceCollection.AddSingleton<IHttpService, HttpService>();
+
+        // 数据管理服务
+        serviceCollection.AddSingleton<IHistoryService, HistoryService>();
+        serviceCollection.AddSingleton<IWorkingRequestsService, WorkingRequestsService>();
+        serviceCollection.AddSingleton<ICollectionService, CollectionService>();
+        serviceCollection.AddSingleton<IEnvironmentService, EnvironmentService>();
+
+        // 工厂服务
+        serviceCollection.AddSingleton<IRequestPanelViewModelFactory, RequestPanelViewModelFactory>();
+
+        // ViewModel
         serviceCollection.AddSingleton<MainWindowViewModel>();
+
         Services = serviceCollection.BuildServiceProvider();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

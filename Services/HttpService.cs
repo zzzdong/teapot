@@ -4,11 +4,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Teapot.Models.Interfaces;
+using Teapot.Models;
 using Newtonsoft.Json;
 using System.Linq;
 
-namespace Teapot.Models.Services
+namespace Teapot.Services
 {
     public class HttpService : IHttpService
     {
@@ -89,9 +89,9 @@ namespace Teapot.Models.Services
                 // 构建响应模型
                 var responseModel = new HttpResponseModel
                 {
-                    RequestId = request != null ? request.Id.ToString() : "0", // 修复CS0019错误
+                    RequestId = request?.Id.ToString() ?? "0", // 修复CS8601警告
                     StatusCode = (int)response.StatusCode,
-                    StatusDescription = response.ReasonPhrase,
+                    StatusDescription = response.ReasonPhrase ?? string.Empty, // 修复CS8601警告
                     Body = responseBody,
                     ContentType = response.Content.Headers.ContentType?.ToString() ?? string.Empty,
                     ContentLength = response.Content.Headers.ContentLength.GetValueOrDefault(0),
@@ -148,7 +148,7 @@ namespace Teapot.Models.Services
             {
                 return new HttpResponseModel
                 {
-                    RequestId = request != null ? request.Id.ToString() : "0", // 修复CS0019错误
+                    RequestId = request?.Id.ToString() ?? "0", // 修复CS8601警告
                     StatusCode = 0,
                     StatusDescription = ex.Message,
                     Body = ex.ToString(),

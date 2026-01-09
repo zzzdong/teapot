@@ -3,13 +3,19 @@
              xmlns:local="using:Teapot"
              xmlns:i="https://github.com/projektanker/icons.avalonia"
              xmlns:semi="https://irihi.tech/semi"
+             xmlns:fa="using:FluentAvalonia"
+             xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:uip="using:FluentAvalonia.UI.Controls.Primitives"
              x:Class="Teapot.App">
   <Application.DataTemplates>
     <local:ViewLocator />
   </Application.DataTemplates>
 
   <Application.Styles>
-    <FluentTheme/>
+    <!-- <FluentTheme/> -->
+    <!-- <fa:FluentAvaloniaTheme /> -->
     <!-- <semi:SemiTheme Locale="zh-CN" /> -->
+    <sty:FluentAvaloniaTheme />
   </Application.Styles>
 </Application>

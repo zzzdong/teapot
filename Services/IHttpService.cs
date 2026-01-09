@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
+using Teapot.Models;
 
-namespace Teapot.Models.Interfaces
+namespace Teapot.Services
 {
     public interface IHttpService
     {

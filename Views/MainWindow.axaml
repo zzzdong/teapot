@@ -1,10 +1,15 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2006"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="using:Teapot.ViewModels"
         xmlns:views="using:Teapot.Views"
         xmlns:i="https://github.com/projektanker/icons.avalonia"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:models="using:Teapot.Models"
+        xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
+        xmlns:interactions="using:Avalonia.Xaml.Interactions"
+        xmlns:services="using:Teapot.Services"
         x:DataType="viewmodels:MainWindowViewModel"
         mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="800"
         x:Class="Teapot.Views.MainWindow"
@@ -44,8 +49,6 @@
         <TextBlock Grid.Column="0" Text="Ready" VerticalAlignment="Center" Margin="10,0,0,0"/>
         
         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,15,0" VerticalAlignment="Center">
-          <TextBlock Text="{Binding SelectedRequest.Method}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-          <TextBlock Text="|" Margin="0,0,10,0" VerticalAlignment="Center"/>
           <TextBlock Text="{Binding SelectedEnvironment.Name}" Margin="0,0,10,0" VerticalAlignment="Center"/>
           <TextBlock Text="|" Margin="0,0,10,0" VerticalAlignment="Center"/>
           <TextBlock Name="CurrentTimeTextBlock" Text="00:00:00" VerticalAlignment="Center"/>
@@ -74,9 +77,28 @@
                     ResizeDirection="Columns"
                     HorizontalAlignment="Stretch" />
 
-      <!-- 主工作区 -->
+      <!-- 主工作区 - 使用FluentAvalonia的TabView -->
       <Border Grid.Column="2" Margin="10,10,10,10">
-        <views:MainWorkspaceControl DataContext="{Binding}" />
+        <ui:TabView Name="MainTabs"
+                    TabWidthMode="SizeToContent"
+                    CanReorderTabs="True"
+                    TabItems="{Binding WorkingRequests}"
+                    SelectedIndex="{Binding SelectedTabIndex}"
+                    IsAddTabButtonVisible="True"
+                    AddTabButtonCommand="{Binding AddNewTabCommand}">
+          <Interaction.Behaviors>
+              <EventTriggerBehavior EventName="TabCloseRequested">
+                  <ia:InvokeCommandAction Command="{Binding CloseTabCommand}" PassEventArgsToCommand="True" />
+              </EventTriggerBehavior>
+          </Interaction.Behaviors>
+          <ui:TabView.TabItemTemplate>
+            <DataTemplate DataType="models:HttpRequestModel">
+              <ui:TabViewItem Header="{Binding Name}">
+                <views:RequestPanel Tag="{Binding .}" />
+              </ui:TabViewItem>
+            </DataTemplate>
+          </ui:TabView.TabItemTemplate>
+        </ui:TabView>
       </Border>
 
       <!-- 中右分隔线 -->

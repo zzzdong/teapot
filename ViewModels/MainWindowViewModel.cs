@@ -1,176 +1,159 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Collections.Generic; // 添加这个using
-using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Teapot.Models;
-using Teapot.Models.Interfaces;
+using Teapot.Services;
+using FluentAvalonia.UI.Controls;
 
 namespace Teapot.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    private readonly IHttpService _httpService;
+    // 服务依赖
+    private readonly IWorkingRequestsService _workingRequestsService;
+    private readonly IHistoryService _historyService;
+    private readonly ICollectionService _collectionService;
+    private readonly IEnvironmentService _environmentService;
 
     // Properties
     [ObservableProperty]
-    private HttpRequestModel _selectedRequest;
-    
-    [ObservableProperty]
-    private HttpResponseModel _currentResponse;
-    
-    [ObservableProperty]
-    private ObservableCollection<HttpRequestModel> _history;
-    
-    [ObservableProperty]
-    private ObservableCollection<CollectionItemViewModel> _collections;
-    
-    [ObservableProperty]
-    private CollectionItemViewModel? _selectedCollection; // 使字段可空
-    
-    [ObservableProperty]
-    private ObservableCollection<EnvironmentModel> _environments;
-    
-    [ObservableProperty]
-    private EnvironmentModel _selectedEnvironment;
-    
-    [ObservableProperty]
-    private string _selectedPreRequestScriptCode = "";
-    
-    [ObservableProperty]
-    private string _selectedTestScriptCode = "";
+    private int _selectedTabIndex;
 
-    public MainWindowViewModel(IHttpService httpService)
+    // 工作区 - 当前正在编辑的请求
+    public ObservableCollection<HttpRequestModel> WorkingRequests => _workingRequestsService.GetWorkingRequests();
+
+    // 历史记录 - 已发送的请求（包含响应）
+    public ObservableCollection<HistoryItemModel> History => _historyService.GetHistory();
+
+    // 收藏夹 - 用户保存的请求集合
+    public ObservableCollection<CollectionItemViewModel> Collections => _collectionService.GetCollections();
+
+    // 环境
+    public ObservableCollection<EnvironmentModel> Environments => _environmentService.GetEnvironments();
+
+    [ObservableProperty]
+    private CollectionItemViewModel? _selectedCollection;
+
+    [ObservableProperty]
+    private EnvironmentModel? _selectedEnvironment;
+
+    partial void OnSelectedEnvironmentChanged(EnvironmentModel? oldValue, EnvironmentModel? newValue)
     {
-        _httpService = httpService ?? throw new ArgumentNullException(nameof(httpService));
-        
-        // 初始化数据
-        History = new ObservableCollection<HttpRequestModel>();
-        Collections = new ObservableCollection<CollectionItemViewModel>();
-        Environments = new ObservableCollection<EnvironmentModel>();
-        
-        // 添加示例数据
-        var sampleRequest = new HttpRequestModel
+        if (newValue != null && newValue != oldValue)
         {
-            Name = "Sample Request",
-            Method = "GET",
-            Url = "https://httpbin.org/get",
-            QueryParameters = new List<Parameter> // 修改这里
-            {
-                new Parameter { IsActive = true, Key = "param1", Value = "value1" }
-            },
-            Headers = new List<Header> // 修改这里
-            {
-                new Header { IsActive = true, Key = "Content-Type", Value = "application/json" }
-            },
-            Body = "{\n  \"key\": \"value\"\n}",
-            BodyType = "raw",
-            Authentication = new Authentication
-            {
-                Type = "none", // 与Authentication类定义匹配
-                Username = "",
-                Password = "",
-                Token = ""
-            }
-        };
-        History.Add(sampleRequest);
-        
-        // 初始化环境
-        Environments.Add(new EnvironmentModel
-        {
-            Name = "Default Environment",
-            Variables = new ObservableCollection<EnvironmentVariable> // 修复：使用EnvironmentVariable而不是Parameter
-            {
-                new EnvironmentVariable { Key = "baseUrl", Value = "https://httpbin.org" }
-            }
-        });
-        
-        SelectedRequest = History[0];
-        SelectedEnvironment = Environments[0];
-        CurrentResponse = new HttpResponseModel();
-        
-        // 初始化其他属性
-        HttpMethodOptions = new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS" };
-        AuthTypes = new[] { "none", "Basic", "Bearer Token" }; // UI显示用的选项
-        BodyTypes = new[] { "none", "raw", "form-data", "x-www-form-urlencoded" };
+            _environmentService.SetSelectedEnvironment(newValue);
+        }
+    }
+
+    public MainWindowViewModel(
+        IWorkingRequestsService workingRequestsService,
+        IHistoryService historyService,
+        ICollectionService collectionService,
+        IEnvironmentService environmentService)
+    {
+        _workingRequestsService = workingRequestsService;
+        _historyService = historyService;
+        _collectionService = collectionService;
+        _environmentService = environmentService;
+
+        SelectedEnvironment = _environmentService.GetSelectedEnvironment();
     }
 
     // Commands
-    public ICommand SendRequestCommand => new AsyncRelayCommand<HttpRequestModel>(SendRequestAsync);
     public ICommand AddNewTabCommand => new RelayCommand(AddNewTab);
-
-    // Lists and options
-    public string[] HttpMethodOptions { get; }
-    public string[] AuthTypes { get; }
-    public string[] BodyTypes { get; }
-
-    // Computed properties for UI state
-    public bool IsAuthFieldsVisible => SelectedRequest?.Authentication?.Type != "none"; // 修改为与Authentication类定义匹配
-    public bool IsBasicAuth => SelectedRequest?.Authentication?.Type == "Basic" || SelectedRequest?.Authentication?.Type == "basic"; // 支持两种格式
-    public bool IsBearerToken => SelectedRequest?.Authentication?.Type == "Bearer Token" || SelectedRequest?.Authentication?.Type == "bearer"; // 支持两种格式
-    public bool IsBodyVisible => SelectedRequest?.BodyType != "none";
-
-    // Methods
-    private async System.Threading.Tasks.Task SendRequestAsync(HttpRequestModel? request) // 使参数可空
-    {
-        if (request == null) return;
-
-        try
-        {
-            // 显示加载状态
-            // TODO: 添加加载指示器
-            
-            var response = await _httpService.SendRequestAsync(request);
-            CurrentResponse = response;
-        }
-        catch (Exception ex)
-        {
-            // 显示错误消息
-            CurrentResponse = new HttpResponseModel
-            {
-                StatusCode = 0,
-                StatusDescription = "Error",
-                Body = ex.Message,
-                Headers = new ObservableCollection<ResponseHeader>(),
-                Cookies = new List<Cookie>(), // 修复：使用List<Cookie>而不是ObservableCollection<Cookie>
-                TestResults = new ObservableCollection<TestResult>()
-            };
-        }
-    }
+    public ICommand CloseTabCommand => new AsyncRelayCommand<TabViewTabCloseRequestedEventArgs>(CloseTab);
+    public ICommand SaveToCollectionCommand => new RelayCommand<HttpRequestModel>(SaveToCollection);
 
     private void AddNewTab()
     {
         var newRequest = new HttpRequestModel
         {
-            Name = $"Request {History.Count + 1}",
+            Name = $"Request {WorkingRequests.Count + 1}",
             Method = "GET",
             Url = "https://httpbin.org/get",
-            QueryParameters = new List<Parameter>(), // 修改这里
-            Headers = new List<Header>(), // 修改这里
+            QueryParameters = new List<Parameter>(),
+            Headers = new List<Header>(),
             Body = "",
             BodyType = "none",
             Authentication = new Authentication
             {
-                Type = "none", // 与Authentication类定义匹配
+                Type = "none",
                 Username = "",
                 Password = "",
                 Token = ""
             }
         };
-        
-        History.Add(newRequest);
-        SelectedRequest = newRequest;
+
+        _workingRequestsService.AddRequest(newRequest);
+    }
+
+    /// <summary>
+    /// 添加到历史记录（在发送请求后调用）
+    /// </summary>
+    public void AddToHistory(HttpRequestModel request, HttpResponseModel response, bool isSuccessful, string errorMessage = "")
+    {
+        var historyItem = new HistoryItemModel
+        {
+            Request = request,
+            Response = response,
+            Timestamp = DateTime.Now,
+            IsSuccessful = isSuccessful,
+            ErrorMessage = errorMessage
+        };
+        _historyService.AddToHistory(historyItem);
+    }
+
+    /// <summary>
+    /// 保存请求到收藏夹
+    /// </summary>
+    private void SaveToCollection(HttpRequestModel? request)
+    {
+        if (request == null) return;
+
+        _collectionService.AddToCollection(request);
+    }
+
+    public async Task CloseTab(TabViewTabCloseRequestedEventArgs? e)
+    {
+        if (e == null || WorkingRequests.Count <= 1)
+        {
+            // 如果只有一个标签页或事件参数为空，不关闭它
+            return;
+        }
+
+        // 通过 Tab 属性获取要删除的项
+        var tabItem = e.Tab;
+        if (tabItem?.DataContext is HttpRequestModel request)
+        {
+            // 显示确认对话框
+            var dialog = new ContentDialog
+            {
+                Title = "确认关闭",
+                Content = $"确定要关闭请求 \"{request.Name}\" 吗？",
+                PrimaryButtonText = "关闭",
+                CloseButtonText = "取消",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            var result = await dialog.ShowAsync();
+
+            // 用户确认后才删除
+            if (result == ContentDialogResult.Primary)
+            {
+                _workingRequestsService.RemoveRequest(request);
+            }
+            // 注意：FluentAvalonia的TabViewTabCloseRequestedEventArgs没有Cancel属性
+            // 如果用户取消，不执行任何操作即可保持标签页打开
+        }
     }
     
-    partial void OnSelectedRequestChanged(HttpRequestModel value)
+    public void SaveWorkingRequests()
     {
-        if (value != null)
-        {
-            // 修复：从Script列表中获取第一个脚本的代码
-            SelectedPreRequestScriptCode = value.PreRequestScripts?.FirstOrDefault()?.Code ?? "";
-            SelectedTestScriptCode = value.TestScripts?.FirstOrDefault()?.Code ?? "";
-        }
+        // 调用服务的保存方法，确保当前工作区请求被保存到文件
+        _workingRequestsService.SaveRequests();
     }
 }

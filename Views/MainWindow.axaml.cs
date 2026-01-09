@@ -1,7 +1,7 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using FluentAvalonia.UI.Controls;
 using Teapot.ViewModels;
-using Teapot.Models.Services;
-using Teapot.Models.Interfaces;
 
 namespace Teapot.Views
 {
@@ -10,6 +10,18 @@ namespace Teapot.Views
         public MainWindow()
         {
             InitializeComponent();
+            
+            // 设置关闭选项
+            Closing += OnClosing;
+        }
+
+        private void OnClosing(object? sender, WindowClosingEventArgs e)
+        {
+            // 保存当前工作区请求
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.SaveWorkingRequests();
+            }
         }
     }
 }
