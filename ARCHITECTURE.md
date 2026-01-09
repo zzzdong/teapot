@@ -13,33 +13,47 @@
 ```
 Teapot/
 ├── Models/                    # 数据模型
-│   ├── DataModels.cs          # JSON 序列化辅助类
-│   ├── HistoryItemModel.cs    # 历史记录项
 │   ├── HttpRequestModel.cs     # HTTP 请求模型
-│   └── ...                 # 其他模型
+│   ├── HttpResponseModel.cs    # HTTP 响应模型
+│   ├── HistoryItemModel.cs     # 历史记录项
+│   ├── CollectionModel.cs      # 收藏夹模型
+│   ├── EnvironmentModel.cs     # 环境配置模型
+│   ├── Parameter.cs           # 参数模型
+│   ├── Header.cs              # 头部模型
+│   ├── Authentication.cs      # 认证模型
+│   └── HttpConstants.cs       # HTTP 常量定义
 ├── Services/                  # 业务服务层
-│   ├── IHistoryService.cs          # 历史记录服务接口
-│   ├── IWorkingRequestsService.cs   # 工作区服务接口
-│   ├── ICollectionService.cs        # 收藏夹服务接口
-│   ├── IEnvironmentService.cs       # 环境服务接口
-│   ├── HistoryService.cs          # 历史记录服务实现
-│   ├── WorkingRequestsService.cs   # 工作区服务实现
-│   ├── CollectionService.cs        # 收藏夹服务实现
-│   ├── EnvironmentService.cs       # 环境服务实现
-│   └── Interfaces/
-│       └── IHttpService.cs
-├── ViewModels/               # 视图模型
-│   ├── MainWindowViewModel.cs    # 主窗口 ViewModel
+│   ├── IHttpService.cs        # HTTP 服务接口
+│   ├── IHistoryService.cs     # 历史记录服务接口
+│   ├── IWorkingRequestsService.cs # 工作区服务接口
+│   ├── ICollectionService.cs  # 收藏夹服务接口
+│   ├── IEnvironmentService.cs # 环境服务接口
+│   ├── IRequestPanelViewModelFactory.cs # ViewModel 工厂接口
+│   ├── IWorkingRequestsService.cs # 工作区服务接口
+│   ├── HttpService.cs         # HTTP 服务实现
+│   ├── HistoryService.cs      # 历史记录服务实现
+│   ├── WorkingRequestsService.cs # 工作区服务实现
+│   ├── CollectionService.cs   # 收藏夹服务实现
+│   ├── EnvironmentService.cs  # 环境服务实现
+│   └── RequestPanelViewModelFactory.cs # ViewModel 工厂实现
+├── ViewModels/                # 视图模型
+│   ├── MainWindowViewModel.cs # 主窗口 ViewModel
 │   ├── RequestPanelViewModel.cs # 请求面板 ViewModel
-│   └── CollectionItemViewModel.cs
-├── Views/                    # 视图层
-│   ├── MainWindow.axaml          # 主窗口
-│   ├── RequestPanel.axaml        # 请求面板
-│   ├── SidebarControl.axaml       # 侧边栏
-│   └── ...
-├── App.axaml               # 应用资源
-├── App.axaml.cs            # 应用启动与 DI 配置
-└── Program.cs               # 程序入口
+│   └── CollectionItemViewModel.cs # 收藏项 ViewModel
+├── Views/                     # 视图层
+│   ├── MainWindow.axaml       # 主窗口
+│   ├── MainWindow.axaml.cs    # 主窗口代码
+│   ├── RequestPanel.axaml     # 请求面板
+│   ├── RequestPanel.axaml.cs  # 请求面板代码
+│   ├── SidebarControl.axaml   # 侧边栏
+│   ├── SidebarControl.axaml.cs # 侧边栏代码
+│   ├── AuxiliaryPanelControl.axaml # 辅助面板
+│   └── AuxiliaryPanelControl.axaml.cs # 辅助面板代码
+├── ARCHITECTURE.md            # 架构文档
+├── App.axaml                  # 应用资源
+├── App.axaml.cs               # 应用启动与 DI 配置
+├── Program.cs                 # 程序入口
+└── ViewLocator.cs             # 视图定位器
 ```
 
 ## 核心架构模式
@@ -80,6 +94,9 @@ serviceCollection.AddSingleton<IWorkingRequestsService, WorkingRequestsService>(
 serviceCollection.AddSingleton<ICollectionService, CollectionService>();
 serviceCollection.AddSingleton<IEnvironmentService, EnvironmentService>();
 
+// 工厂服务
+serviceCollection.AddSingleton<IRequestPanelViewModelFactory, RequestPanelViewModelFactory>();
+
 // ViewModel
 serviceCollection.AddSingleton<MainWindowViewModel>();
 
@@ -114,6 +131,8 @@ Services = serviceCollection.BuildServiceProvider();
 - 存储当前正在编辑/测试的 API 请求
 - 临时的，可以随时关闭
 - 通过 `WorkingRequestsService` 管理
+- 应用启动时自动加载上次保存的请求
+- 应用关闭时自动保存当前请求
 
 ### 2. 历史记录 (History)
 
@@ -210,6 +229,12 @@ Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
 
 ## 服务接口设计
 
+### IHttpService
+
+```csharp
+Task<HttpResponseModel> SendRequestAsync(HttpRequestModel request);
+```
+
 ### IHistoryService
 
 ```csharp
@@ -227,6 +252,7 @@ void AddRequest(HttpRequestModel request);
 void RemoveRequest(HttpRequestModel request);
 void ClearRequests();
 HttpRequestModel? GetRequestById(string id);
+void SaveRequests();  // 新增：允许显式保存工作区请求
 ```
 
 ### ICollectionService
@@ -272,6 +298,12 @@ private void AddNewTab()
 {
     var newRequest = new HttpRequestModel { ... };
     _workingRequestsService.AddRequest(newRequest);
+}
+
+// 在应用关闭时显式保存工作区请求
+public void SaveWorkingRequests()
+{
+    _workingRequestsService.SaveRequests();
 }
 ```
 
@@ -359,6 +391,22 @@ public void AddItem(Item item)
 }
 ```
 
+同时，为保证应用关闭时数据不丢失，提供了显式的保存方法：
+```csharp
+public void SaveRequests()  // 可显式调用保存
+{
+    try
+    {
+        var json = JsonSerializer.Serialize(_requests.ToList());
+        File.WriteAllText(_dataFilePath, json);
+    }
+    catch
+    {
+        // 保存失败时忽略
+    }
+}
+```
+
 ### 5. Observable 自动通知更新
 
 ```csharp
@@ -378,3 +426,4 @@ public ObservableCollection<HttpRequestModel> WorkingRequests
 | **Repository Pattern** | Service 接口 + 实现 | 数据访问抽象，易于替换存储方式 |
 | **Observable Pattern** | ObservableCollection | UI 自动响应数据变化 |
 | **Command Pattern** | RelayCommand / AsyncRelayCommand | 绑定用户操作到方法 |
+| **Factory Pattern** | IRequestPanelViewModelFactory | 解决 ViewModel 构造函数依赖注入问题 |

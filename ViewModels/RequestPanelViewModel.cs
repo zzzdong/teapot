@@ -91,7 +91,7 @@ namespace Teapot.ViewModels
         public bool IsBodyVisible => Request?.BodyType != "none";
 
         // Methods
-        private async System.Threading.Tasks.Task SendRequestAsync(HttpRequestModel? request)
+        private async Task SendRequestAsync(HttpRequestModel? request)
         {
             if (request == null || _httpService == null) return;
 
