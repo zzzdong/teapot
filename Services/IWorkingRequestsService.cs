@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using FluentAvalonia.UI.Controls;
 using Teapot.Models;
+using Teapot.ViewModels;
 
 namespace Teapot.Services
 {
@@ -8,11 +10,11 @@ namespace Teapot.Services
     /// </summary>
     public interface IWorkingRequestsService
     {
-        ObservableCollection<HttpRequestModel> GetWorkingRequests();
-        void AddRequest(HttpRequestModel request);
-        void RemoveRequest(HttpRequestModel request);
+        ObservableCollection<RequestPanelViewModel> GetWorkingRequests();
+        void AddRequest(RequestPanelViewModel request);
+        void RemoveRequest(RequestPanelViewModel request);
         void ClearRequests();
-        HttpRequestModel? GetRequestById(string id);
+        RequestPanelViewModel? GetRequestById(string id);
         void SaveRequests();
     }
 }

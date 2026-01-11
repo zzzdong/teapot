@@ -31,17 +31,18 @@ public partial class App : Application
         // 基础服务
         serviceCollection.AddSingleton<IHttpService, HttpService>();
 
+        // 工厂服务
+        serviceCollection.AddSingleton<IRequestPanelViewModelFactory, RequestPanelViewModelFactory>();
+
         // 数据管理服务
         serviceCollection.AddSingleton<IHistoryService, HistoryService>();
         serviceCollection.AddSingleton<IWorkingRequestsService, WorkingRequestsService>();
         serviceCollection.AddSingleton<ICollectionService, CollectionService>();
         serviceCollection.AddSingleton<IEnvironmentService, EnvironmentService>();
 
-        // 工厂服务
-        serviceCollection.AddSingleton<IRequestPanelViewModelFactory, RequestPanelViewModelFactory>();
-
         // ViewModel
         serviceCollection.AddSingleton<MainWindowViewModel>();
+        serviceCollection.AddTransient<RequestPanelViewModel>();
 
         Services = serviceCollection.BuildServiceProvider();
 

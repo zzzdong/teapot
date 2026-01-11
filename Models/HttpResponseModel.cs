@@ -39,12 +39,7 @@ namespace Teapot.Models
 
         public HttpResponseModel()
         {
-            // HeadersDict已在声明时初始化，无需检查null
-            // 如果需要从HeadersDict同步到Headers列表，可以这样做：
-            foreach (var kvp in HeadersDict)
-            {
-                Headers.Add(new ResponseHeader { Key = kvp.Key, Value = kvp.Value });
-            }
+            // 构造函数保持简单，不需要从HeadersDict同步到Headers列表
         }
 
         // 保留原始字典以向后兼容

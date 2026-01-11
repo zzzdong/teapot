@@ -91,13 +91,20 @@
                   <ia:InvokeCommandAction Command="{Binding CloseTabCommand}" PassEventArgsToCommand="True" />
               </EventTriggerBehavior>
           </Interaction.Behaviors>
-          <ui:TabView.TabItemTemplate>
-            <DataTemplate DataType="models:HttpRequestModel">
-              <ui:TabViewItem Header="{Binding Name}">
-                <views:RequestPanel Tag="{Binding .}" />
-              </ui:TabViewItem>
-            </DataTemplate>
-          </ui:TabView.TabItemTemplate>
+          <!-- 定义如何创建每个TabViewItem -->
+      <ui:TabView.TabItemTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:RequestPanelViewModel}">
+          <ui:TabViewItem Header="{Binding Request.Name}"
+                          Content="{Binding .}">
+            <!-- 定义Content的模板 -->
+            <ui:TabViewItem.ContentTemplate>
+              <DataTemplate>
+                <views:RequestPanel DataContext="{Binding .}" />
+              </DataTemplate>
+            </ui:TabViewItem.ContentTemplate>
+          </ui:TabViewItem>
+        </DataTemplate>
+      </ui:TabView.TabItemTemplate>
         </ui:TabView>
       </Border>
 

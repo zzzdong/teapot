@@ -2,11 +2,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FluentAvalonia.UI.Controls;
 using Teapot.Models;
 using Teapot.Services;
-using FluentAvalonia.UI.Controls;
+using Teapot.Views;
 
 namespace Teapot.ViewModels
 {
@@ -24,7 +26,7 @@ namespace Teapot.ViewModels
             _collectionService = collectionService;
             CurrentResponse = new HttpResponseModel();
             SendRequestCommand = new AsyncRelayCommand<HttpRequestModel>(SendRequestAsync);
-            SaveToCollectionCommand = new RelayCommand(SaveCurrentRequestToCollection);
+            SaveToCollectionCommand = new RelayCommand<HttpRequestModel>((req) => SaveCurrentRequestToCollection());
         }
 
         [ObservableProperty]

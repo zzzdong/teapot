@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using FluentAvalonia.UI.Controls;
 using Teapot.Models;
+using Teapot.ViewModels;
+using Teapot.Views;
 
 namespace Teapot.Services
 {
@@ -10,31 +13,33 @@ namespace Teapot.Services
     /// </summary>
     public class WorkingRequestsService : IWorkingRequestsService
     {
-        private readonly ObservableCollection<HttpRequestModel> _requests;
+        private readonly ObservableCollection<RequestPanelViewModel> _requests;
         private readonly string _dataFilePath;
+        private readonly IRequestPanelViewModelFactory _factory;
 
-        public WorkingRequestsService()
+        public WorkingRequestsService(IRequestPanelViewModelFactory factory)
         {
-            _requests = new ObservableCollection<HttpRequestModel>();
+            _requests = new ObservableCollection<RequestPanelViewModel>();
             _dataFilePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "teapot_working.json");
+            _factory = factory;
 
             LoadRequests();
         }
 
-        public ObservableCollection<HttpRequestModel> GetWorkingRequests()
+        public ObservableCollection<RequestPanelViewModel> GetWorkingRequests()
         {
             return _requests;
         }
 
-        public void AddRequest(HttpRequestModel request)
+        public void AddRequest(RequestPanelViewModel request)
         {
             _requests.Add(request);
             SaveRequests();
         }
 
-        public void RemoveRequest(HttpRequestModel request)
+        public void RemoveRequest(RequestPanelViewModel request)
         {
             _requests.Remove(request);
             SaveRequests();
@@ -46,16 +51,18 @@ namespace Teapot.Services
             SaveRequests();
         }
 
-        public HttpRequestModel? GetRequestById(string id)
+        public RequestPanelViewModel? GetRequestById(string id)     
         {
-            return _requests.FirstOrDefault(r => r.Id == id);
+            return _requests.FirstOrDefault(r => r.Request.Id == id);
         }
 
         public void SaveRequests()  // 改为公共方法
         {
             try
             {
-                var json = JsonSerializer.Serialize(_requests.ToList());
+                // 保存时只保存HttpRequestModel，不保存UI元素
+                var requestModels = _requests.Select(viewModel => viewModel.Request).ToList();
+                var json = JsonSerializer.Serialize(requestModels);
                 File.WriteAllText(_dataFilePath, json);
             }
             catch
@@ -72,18 +79,25 @@ namespace Teapot.Services
                 {
                     var json = File.ReadAllText(_dataFilePath);
                     var items = JsonSerializer.Deserialize<List<HttpRequestModel>>(json);
-                    if (items != null)
+                    if (items != null && items.Count > 0)
                     {
                         _requests.Clear();
                         foreach (var item in items)
                         {
-                            _requests.Add(item);
+                            _requests.Add(_factory.Create(item));
                         }
+                    }
+                    else
+                    {
+                        // 如果文件存在但内容为空，添加示例请求
+                        AddSampleRequest();
                     }
                 }
                 catch
                 {
-                    // 加载失败时使用空集合
+                    // 加载失败时添加示例请求
+                    _requests.Clear();
+                    AddSampleRequest();
                 }
             }
             else
@@ -102,23 +116,16 @@ namespace Teapot.Services
                 Url = "https://httpbin.org/get",
                 QueryParameters = new List<Parameter>
                 {
-                    new Parameter { IsActive = true, Key = "param1", Value = "value1" }
+                    new Parameter { Key = "param1", Value = "value1", IsActive = true }
                 },
                 Headers = new List<Header>
                 {
-                    new Header { IsActive = true, Key = "Content-Type", Value = "application/json" }
+                    new Header { Key = "Content-Type", Value = "application/json", IsActive = true }
                 },
                 Body = "{\n  \"key\": \"value\"\n}",
-                BodyType = "raw",
-                Authentication = new Authentication
-                {
-                    Type = "none",
-                    Username = "",
-                    Password = "",
-                    Token = ""
-                }
+                BodyType = "raw"
             };
-            _requests.Add(sampleRequest);
+            _requests.Add(_factory.Create(sampleRequest));
         }
     }
 }
