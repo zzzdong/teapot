@@ -17,16 +17,25 @@ namespace Teapot.ViewModels
         private readonly IHttpService? _httpService;
         private readonly IHistoryService? _historyService;
         private readonly ICollectionService? _collectionService;
+        private readonly IJsonService? _jsonService;
 
-        public RequestPanelViewModel(HttpRequestModel request, IHttpService? httpService, IHistoryService? historyService, ICollectionService? collectionService = null)
+        public RequestPanelViewModel(HttpRequestModel request, IHttpService? httpService, IHistoryService? historyService, IJsonService? jsonService, ICollectionService? collectionService = null)
         {
             Request = request ?? throw new ArgumentNullException(nameof(request));
             _httpService = httpService;
             _historyService = historyService;
+            _jsonService = jsonService;
             _collectionService = collectionService;
             CurrentResponse = new HttpResponseModel();
             SendRequestCommand = new AsyncRelayCommand<HttpRequestModel>(SendRequestAsync);
             SaveToCollectionCommand = new RelayCommand<HttpRequestModel>((req) => SaveCurrentRequestToCollection());
+            
+            // 初始化JSON树节点
+            RequestJsonNodes = new System.Collections.ObjectModel.ObservableCollection<Teapot.Models.JsonTreeNode>();
+            ResponseJsonNodes = new System.Collections.ObjectModel.ObservableCollection<Teapot.Models.JsonTreeNode>();
+            
+            // 解析初始请求Body
+            ParseRequestJsonBody();
         }
 
         [ObservableProperty]
@@ -35,8 +44,90 @@ namespace Teapot.ViewModels
         [ObservableProperty]
         private HttpResponseModel _currentResponse;
 
+        [ObservableProperty]
+        private int _selectedTabIndex = 2; // 默认选中Body标签页（索引2）
+
+        [ObservableProperty]
+        private System.Collections.ObjectModel.ObservableCollection<Teapot.Models.JsonTreeNode> _requestJsonNodes;
+
+        [ObservableProperty]
+        private System.Collections.ObjectModel.ObservableCollection<Teapot.Models.JsonTreeNode> _responseJsonNodes;
+
+        [ObservableProperty]
+        private bool _isRequestJsonValid = true;
+
+        [ObservableProperty]
+        private bool _isResponseJsonValid = true;
+
+        // 控制JSON树视图可见性的属性
+        public bool IsRequestJsonTreeVisible => Request.BodyType.Equals("json", StringComparison.OrdinalIgnoreCase);
+        public bool IsRequestTextVisible => !IsRequestJsonTreeVisible;
+        public bool IsResponseJsonTreeVisible => CurrentResponse.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase);
+        public bool IsResponseTextVisible => !IsResponseJsonTreeVisible;
+
         public ICommand SendRequestCommand { get; }
         public ICommand SaveToCollectionCommand { get; }
+        
+        // 监听Request.Body变化，重新解析JSON
+        partial void OnRequestChanged(HttpRequestModel value)
+        {
+            ParseRequestJsonBody();
+        }
+        
+        // 监听Response.Body变化，重新解析JSON
+        partial void OnCurrentResponseChanged(HttpResponseModel value)
+        {
+            ParseResponseJsonBody();
+        }
+        
+        // 解析请求JSON Body
+        private void ParseRequestJsonBody()
+        {
+            if (_jsonService == null || RequestJsonNodes == null) return;
+            
+            // 只有当BodyType为json时才解析
+            if (Request.BodyType.Equals("json", StringComparison.OrdinalIgnoreCase))
+            {
+                var nodes = _jsonService.ParseJson(Request.Body);
+                RequestJsonNodes.Clear();
+                foreach (var node in nodes)
+                {
+                    RequestJsonNodes.Add(node);
+                }
+                IsRequestJsonValid = nodes.Count > 0;
+            }
+            else
+            {
+                RequestJsonNodes.Clear();
+                IsRequestJsonValid = false;
+            }
+        }
+        
+        // 解析响应JSON Body
+        private void ParseResponseJsonBody()
+        {
+            if (_jsonService == null || ResponseJsonNodes == null) return;
+            
+            // 检查响应的Content-Type是否为json
+            var isJsonResponse = CurrentResponse.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase) ||
+                                 CurrentResponse.ContentType.Contains("text/json", StringComparison.OrdinalIgnoreCase);
+            
+            if (isJsonResponse)
+            {
+                var nodes = _jsonService.ParseJson(CurrentResponse.Body);
+                ResponseJsonNodes.Clear();
+                foreach (var node in nodes)
+                {
+                    ResponseJsonNodes.Add(node);
+                }
+                IsResponseJsonValid = nodes.Count > 0;
+            }
+            else
+            {
+                ResponseJsonNodes.Clear();
+                IsResponseJsonValid = false;
+            }
+        }
 
         // Lists and options
         public string[] HttpMethodOptions => HttpConstants.Methods;

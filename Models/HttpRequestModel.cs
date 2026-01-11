@@ -26,6 +26,25 @@ namespace Teapot.Models
 
         [ObservableProperty]
         private string _bodyType = "none";
+        partial void OnBodyTypeChanged(string value)
+        {
+            // 当BodyType为json时，自动添加Content-Type头为application/json
+            if (value.Equals("json", StringComparison.OrdinalIgnoreCase))
+            {
+                // 检查是否已存在Content-Type头
+                var contentTypeHeader = Headers.FirstOrDefault(h => h.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase));
+                if (contentTypeHeader != null)
+                {
+                    // 如果存在，更新值
+                    contentTypeHeader.Value = "application/json";
+                }
+                else
+                {
+                    // 如果不存在，添加新的Content-Type头
+                    Headers.Add(new Header { Key = "Content-Type", Value = "application/json", IsActive = true });
+                }
+            }
+        }
 
         [ObservableProperty]
         private string _body = string.Empty;

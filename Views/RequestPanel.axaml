@@ -48,10 +48,10 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <TabControl Grid.Row="0">
-          <TabItem Header="Params">
+        <TabControl Grid.Row="0" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+          <TabItem Header="Headers">
             <ScrollViewer>
-              <ItemsControl ItemsSource="{Binding Request.QueryParameters}">
+              <ItemsControl ItemsSource="{Binding Request.Headers}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Grid Margin="5" ColumnDefinitions="30,*,*">
@@ -65,44 +65,9 @@
             </ScrollViewer>
           </TabItem>
 
-          <TabItem Header="Authorization">
-            <StackPanel Margin="10">
-              <ComboBox Name="AuthTypeComboBox"
-                        ItemsSource="{Binding AuthTypes}"
-                        SelectedItem="{Binding Request.Authentication.Type, Mode=TwoWay}"/>
-
-              <Grid Name="AuthFieldsGrid" IsVisible="{Binding IsAuthFieldsVisible}">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="Auto"/>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="80"/>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="0" Grid.Column="1"
-                          Text="{Binding Request.Authentication.Username, Mode=TwoWay}"
-                          IsVisible="{Binding IsBasicAuth}" />
-
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Password:" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" Grid.Column="1"
-                          Text="{Binding Request.Authentication.Password, Mode=TwoWay}"
-                          IsVisible="{Binding IsBasicAuth}" />
-
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Token:" VerticalAlignment="Center"
-                            IsVisible="{Binding IsBearerToken}"/>
-                <TextBox Grid.Row="0" Grid.Column="1"
-                          Text="{Binding Request.Authentication.Token, Mode=TwoWay}"
-                          IsVisible="{Binding IsBearerToken}" />
-              </Grid>
-            </StackPanel>
-          </TabItem>
-
-          <TabItem Header="Headers">
+          <TabItem Header="Params">
             <ScrollViewer>
-              <ItemsControl ItemsSource="{Binding Request.Headers}">
+              <ItemsControl ItemsSource="{Binding Request.QueryParameters}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Grid Margin="5" ColumnDefinitions="30,*,*">
@@ -122,12 +87,24 @@
                         ItemsSource="{Binding BodyTypes}"
                         SelectedItem="{Binding Request.BodyType, Mode=TwoWay}"/>
 
+              <!-- JSON编辑器 - 仅当BodyType为json时显示 -->
+              <Grid IsVisible="{Binding IsRequestJsonTreeVisible}" Height="200">
+                <!-- 简单的JSON显示，后续可以优化 -->
+                <TextBox Name="RequestBodyJsonTextBox"
+                          Text="{Binding Request.Body, Mode=TwoWay}"
+                          AcceptsReturn="True"
+                          TextWrapping="Wrap"
+                          FontFamily="Consolas"
+                          IsReadOnly="False"/>
+              </Grid>
+
+              <!-- 普通文本框 - 当BodyType不为json时显示 -->
               <TextBox Name="BodyTextBox"
                         Text="{Binding Request.Body, Mode=TwoWay}"
                         AcceptsReturn="True"
                         TextWrapping="Wrap"
                         FontFamily="Consolas"
-                        IsVisible="{Binding IsBodyVisible}"
+                        IsVisible="{Binding IsRequestTextVisible}"
                         Height="200"/>
             </StackPanel>
           </TabItem>
@@ -171,12 +148,25 @@
           <TabControl Grid.Row="1" Margin="0,10,0,0">
             <TabItem Header="Body">
               <ScrollViewer>
-                <TextBox Name="ResponseBodyTextBox" 
-                          Text="{Binding CurrentResponse.Body}"
-                          IsReadOnly="True"
-                          AcceptsReturn="True"
-                          TextWrapping="Wrap"
-                          FontFamily="Consolas"/>
+                <StackPanel>
+                  <!-- JSON文本框 - 仅当Content-Type为json时显示 -->
+                  <TextBox Name="ResponseBodyJsonTextBox"
+                            Text="{Binding CurrentResponse.Body}"
+                            IsReadOnly="True"
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap"
+                            FontFamily="Consolas"
+                            IsVisible="{Binding IsResponseJsonTreeVisible}"/>
+                  
+                  <!-- 普通文本框 - 当Content-Type不为json时显示 -->
+                  <TextBox Name="ResponseBodyTextBox" 
+                            Text="{Binding CurrentResponse.Body}"
+                            IsReadOnly="True"
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap"
+                            FontFamily="Consolas"
+                            IsVisible="{Binding IsResponseTextVisible}"/>
+                </StackPanel>
               </ScrollViewer>
             </TabItem>
             

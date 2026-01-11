@@ -30,6 +30,7 @@ public partial class App : Application
 
         // 基础服务
         serviceCollection.AddSingleton<IHttpService, HttpService>();
+        serviceCollection.AddSingleton<IJsonService, JsonService>();
 
         // 工厂服务
         serviceCollection.AddSingleton<IRequestPanelViewModelFactory, RequestPanelViewModelFactory>();

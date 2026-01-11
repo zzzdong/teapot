@@ -18,9 +18,10 @@ namespace Teapot.Services
         {
             var httpService = _serviceProvider.GetService<IHttpService>();
             var historyService = _serviceProvider.GetService<IHistoryService>();
+            var jsonService = _serviceProvider.GetService<IJsonService>();
             var collectionService = _serviceProvider.GetService<ICollectionService>();
 
-            return new RequestPanelViewModel(request, httpService, historyService, collectionService);
+            return new RequestPanelViewModel(request, httpService, historyService, jsonService, collectionService);
         }
     }
 }

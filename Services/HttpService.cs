@@ -52,6 +52,11 @@ namespace Teapot.Services
                 {
                     if (header.IsActive)
                     {
+                        // 跳过Content-Type，因为它是内容头，应该添加到HttpContent.Headers中
+                        if (header.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
                         httpRequest.Headers.Add(header.Key, header.Value);
                     }
                 }
@@ -74,7 +79,11 @@ namespace Teapot.Services
                 // 添加请求体
                 if (!string.IsNullOrEmpty(request.Body) && request.BodyType != "none")
                 {
-                    httpRequest.Content = new StringContent(request.Body, Encoding.UTF8, GetContentType(request.BodyType));
+                    // 检查用户是否在请求头中设置了Content-Type
+                    var contentTypeHeader = request.Headers?.FirstOrDefault(h => h.IsActive && h.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase));
+                    var contentType = contentTypeHeader != null ? contentTypeHeader.Value : GetContentType(request.BodyType);
+                    
+                    httpRequest.Content = new StringContent(request.Body, Encoding.UTF8, contentType);
                 }
 
                 // 发送请求
@@ -164,6 +173,8 @@ namespace Teapot.Services
                 "json" => "application/json",
                 "xml" => "application/xml",
                 "form" => "application/x-www-form-urlencoded",
+                "x-www-form-urlencoded" => "application/x-www-form-urlencoded",
+                "form-data" => "multipart/form-data",
                 _ => "text/plain"
             };
         }
