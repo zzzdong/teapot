@@ -42,6 +42,7 @@ public partial class App : Application
 
         // ViewModel
         serviceCollection.AddSingleton<MainWindowViewModel>();
+        serviceCollection.AddTransient<SidebarControlViewModel>();
         serviceCollection.AddTransient<RequestPanelViewModel>();
 
         Services = serviceCollection.BuildServiceProvider();

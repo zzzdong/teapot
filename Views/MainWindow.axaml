@@ -68,7 +68,7 @@
 
       <!-- 左侧边栏 -->
       <Border Grid.Column="0">
-        <views:SidebarControl DataContext="{Binding}" />
+        <views:SidebarControl DataContext="{Binding SidebarViewModel}" />
       </Border>
 
       <!-- 左右分隔线 -->
@@ -92,19 +92,19 @@
               </EventTriggerBehavior>
           </Interaction.Behaviors>
           <!-- 定义如何创建每个TabViewItem -->
-      <ui:TabView.TabItemTemplate>
-        <DataTemplate DataType="{x:Type viewmodels:RequestPanelViewModel}">
-          <ui:TabViewItem Header="{Binding Request.Name}"
-                          Content="{Binding .}">
-            <!-- 定义Content的模板 -->
-            <ui:TabViewItem.ContentTemplate>
-              <DataTemplate>
-                <views:RequestPanel DataContext="{Binding .}" />
-              </DataTemplate>
-            </ui:TabViewItem.ContentTemplate>
-          </ui:TabViewItem>
-        </DataTemplate>
-      </ui:TabView.TabItemTemplate>
+          <ui:TabView.TabItemTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:RequestPanelViewModel}">
+              <ui:TabViewItem Header="{Binding Request.Name}"
+                              Content="{Binding .}">
+                <!-- 定义Content的模板 -->
+                <ui:TabViewItem.ContentTemplate>
+                  <DataTemplate>
+                    <views:RequestPanel DataContext="{Binding .}" />
+                  </DataTemplate>
+                </ui:TabViewItem.ContentTemplate>
+              </ui:TabViewItem>
+            </DataTemplate>
+          </ui:TabView.TabItemTemplate>
         </ui:TabView>
       </Border>
 

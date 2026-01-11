@@ -16,100 +16,79 @@ public partial class MainWindowViewModel : ObservableObject
 {
     // 服务依赖
     private readonly IWorkingRequestsService _workingRequestsService;
-    private readonly IHistoryService _historyService;
     private readonly ICollectionService _collectionService;
-    private readonly IEnvironmentService _environmentService;
     private readonly IRequestPanelViewModelFactory _factory;
 
     // Properties
     [ObservableProperty]
     private int _selectedTabIndex;
 
+    // Sidebar ViewModel
+    public SidebarControlViewModel SidebarViewModel { get; }
+
+    // 环境 - 从 SidebarViewModel 获取
+    public ObservableCollection<EnvironmentModel> Environments => SidebarViewModel.Environments;
+
+    // 选中的环境 - 从 SidebarViewModel 获取
+    public EnvironmentModel? SelectedEnvironment
+    {
+        get => SidebarViewModel.SelectedEnvironment;
+        set => SidebarViewModel.SelectedEnvironment = value;
+    }
+
     // 工作区 - 当前正在编辑的请求
     public ObservableCollection<RequestPanelViewModel> WorkingRequests => _workingRequestsService.GetWorkingRequests();
 
-    // 历史记录 - 已发送的请求（包含响应）
-    public ObservableCollection<HistoryItemModel> History => _historyService.GetHistory();
-
-    // 收藏夹 - 用户保存的请求集合
-    public ObservableCollection<CollectionItemViewModel> Collections => _collectionService.GetCollections();
-
-    // 环境
-    public ObservableCollection<EnvironmentModel> Environments => _environmentService.GetEnvironments();
-
-    [ObservableProperty]
-    private CollectionItemViewModel? _selectedCollection;
-
-    [ObservableProperty]
-    private EnvironmentModel? _selectedEnvironment;
-
-    partial void OnSelectedEnvironmentChanged(EnvironmentModel? oldValue, EnvironmentModel? newValue)
-    {
-        if (newValue != null && newValue != oldValue)
-        {
-            _environmentService.SetSelectedEnvironment(newValue);
-        }
-    }
-
     public MainWindowViewModel(
         IWorkingRequestsService workingRequestsService,
-        IHistoryService historyService,
         ICollectionService collectionService,
-        IEnvironmentService environmentService,
-        IRequestPanelViewModelFactory factory)
+        IRequestPanelViewModelFactory factory,
+        SidebarControlViewModel sidebarViewModel)
     {
         _workingRequestsService = workingRequestsService;
-        _historyService = historyService;
         _collectionService = collectionService;
-        _environmentService = environmentService;
         _factory = factory;
-
-        SelectedEnvironment = _environmentService.GetSelectedEnvironment();
+        SidebarViewModel = sidebarViewModel;
     }
 
     // Commands
-    public ICommand AddNewTabCommand => new RelayCommand(AddNewTab);
+    public ICommand AddNewTabCommand => new RelayCommand<HttpRequestModel>(AddNewTab);
     public ICommand CloseTabCommand => new AsyncRelayCommand<TabViewTabCloseRequestedEventArgs>(CloseTab);
     public ICommand SaveToCollectionCommand => new RelayCommand<RequestPanelViewModel>(SaveToCollection);
 
-    private void AddNewTab()
+    private void AddNewTab(HttpRequestModel? request = null)
         {
-            var newRequest = new HttpRequestModel
+            HttpRequestModel newRequest;
+            
+            if (request != null)
             {
-                Name = $"Request {WorkingRequests.Count + 1}",
-                Method = "GET",
-                Url = "https://httpbin.org/get",
-                QueryParameters = new List<Parameter>
+                // 如果传入了请求，则使用该请求
+                newRequest = request;
+            }
+            else
+            {
+                // 否则创建一个新的示例请求
+                newRequest = new HttpRequestModel
                 {
-                    new Parameter { Key = "param1", Value = "value1", IsActive = true }
-                },
-                Headers = new List<Header>
-                {
-                    new Header { Key = "Content-Type", Value = "application/json", IsActive = true }
-                },
-                Body = "{\n  \"key\": \"value\"\n}",
-                BodyType = "raw"
-            };
+                    Name = $"Request {WorkingRequests.Count + 1}",
+                    Method = "GET",
+                    Url = "https://httpbin.org/get",
+                    QueryParameters = new List<Parameter>
+                    {
+                        new Parameter { Key = "param1", Value = "value1", IsActive = true }
+                    },
+                    Headers = new List<Header>
+                    {
+                        new Header { Key = "Content-Type", Value = "application/json", IsActive = true }
+                    },
+                    Body = "{\n  \"key\": \"value\"\n}",
+                    BodyType = "raw"
+                };
+            }
 
             var viewModel = _factory.Create(newRequest);
             _workingRequestsService.AddRequest(viewModel);
         }
-
-    /// <summary>
-    /// 添加到历史记录（在发送请求后调用）
-    /// </summary>
-    public void AddToHistory(HttpRequestModel request, HttpResponseModel response, bool isSuccessful, string errorMessage = "")
-    {
-        var historyItem = new HistoryItemModel
-        {
-            Request = request,
-            Response = response,
-            Timestamp = DateTime.Now,
-            IsSuccessful = isSuccessful,
-            ErrorMessage = errorMessage
-        };
-        _historyService.AddToHistory(historyItem);
-    }
 
     /// <summary>
     /// 保存请求到收藏夹

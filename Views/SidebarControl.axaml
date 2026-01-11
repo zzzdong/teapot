@@ -3,10 +3,68 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewmodels="using:Teapot.ViewModels"
-             x:DataType="viewmodels:MainWindowViewModel"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             x:DataType="viewmodels:SidebarControlViewModel"
              mc:Ignorable="d" d:DesignWidth="280" d:DesignHeight="600"
              x:Class="Teapot.Views.SidebarControl">
-  <TabControl Margin="5">
+  <TabControl Margin="5" SelectedIndex="0">
+    <TabItem Header="Collections">
+      <DockPanel Margin="5">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBox Grid.Column="0" Name="CollectionSearchBox" Watermark="Search collections..." Margin="0,0,5,0"/>
+          <Button Grid.Column="1" Width="30" Height="30" Name="AddButton">
+            <Button.Flyout>
+              <Flyout>
+                <StackPanel>
+                  <Button Content="新增文件夹" Click="AddDirectory_Click" Margin="0,5,0,0" />
+                  <Button Content="新增请求" Click="AddRequest_Click" Margin="0,5,0,0" />
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+            <ui:SymbolIcon Symbol="Add"/>
+          </Button>
+        </Grid>
+        <TreeView Name="CollectionsTreeView" 
+                  ItemsSource="{Binding Collections}"
+                  SelectedItem="{Binding SelectedCollection, Mode=TwoWay}"
+                  Margin="0,5,0,0"
+                  DoubleTapped="CollectionsTreeView_DoubleTapped">
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate DataType="viewmodels:CollectionItemViewModel" ItemsSource="{Binding Children}">
+              <StackPanel Orientation="Horizontal" Background="Transparent" VerticalAlignment="Center">
+                <StackPanel.ContextFlyout>
+                  <ui:FAMenuFlyout>
+                    <ui:MenuFlyoutItem Text="Rename" Command="{Binding DataContext.RenameCollectionItemCommand, ElementName=CollectionsTreeView}" CommandParameter="{Binding .}" />
+                    <ui:MenuFlyoutItem Text="Delete" Command="{Binding DataContext.RemoveFromCollectionCommand, ElementName=CollectionsTreeView}" CommandParameter="{Binding .}" />
+                  </ui:FAMenuFlyout>
+                </StackPanel.ContextFlyout>
+                
+                <ui:SymbolIcon Symbol="{Binding Symbol}" Width="16" Height="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                
+                <!-- 非编辑模式 -->
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="0,2" IsVisible="{Binding !IsEditing}" />
+                
+                <!-- 编辑模式 -->
+                <Grid ColumnDefinitions="*,Auto,Auto" Width="180" IsVisible="{Binding IsEditing}">
+                  <TextBox Grid.Column="0" Text="{Binding EditName, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,2" />
+                  <Button Grid.Column="1" Width="24" Height="24" Margin="2,0" Command="{Binding DataContext.ConfirmRenameCommand, ElementName=CollectionsTreeView}" CommandParameter="{Binding .}">
+                    <ui:SymbolIcon Symbol="Accept" Width="12" Height="12" />
+                  </Button>
+                  <Button Grid.Column="2" Width="24" Height="24" Margin="2,0" Command="{Binding DataContext.CancelRenameCommand, ElementName=CollectionsTreeView}" CommandParameter="{Binding .}">
+                    <ui:SymbolIcon Symbol="Cancel" Width="12" Height="12" />
+                  </Button>
+                </Grid>
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </DockPanel>
+    </TabItem>
+    
     <TabItem Header="History">
       <DockPanel Margin="5">
         <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
@@ -19,7 +77,8 @@
         </Grid>
         <ListBox Name="HistoryListBox"
                  ItemsSource="{Binding History}"
-                 Margin="0,5,0,0">
+                 Margin="0,5,0,0"
+                 DoubleTapped="HistoryListBox_DoubleTapped">
           <ListBox.ItemTemplate>
             <DataTemplate>
               <Grid Margin="5" ColumnDefinitions="Auto,*,Auto,Auto">
@@ -31,32 +90,6 @@
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
-      </DockPanel>
-    </TabItem>
-    
-    <TabItem Header="Collections">
-      <DockPanel Margin="5">
-        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBox Grid.Column="0" Name="CollectionSearchBox" Watermark="Search collections..." Margin="0,0,5,0"/>
-          <Button Grid.Column="1" Content="+" Width="30" Height="30"/>
-        </Grid>
-        <TreeView Name="CollectionsTreeView" 
-                  ItemsSource="{Binding Collections}"
-                  SelectedItem="{Binding SelectedCollection, Mode=TwoWay}"
-                  Margin="0,5,0,0">
-          <TreeView.ItemTemplate>
-            <TreeDataTemplate DataType="viewmodels:CollectionItemViewModel">
-              <StackPanel Orientation="Horizontal">
-                <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,5,0"/>
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-              </StackPanel>
-            </TreeDataTemplate>
-          </TreeView.ItemTemplate>
-        </TreeView>
       </DockPanel>
     </TabItem>
   </TabControl>

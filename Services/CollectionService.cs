@@ -31,18 +31,79 @@ namespace Teapot.Services
 
         public void AddToCollection(HttpRequestModel request)
         {
-            var collectionItem = new CollectionItemViewModel(request);
-            _collections.Add(collectionItem);
+            // 检查是否已存在具有相同Id的请求
+            var existingItem = _collections.FirstOrDefault(item => 
+                item.Type == CollectionItemType.Request && 
+                item.Request != null &&
+                item.Request.Id == request.Id);
+            
+            if (existingItem != null)
+            {
+                // 如果已存在，更新现有项
+                existingItem.Name = request.Name;
+                // 更新请求内容
+                // 注意：由于CollectionItemViewModel.Request是只读的，我们需要重新创建CollectionItemViewModel
+                var index = _collections.IndexOf(existingItem);
+                _collections[index] = new CollectionItemViewModel(request);
+            }
+            else
+            {
+                // 如果不存在，添加新项
+                var collectionItem = new CollectionItemViewModel(request);
+                _collections.Add(collectionItem);
+            }
+            
+            SaveCollections();
+        }
+
+        public void AddToCollection(CollectionItemViewModel item)
+        {
+            // 检查是否已存在具有相同Id的项
+            var existingItem = _collections.FirstOrDefault(i => i.Id == item.Id);
+            
+            if (existingItem != null)
+            {
+                // 如果已存在，更新现有项
+                existingItem.Name = item.Name;
+            }
+            else
+            {
+                // 如果不存在，添加新项
+                _collections.Add(item);
+            }
+            
             SaveCollections();
         }
 
         // 修复此方法，改为接收HttpRequestModel而不是CollectionModel
         public void AddCollection(HttpRequestModel request)
         {
-            var collectionItem = new CollectionItemViewModel(request);
-            _collections.Add(collectionItem);
+            // 检查是否已存在具有相同Id的请求
+            var existingItem = _collections.FirstOrDefault(item => 
+                item.Type == CollectionItemType.Request && 
+                item.Request != null &&
+                item.Request.Id == request.Id);
+            
+            if (existingItem != null)
+            {
+                // 如果已存在，更新现有项
+                existingItem.Name = request.Name;
+                // 更新请求内容
+                // 注意：由于CollectionItemViewModel.Request是只读的，我们需要重新创建CollectionItemViewModel
+                var index = _collections.IndexOf(existingItem);
+                _collections[index] = new CollectionItemViewModel(request);
+            }
+            else
+            {
+                // 如果不存在，添加新项
+                var collectionItem = new CollectionItemViewModel(request);
+                _collections.Add(collectionItem);
+            }
+            
             SaveCollections();
         }
+        
+
 
         public void RemoveFromCollection(CollectionItemViewModel item)
         {
@@ -69,9 +130,24 @@ namespace Teapot.Services
                         _collections.Clear();
                         foreach (var item in items)
                         {
-                            var collectionItem = item.Type == "Request"
-                                ? new CollectionItemViewModel(item.Request!) // 传入HttpRequestModel
-                                : new CollectionItemViewModel(item.Name, CollectionItemType.Request); // 传入字符串和类型
+                            CollectionItemViewModel collectionItem;
+                            
+                            if (item.Type == "Request" && item.Request != null)
+                            {
+                                // 创建请求类型的项，并设置ID
+                                collectionItem = new CollectionItemViewModel(item.Request);
+                                collectionItem.Id = item.Id;
+                            }
+                            else
+                            {
+                                // 使用带有ID参数的构造函数创建其他类型的项
+                                collectionItem = new CollectionItemViewModel(
+                                    item.Id,
+                                    item.Name,
+                                    Enum.TryParse<CollectionItemType>(item.Type, out var type) ? type : CollectionItemType.Request
+                                );
+                            }
+                            
                             _collections.Add(collectionItem);
                         }
                     }
@@ -83,25 +159,46 @@ namespace Teapot.Services
             }
         }
 
-        private void SaveCollections()
+        public void SaveCollections()
+    {
+        try
         {
-            try
+            // 加载现有数据
+            var existingItems = new Dictionary<string, CollectionItemData>();
+            if (File.Exists(_dataFilePath))
             {
-                var data = _collections.Select(item => new CollectionItemData
+                var json = File.ReadAllText(_dataFilePath);
+                var items = JsonSerializer.Deserialize<List<CollectionItemData>>(json);
+                if (items != null)
                 {
-                    Name = item.Name,
-                    Icon = item.Icon,
-                    Type = item.Type.ToString(),
-                    Request = item.Request
-                }).ToList();
-                var json = JsonSerializer.Serialize(data);
-                File.WriteAllText(_dataFilePath, json);
+                    existingItems = items.ToDictionary(item => item.Id);
+                }
             }
-            catch
+            
+            // 转换当前集合项
+            var currentItems = _collections.Select(item => new CollectionItemData
             {
-                // 保存失败时忽略
+                Id = item.Id,
+                Name = item.Name,
+                Type = item.Type.ToString(),
+                Request = item.Request
+            });
+            
+            // 根据ID合并数据：新增或更新
+            foreach (var item in currentItems)
+            {
+                existingItems[item.Id] = item;
             }
+            
+            // 保存合并后的数据
+            var jsonResult = JsonSerializer.Serialize(existingItems.Values.ToList());
+            File.WriteAllText(_dataFilePath, jsonResult);
         }
+        catch
+        {
+            // 保存失败时忽略
+        }
+    }
     }
 
     /// <summary>
@@ -109,8 +206,8 @@ namespace Teapot.Services
     /// </summary>
     public class CollectionItemData
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; } = string.Empty;
-        public string Icon { get; set; } = string.Empty;
         public string Type { get; set; } = "Request";
         public HttpRequestModel? Request { get; set; }
     }
