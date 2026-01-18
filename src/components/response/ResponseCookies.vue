@@ -22,11 +22,54 @@
 import { h, computed } from 'vue';
 import { NDataTable, NIcon, NTag } from 'naive-ui';
 import { FileTrayOutline as CookieOutline } from '@vicons/ionicons5';
-import { useResponseStore } from '@/stores/response';
+import type { RequestContext } from '@/types';
+import type { Cookie } from '@/types/response';
 
-const responseStore = useResponseStore();
+interface Props {
+  context: RequestContext;
+}
 
-const cookies = computed(() => responseStore.cookies);
+const props = defineProps<Props>();
+
+// Extract cookies from context response
+const cookies = computed(() => {
+  const response = props.context?.response;
+  if (!response) return [];
+
+  const extractedCookies: Cookie[] = [];
+  const setCookieHeader = response.headers['set-cookie'];
+  
+  if (setCookieHeader) {
+    const cookiesArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
+    cookiesArray.forEach(cookieString => {
+      const parts = cookieString.split(';');
+      const [name, value] = parts[0].split('=');
+      const cookie: Cookie = {
+        name: name.trim(),
+        value: value || '',
+        domain: '',
+        path: '/',
+        httpOnly: false,
+        secure: false
+      };
+
+      parts.slice(1).forEach((part: string) => {
+        const [key, val] = part.trim().split('=');
+        const lowerKey = key.toLowerCase();
+        if (lowerKey === 'domain') cookie.domain = val || '';
+        else if (lowerKey === 'path') cookie.path = val || '/';
+        else if (lowerKey === 'expires') cookie.expires = val || '';
+        else if (lowerKey === 'httponly') cookie.httpOnly = true;
+        else if (lowerKey === 'secure') cookie.secure = true;
+        else if (lowerKey === 'samesite') cookie.sameSite = val as any;
+      });
+
+      extractedCookies.push(cookie);
+    });
+  }
+
+  return extractedCookies;
+});
 
 const columns = [
   {

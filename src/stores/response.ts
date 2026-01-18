@@ -69,7 +69,7 @@ export const useResponseStore = defineStore('response', () => {
           secure: false
         };
 
-        parts.slice(1).forEach(part => {
+        parts.slice(1).forEach((part: string) => {
           const [key, val] = part.trim().split('=');
           const lowerKey = key.toLowerCase();
           if (lowerKey === 'domain') cookie.domain = val || '';
@@ -89,7 +89,7 @@ export const useResponseStore = defineStore('response', () => {
     if (!currentResponse.value) return '';
 
     const body = currentResponse.value.body;
-    const contentType = currentResponse.value.headers['content-type'] || '';
+
 
     if (typeof body === 'object') {
       return JSON.stringify(body, null, 2);

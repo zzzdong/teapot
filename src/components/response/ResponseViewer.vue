@@ -53,16 +53,16 @@
 
       <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
         <n-tab-pane name="body" tab="Body">
-          <ResponseBody />
+          <ResponseBody :context="props.context" />
         </n-tab-pane>
         <n-tab-pane name="headers" tab="Headers">
-          <ResponseHeaders style="height: 100%;" />
+          <ResponseHeaders :context="props.context" style="height: 100%;" />
         </n-tab-pane>
         <n-tab-pane name="cookies" tab="Cookies">
-          <ResponseCookies />
+          <ResponseCookies :context="props.context" />
         </n-tab-pane>
         <n-tab-pane name="tests" tab="Test Results">
-          <ResponseTests />
+          <ResponseTests :context="props.context" />
         </n-tab-pane>
       </n-tabs>
     </div>
@@ -79,7 +79,6 @@ import {
   DownloadOutline,
   CopyOutline
 } from '@vicons/ionicons5';
-import { useResponseStore } from '@/stores/response';
 import type { RequestContext } from '@/types';
 import ResponseBody from './ResponseBody.vue';
 import ResponseHeaders from './ResponseHeaders.vue';
@@ -93,21 +92,20 @@ interface Props {
 const props = defineProps<Props>();
 
 const message = useMessage();
-const responseStore = useResponseStore();
 
 const activeTab = ref('body');
 
-// Use context response if available, otherwise fall back to response store
-const hasResponse = computed(() => !!props.context?.response || responseStore.hasResponse);
-const status = computed(() => props.context?.response?.status ?? responseStore.status);
-const statusText = computed(() => props.context?.response?.statusText ?? responseStore.statusText);
+// Use context response data
+const hasResponse = computed(() => !!props.context?.response);
+const status = computed(() => props.context?.response?.status ?? null);
+const statusText = computed(() => props.context?.response?.statusText ?? '');
 const duration = computed(() => {
-  const ms = props.context?.response?.duration ?? responseStore.duration;
+  const ms = props.context?.response?.duration ?? 0;
   if (ms < 1000) return `${ms} ms`;
   return `${(ms / 1000).toFixed(2)} s`;
 });
 const size = computed(() => {
-  const bytes = props.context?.response?.size ?? responseStore.size;
+  const bytes = props.context?.response?.size ?? 0;
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
@@ -122,13 +120,44 @@ const statusTagType = computed(() => {
   return 'default';
 });
 
+function getFormattedBody(): string {
+  const response = props.context?.response;
+  if (!response) return '';
+
+  const body = response.body;
+  const contentType = response.headers['content-type'] || '';
+
+  if (typeof body === 'object') {
+    return JSON.stringify(body, null, 2);
+  }
+
+  if (typeof body === 'string') {
+    return body;
+  }
+
+  return String(body);
+}
+
 function handleDownload() {
-  responseStore.downloadResponse();
+  const response = props.context?.response;
+  if (!response) return;
+
+  const content = getFormattedBody();
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `response_${Date.now()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
   message.success('Response downloaded');
 }
 
 async function handleCopy() {
-  const content = responseStore.getFormattedBody();
+  const content = getFormattedBody();
   try {
     await navigator.clipboard.writeText(content);
     message.success('Response copied to clipboard');

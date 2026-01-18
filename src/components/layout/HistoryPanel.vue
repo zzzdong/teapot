@@ -60,7 +60,7 @@ import { ref, computed, h } from 'vue';
 import { NButton, NIcon, NInput, NScrollbar, useDialog } from 'naive-ui';
 import { SearchOutline, TrashOutline, TimeOutline, StarOutline } from '@vicons/ionicons5';
 import { useHistoryStore } from '@/stores/history';
-import { useRequestStore } from '@/stores/request';
+
 import { useWorkspaceStore } from '@/stores/workspace';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -69,7 +69,7 @@ dayjs.extend(relativeTime);
 
 const dialog = useDialog();
 const historyStore = useHistoryStore();
-const requestStore = useRequestStore();
+
 const workspaceStore = useWorkspaceStore();
 
 const searchText = ref('');

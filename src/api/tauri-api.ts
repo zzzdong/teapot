@@ -294,7 +294,7 @@ export const request = {
         verify_ssl: mergedConfig.sslVerification !== false,
         follow_redirects: mergedConfig.followRedirects !== false,
         user_agent: mergedConfig.userAgent || undefined,
-        ca_cert_path: mergedConfig.caCertPath || undefined
+        ca_cert_paths: mergedConfig.caCertPaths || undefined
       };
 
       // Call custom Tauri command
@@ -396,8 +396,8 @@ export const mergeRequestConfig = (requestConfig: any, globalSettings: any = {})
     userAgent: requestConfig.userAgent ?? globalSettings.defaultUserAgent ?? DEFAULT_CONFIG.USER_AGENT,
     // Merge follow redirects setting
     followRedirects: requestConfig.followRedirects ?? globalSettings.followRedirects ?? DEFAULT_CONFIG.FOLLOW_REDIRECTS,
-    // Merge CA certificate path
-    caCertPath: requestConfig.caCertPath ?? globalSettings.caCertPath ?? undefined
+    // Merge CA certificate paths
+    caCertPaths: requestConfig.caCertPaths ?? globalSettings.caCertPaths ?? undefined
   };
 };
 

@@ -8,3 +8,7 @@ release
 .idea
 *.local
 package-lock.json
+.vscode
+.env
+.trae
+

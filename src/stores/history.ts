@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import type { HistoryItem, HistoryFilter } from '@/types/history';
-import type { Request, Response } from '@/types';
+import type { Request, RequestContext } from '@/types';
 import * as tauriApi from '@/api/tauri-api';
 
 export const useHistoryStore = defineStore('history', () => {
@@ -58,7 +58,10 @@ export const useHistoryStore = defineStore('history', () => {
   });
 
   // Actions
-  function addToHistory(request: Request, response?: Response) {
+  function addToHistory(context: RequestContext) {
+    const request = context.request;
+    const response = context.response;
+    
     // Check if similar request exists
     const existingIndex = history.value.findIndex(
       item =>

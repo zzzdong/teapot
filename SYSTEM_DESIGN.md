@@ -457,7 +457,35 @@ interface ScriptContext {
 User Action → Update Store → tauri-api.store.set() → Tauri Store → Disk
 ```
 
-### 11. Tauri Backend ✅
+### 11. Context Store Module ✅
+
+**Purpose:** Unified data management using RequestContext architecture.
+
+**Store:**
+| File | Description |
+|------|-------------|
+| `stores/context.ts` | RequestContext management store |
+
+**Features:**
+- Merges RequestStore and ResponseStore functionality
+- Manages multiple RequestContext instances
+- Provides comprehensive actions for request/response management
+- Includes response processing utilities (cookies extraction, body formatting)
+- Supports Context persistence
+- Multi-Context state management
+
+**Data Types:**
+```typescript
+interface RequestContext {
+  request: Request;
+  response?: Response;
+  testResult?: ScriptResult;
+  requestSentAt?: number;
+  responseReceivedAt?: number;
+}
+```
+
+### 12. Tauri Backend ✅
 
 **Purpose:** Desktop application wrapper with native capabilities.
 
@@ -480,7 +508,7 @@ User Action → Update Store → tauri-api.store.set() → Tauri Store → Disk
 
 ## Data Flow Diagrams
 
-### Request Flow
+### Request Flow (RequestContext Architecture)
 
 ```
 ┌──────────────┐
@@ -492,6 +520,12 @@ User Action → Update Store → tauri-api.store.set() → Tauri Store → Disk
 ┌──────────────────┐
 │ RequestBuilder   │
 │ (Config)         │
+└──────┬───────────┘
+       │
+       ↓
+┌──────────────────┐
+│ Context Store    │
+│ (RequestContext) │
 └──────┬───────────┘
        │
        ↓
@@ -537,11 +571,17 @@ User Action → Update Store → tauri-api.store.set() → Tauri Store → Disk
              └────────────┘
                           │
                           ↓
+                   ┌─────────────────┐
+                   │ Update Context  │
+                   │ (Context Store) │
+                   └──────────┬──────┘
+                              │
+                              ↓
                    ┌──────────────┐
                    │ ResponseViewer│
+                   │ (Context Data)│
                    └──────┬───────┘
                           │
-                          ├─→ Response Store
                           ├─→ History Store
                           └─→ Test Results
 ```
@@ -576,7 +616,7 @@ Request Reference ({{variable}})
 └──────────────────┘
 ```
 
-### State Management Flow
+### State Management Flow (RequestContext Architecture)
 
 ```
 User Action
@@ -585,13 +625,16 @@ User Action
 Component Event
     │
     ↓
-Store Action
+Context Store Action
     │
-    ├─→ Update State (reactive)
+    ├─→ Update RequestContext (reactive)
     │
-    ├─→ Persist (tauri-api.store.set)
+    ├─→ Persist Context (tauri-api.store.set)
     │
     └─→ Component Re-render
+         │
+         ├─→ RequestBuilder (Request Data)
+         └─→ ResponseViewer (Response Data)
 ```
 
 ## Technology Stack
@@ -600,6 +643,7 @@ Store Action
 - **Framework:** Vue 3.3+ with Composition API
 - **Language:** TypeScript 5.1+
 - **State Management:** Pinia 2.1+
+- **Core Architecture:** RequestContext (unified data management)
 - **UI Library:** Naive UI 2.34+
 - **Code Editor:** Monaco Editor 0.55+
 - **Syntax Highlighting:** highlight.js 11.11+
@@ -675,15 +719,16 @@ teapot/
 │   │   ├── index.ts
 │   │   ├── useHttpClient.ts
 │   │   └── useWorkspace.ts
-│   ├── stores/                   # Pinia stores
-│   │   ├── collections.ts
-│   │   ├── console.ts
-│   │   ├── environment.ts
-│   │   ├── history.ts
-│   │   ├── request.ts
-│   │   ├── response.ts
-│   │   ├── settings.ts
-│   │   └── workspace.ts
+│  ├── stores/                   # Pinia stores
+│  │   ├── collections.ts
+│  │   ├── console.ts
+│  │   ├── context.ts
+│  │   ├── environment.ts
+│  │   ├── history.ts
+│  │   ├── request.ts
+│  │   ├── response.ts
+│  │   ├── settings.ts
+│  │   └── workspace.ts
 │   ├── styles/                   # Global styles
 │   │   └── main.css
 │   ├── types/                    # TypeScript types
@@ -737,6 +782,8 @@ teapot/
 | Persistence | ✅ Complete | Tauri Store, fallback |
 | Monaco Editor | ✅ Complete | Integrated for scripts |
 | Syntax Highlighting | ✅ Complete | Multiple languages |
+| Context Store | ✅ Complete | RequestContext architecture, merged Request/Response Store |
+| RequestContext Integration | ✅ Complete | Components updated to use RequestContext |
 
 ### Planned Features 🚧
 

@@ -45,14 +45,34 @@
         </template>
       </n-form-item>
 
-      <n-form-item label="CA证书路径" path="caCertPath">
-        <n-input
-          v-model:value="form.caCertPath"
-          placeholder="可选，自定义CA证书文件路径"
-          style="width: 300px;"
-        />
+      <n-form-item label="CA证书路径" path="caCertPaths">
+        <div v-if="form.caCertPaths && form.caCertPaths.length > 0">
+          <div v-for="(path, index) in form.caCertPaths" :key="index" class="cert-path-item">
+            <n-input
+              v-model:value="form.caCertPaths[index]"
+              placeholder="自定义CA证书文件路径"
+              style="width: 300px;"
+            />
+            <n-button
+              type="error"
+              size="small"
+              @click="removeCertPath(index)"
+              style="margin-left: 8px;"
+            >
+              删除
+            </n-button>
+          </div>
+        </div>
+        <n-button
+          type="primary"
+          size="small"
+          @click="addCertPath"
+          style="margin-top: 8px;"
+        >
+          添加CA证书路径
+        </n-button>
         <template #feedback>
-          <span class="form-hint">用于验证服务器证书的自定义CA证书（PEM格式）</span>
+          <span class="form-hint">用于验证服务器证书的自定义CA证书（PEM格式），可添加多个</span>
         </template>
       </n-form-item>
 
@@ -119,6 +139,26 @@ const formRef = ref<FormInst | null>(null);
 
 // 表单数据，初始化为 store 中的值
 const form = ref({ ...settingsStore.httpClient });
+
+// 确保 caCertPaths 是数组
+if (!Array.isArray(form.value.caCertPaths)) {
+  form.value.caCertPaths = [];
+}
+
+// 添加CA证书路径
+function addCertPath() {
+  if (!Array.isArray(form.value.caCertPaths)) {
+    form.value.caCertPaths = [];
+  }
+  form.value.caCertPaths.push('');
+}
+
+// 移除CA证书路径
+function removeCertPath(index: number) {
+  if (Array.isArray(form.value.caCertPaths)) {
+    form.value.caCertPaths.splice(index, 1);
+  }
+}
 
 // 当 store 中的 httpClient 更新时，同步到表单（例如加载后）
 watch(() => settingsStore.httpClient, (newVal) => {

@@ -7,7 +7,7 @@ export interface HttpClientSettings {
   defaultTimeout?: number;
   defaultUserAgent?: string;
   followRedirects?: boolean;
-  caCertPath?: string;
+  caCertPaths?: string[];
   proxy?: {
     enabled: boolean;
     host: string;
@@ -30,7 +30,7 @@ export const useSettingsStore = defineStore('settings', () => {
     defaultTimeout: 30000,
     defaultUserAgent: 'Teapot/1.0',
     followRedirects: true,
-    caCertPath: '',
+    caCertPaths: [],
     proxy: {
       enabled: false,
       host: '',

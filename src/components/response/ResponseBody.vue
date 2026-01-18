@@ -73,12 +73,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { NInput, NRadioGroup, NRadioButton, NSpace } from 'naive-ui';
 import MonacoEditor from '@/components/common/MonacoEditor.vue';
-import { useResponseStore } from '@/stores/response';
+import type { RequestContext } from '@/types';
 
-const responseStore = useResponseStore();
+interface Props {
+  context: RequestContext;
+}
+
+const props = defineProps<Props>();
+
+// View type state
+const viewType = ref<'pretty' | 'raw' | 'preview'>('pretty');
 
 // Monaco Editor options - readonly with light theme
 const editorOptions = {
@@ -101,20 +108,23 @@ const editorOptions = {
   }
 };
 
-const viewType = computed({
-  get: () => responseStore.viewType,
-  set: (value) => responseStore.setViewType(value)
+const body = computed(() => {
+  return props.context?.response?.body || '';
+});
+
+const headers = computed(() => {
+  return props.context?.response?.headers || {};
 });
 
 const bodyText = computed(() => {
-  if (typeof responseStore.body === 'string') {
-    return responseStore.body;
+  if (typeof body.value === 'string') {
+    return body.value;
   }
-  return JSON.stringify(responseStore.body, null, 2);
+  return JSON.stringify(body.value, null, 2);
 });
 
 const contentType = computed(() => {
-  const header = responseStore.headers['content-type'] || '';
+  const header = headers.value['content-type'] || '';
   return header.toLowerCase().split(';')[0];
 });
 
@@ -137,14 +147,14 @@ const isImage = computed(() => {
 });
 
 const formattedJson = computed(() => {
-  if (typeof responseStore.body === 'string') {
+  if (typeof body.value === 'string') {
     try {
-      return JSON.stringify(JSON.parse(responseStore.body), null, 2);
+      return JSON.stringify(JSON.parse(body.value), null, 2);
     } catch {
-      return responseStore.body;
+      return body.value;
     }
   }
-  return JSON.stringify(responseStore.body, null, 2);
+  return JSON.stringify(body.value, null, 2);
 });
 
 const formattedXml = computed(() => {
@@ -153,8 +163,8 @@ const formattedXml = computed(() => {
 });
 
 const imageSrc = computed(() => {
-  if (typeof responseStore.body === 'string' && responseStore.body.startsWith('data:')) {
-    return responseStore.body;
+  if (typeof body.value === 'string' && body.value.startsWith('data:')) {
+    return body.value;
   }
   return '';
 });

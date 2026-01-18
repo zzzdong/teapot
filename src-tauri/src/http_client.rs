@@ -13,7 +13,7 @@ pub struct HttpRequestConfig {
     pub verify_ssl: Option<bool>,
     pub follow_redirects: Option<bool>,
     pub user_agent: Option<String>,
-    pub ca_cert_path: Option<String>,
+    pub ca_cert_paths: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,7 +38,6 @@ pub async fn send_request(config: HttpRequestConfig) -> Result<HttpResponse, Str
     let follow_redirects = config.follow_redirects.unwrap_or(true);
 
     // Determine effective SSL verification
-    let _ca_cert_path = &config.ca_cert_path;
     let effective_verify_ssl = verify_ssl;
 
     // Build HTTP client
@@ -56,13 +55,18 @@ pub async fn send_request(config: HttpRequestConfig) -> Result<HttpResponse, Str
         client_builder = client_builder.danger_accept_invalid_certs(true);
     }
 
-    // Support custom CA certificate loading
-    if let Some(ca_cert_path) = &config.ca_cert_path {
-        let ca_cert_pem = std::fs::read_to_string(ca_cert_path)
-            .map_err(|e| format!("Failed to read CA certificate: {}", e))?;
-        let ca_cert = Certificate::from_pem(ca_cert_pem.as_bytes())
-            .map_err(|e| format!("Failed to parse CA certificate: {}", e))?;
-        client_builder = client_builder.add_root_certificate(ca_cert);
+    // Support custom CA certificates loading - add all user-provided certificates
+    if let Some(ca_cert_paths) = &config.ca_cert_paths {
+        let mut certificates = Vec::new();
+        for ca_cert_path in ca_cert_paths {
+            let ca_cert_pem = std::fs::read_to_string(ca_cert_path)
+                .map_err(|e| format!("Failed to read CA certificate from {}: {}", ca_cert_path, e))?;
+            let ca_cert = Certificate::from_pem(ca_cert_pem.as_bytes())
+                .map_err(|e| format!("Failed to parse CA certificate from {}: {}", ca_cert_path, e))?;
+            certificates.push(ca_cert);
+        }
+        // Use tls_certs_merge to add all certificates at once
+        client_builder = client_builder.tls_certs_merge(certificates);
     }
 
     let client = client_builder

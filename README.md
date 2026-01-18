@@ -92,12 +92,19 @@ teapot/
 │   │   │   └── response/        # Response components
 │   │   ├── composables/         # Composable functions
 │   │   ├── stores/              # Pinia stores
+│   │   │   ├── context.ts       # RequestContext management (core)
+│   │   │   ├── workspace.ts      # Workspace tabs management
+│   │   │   ├── history.ts       # Request history management
+│   │   │   └── ...               # Other stores
 │   │   ├── styles/             # Global styles
 │   │   ├── App.vue              # Root component
 │   │   ├── main.ts              # Renderer entry
 │   │   └── tauri-api.ts        # Tauri API wrapper (minimal)
-│   └── shared/                  # Shared types and utilities
-│       └── types/               # TypeScript type definitions
+│   ├── utils/                    # Utility functions
+│   │   └── responseUtils.ts     # Response processing utilities
+│   └── types/                    # TypeScript type definitions
+│       ├── context.ts           # RequestContext types
+│       └── ...                   # Other types
 ├── src-tauri/                   # Tauri backend (minimal Rust)
 │   ├── src/
 │   │   ├── main.rs              # Tauri entry point
@@ -292,20 +299,18 @@ teapot/
 - Desktop application wrapper
 - Native system integration
 
-### Data Flow
+### Data Flow (RequestContext Architecture)
 
 ```
 Request Flow:
-User Input → RequestBuilder → useHttpClient → tauri-api → Tauri HTTP → Response
-                              ↓
-                        Pre-request Script
-                              ↓
-                        Environment Resolution
+User Input → RequestBuilder → Context Store (RequestContext) → useHttpClient → tauri-api → Tauri HTTP → Response
+                                                                 ↓
+                                                       Pre-request Script
+                                                                 ↓
+                                                       Environment Resolution
 
 Response Flow:
-Tauri HTTP → ResponseViewer → Response Tests
-                    ↓
-            Response Store
+Tauri HTTP → Context Store (Update RequestContext) → ResponseViewer → Response Tests
                     ↓
             History Store
 ```
@@ -316,6 +321,7 @@ Tauri HTTP → ResponseViewer → Response Tests
 - Vue 3 + Composition API
 - TypeScript
 - Pinia (State Management)
+- RequestContext Architecture (Unified data management)
 - Naive UI (Component Library)
 - Monaco Editor (Code Editor)
 - highlight.js (Syntax Highlighting)
@@ -330,7 +336,6 @@ Tauri HTTP → ResponseViewer → Response Tests
 
 **Build Tools:**
 - Vite
-- rolldown-vite
 
 ## Development Plan
 

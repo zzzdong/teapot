@@ -190,8 +190,8 @@ watch(
   show,
   (newShow) => {
     if (newShow && workspaceStore.activeTab) {
-      formData.value.name = workspaceStore.activeTab.request.name;
-      formData.value.description = workspaceStore.activeTab.request.description || '';
+      formData.value.name = workspaceStore.activeTab.context.request.name;
+      formData.value.description = workspaceStore.activeTab.context.request.description || '';
     }
   }
 );

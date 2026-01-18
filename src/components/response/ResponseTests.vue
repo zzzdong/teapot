@@ -49,14 +49,19 @@
 import { computed } from 'vue';
 import { NIcon, NList, NListItem, NSpace } from 'naive-ui';
 import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
-import { useResponseStore } from '@/stores/response';
 import type { ScriptLogEntry } from '@/types/script';
+import type { RequestContext } from '@/types';
 
-const responseStore = useResponseStore();
+interface Props {
+  context: RequestContext;
+}
 
-// Parse test results from store logs
+const props = defineProps<Props>();
+
+// Parse test results from context test result
 const testResults = computed(() => {
-  const logs = responseStore.testLogs || [];
+  const testResult = props.context?.testResult;
+  const logs = testResult?.logs || [];
   console.log('testLogs:', logs);
   const results: Array<{ name: string; passed: boolean; duration?: number; message?: string }> = [];
 

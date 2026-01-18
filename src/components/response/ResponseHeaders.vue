@@ -42,10 +42,15 @@
 import { ref, computed, h } from 'vue';
 import { NInput, NIcon, NButton } from 'naive-ui';
 import { SearchOutline, CopyOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5';
-import { useResponseStore } from '@/stores/response';
 import SimpleTable from '@/components/common/SimpleTable.vue';
+import type { RequestContext } from '@/types';
 
-const responseStore = useResponseStore();
+interface Props {
+  context: RequestContext;
+}
+
+const props = defineProps<Props>();
+
 const searchText = ref('');
 const sortKey = ref<'key' | 'value'>('key');
 const sortOrder = ref<'asc' | 'desc'>('asc');
@@ -90,7 +95,7 @@ const columns: Column[] = [
 ];
 
 const headersArray = computed(() => {
-  const headers = responseStore.headers;
+  const headers = props.context?.response?.headers || {};
   return Object.entries(headers).map(([key, value]) => {
     if (Array.isArray(value)) {
       return value.map(v => ({ key, value: v }));

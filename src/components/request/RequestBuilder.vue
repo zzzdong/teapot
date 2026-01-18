@@ -51,7 +51,6 @@
 import { ref, computed, watch } from 'vue';
 import { NButton, NInput, NSelect, NTabs, NTabPane, useMessage, NDropdown, NIcon } from 'naive-ui';
 import { useHistoryStore } from '@/stores/history';
-import { useResponseStore } from '@/stores/response';
 import { useWorkspaceStore } from '@/stores/workspace';
 import { useCollectionsStore } from '@/stores/collections';
 import { useHttpClient } from '@/composables/useHttpClient';
@@ -74,7 +73,6 @@ const request = computed(() => context.value?.request);
 
 const message = useMessage();
 const historyStore = useHistoryStore();
-const responseStore = useResponseStore();
 const workspaceStore = useWorkspaceStore();
 const collectionsStore = useCollectionsStore();
 const { sendRequest } = useHttpClient();
@@ -234,14 +232,8 @@ async function handleSend() {
     context.value.testResult = testResult;
     context.value.responseReceivedAt = Date.now();
 
-    // Also update global response store (for backward compatibility)
-    responseStore.setResponse(response);
-    historyStore.addToHistory(request.value, response);
-
-    // Store test result for display
-    if (testResult) {
-      responseStore.setTestResult(testResult);
-    }
+    // Add to history using context
+    historyStore.addToHistory(context.value);
 
     message.success('Request sent successfully');
   } catch (error: any) {
