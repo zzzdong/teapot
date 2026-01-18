@@ -1,8 +1,10 @@
 # Teapot
 
-Teapot, an API buddy for API debugging and testing.
+<div align="center">
+  <img src="teapot-icon.svg" alt="Teapot Logo" width="128" height="128">
+</div>
 
-**Author:** [zzzdong](mailto:kuwater@163.com)
+Teapot, an API buddy for API debugging and testing.
 
 ## Features
 

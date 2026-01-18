@@ -14,8 +14,8 @@
 
       <n-tab-pane v-for="tab in workspaceStore.tabs" :key="tab.id" :name="tab.id" :tab="getTabLabel(tab)">
         <div class="workspace-content">
-          <RequestBuilder v-model:request="tab.request" />
-          <ResponseViewer :request-id="tab.request.id" />
+          <RequestBuilder v-model:context="tab.context" :tab-id="tab.id" />
+          <ResponseViewer :context="tab.context" />
         </div>
       </n-tab-pane>
     </n-tabs>

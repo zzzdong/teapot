@@ -1,6 +1,6 @@
 <template>
   <div class="body-tab">
-    <n-radio-group v-model:value="body.type" size="medium">
+    <n-radio-group v-model:value="bodyType" size="medium">
       <n-space>
         <n-radio-button value="none">None</n-radio-button>
         <n-radio-button value="form-data">Form Data</n-radio-button>
@@ -19,36 +19,36 @@
 
       <!-- Form Data -->
       <div v-else-if="body.type === 'form-data'" class="form-data-body">
-        <FormDataEditor v-model:form-data="body.formData" />
+        <FormDataEditor v-model:form-data="localFormData" />
       </div>
 
       <!-- URL Encoded -->
       <div v-else-if="body.type === 'x-www-form-urlencoded'" class="urlencoded-body">
-        <UrlEncodedEditor v-model:urlencoded="body.urlencoded" />
+        <UrlEncodedEditor v-model:urlencoded="localUrlencoded" />
       </div>
 
       <!-- Raw -->
       <div v-else-if="body.type === 'raw'" class="raw-body">
-        <RawEditor v-model:raw="body.raw" :raw-type="body.rawType" />
+        <RawEditor v-model:raw="localRaw" :raw-type="body.rawType || 'text'" @update:raw-type="handleRawTypeUpdate" />
       </div>
 
       <!-- Binary -->
       <div v-else-if="body.type === 'binary'" class="binary-body">
-        <BinaryEditor v-model:binary="body.binary" />
+        <BinaryEditor v-model:binary="localBinary" />
       </div>
 
       <!-- GraphQL -->
       <div v-else-if="body.type === 'graphql'" class="graphql-body">
-        <GraphQLEditor v-model:graphql="body.graphql" />
+        <GraphQLEditor v-model:graphql="localGraphQL" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { NRadioGroup, NRadioButton, NSpace } from 'naive-ui';
-import type { RequestBody } from '@/types/request';
+import type { RequestBody, RawBodyType } from '@/types/request';
 import FormDataEditor from './FormDataEditor.vue';
 import UrlEncodedEditor from './UrlEncodedEditor.vue';
 import RawEditor from './RawEditor.vue';
@@ -57,6 +57,80 @@ import GraphQLEditor from './GraphQLEditor.vue';
 
 const body = defineModel<RequestBody>('body', {
   default: () => ({ type: 'none' })
+});
+
+// 使用 computed 创建响应式引用，直接修改会触发 defineModel 的更新
+const bodyType = computed({
+  get: () => body.value.type,
+  set: (type: string) => {
+    body.value = {
+      ...body.value,
+      type: type as RequestBody['type']
+    };
+  }
+});
+
+const localFormData = computed({
+  get: () => body.value.formData || [],
+  set: (value: any[]) => {
+    body.value = {
+      ...body.value,
+      type: 'form-data',
+      formData: value
+    };
+  }
+});
+
+const localUrlencoded = computed({
+  get: () => body.value.urlencoded || [],
+  set: (value: any[]) => {
+    body.value = {
+      ...body.value,
+      type: 'x-www-form-urlencoded',
+      urlencoded: value
+    };
+  }
+});
+
+const localRaw = computed({
+  get: () => body.value.raw || '',
+  set: (value: string) => {
+    body.value = {
+      ...body.value,
+      type: 'raw',
+      raw: value
+    };
+  }
+});
+
+function handleRawTypeUpdate(rawType: RawBodyType) {
+  body.value = {
+    ...body.value,
+    type: 'raw',
+    rawType
+  };
+}
+
+const localBinary = computed({
+  get: () => body.value.binary || null,
+  set: (value: any) => {
+    body.value = {
+      ...body.value,
+      type: 'binary',
+      binary: value
+    };
+  }
+});
+
+const localGraphQL = computed({
+  get: () => body.value.graphql || { query: '', variables: '' },
+  set: (value: any) => {
+    body.value = {
+      ...body.value,
+      type: 'graphql',
+      graphql: value
+    };
+  }
 });
 </script>
 

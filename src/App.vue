@@ -121,14 +121,27 @@ onMounted(() => {
   const { loadFromStore: loadHistory } = useHistoryStore();
   const { loadFromStore: loadCollections } = useCollectionsStore();
   const { loadFromStore: loadEnvironments } = useEnvironmentStore();
-  const { loadFromStore: loadWorkspace } = useWorkspaceStore();
+  const { loadFromStore: loadWorkspace, debugTabState, clearWorkspaceData } = useWorkspaceStore();
+
+  // Expose debug functions to console
+  (window as any).debugWorkspace = debugTabState;
+  (window as any).clearWorkspace = clearWorkspaceData;
+
+  console.log('Debug commands available:');
+  console.log('  - debugWorkspace() - Show current workspace state');
+  console.log('  - clearWorkspace() - Clear all workspace data');
 
   Promise.all([
     loadHistory(),
     loadCollections(),
     loadEnvironments(),
     loadWorkspace()
-  ]);
+  ]).then(() => {
+    // Debug: Log workspace state after loading
+    setTimeout(() => {
+      debugTabState();
+    }, 500);
+  });
 });
 </script>
 

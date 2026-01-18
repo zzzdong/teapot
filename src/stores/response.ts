@@ -36,8 +36,10 @@ export const useResponseStore = defineStore('response', () => {
   }
 
   function setTestResult(result: ScriptResult) {
+    console.log('setTestResult called with:', result);
     testResult.value = result;
     testLogs.value = result.logs || [];
+    console.log('testLogs set to:', testLogs.value);
   }
 
   function clearResponse() {

@@ -50,30 +50,38 @@ import { computed } from 'vue';
 import { NIcon, NList, NListItem, NSpace } from 'naive-ui';
 import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
 import { useResponseStore } from '@/stores/response';
+import type { ScriptLogEntry } from '@/types/script';
 
 const responseStore = useResponseStore();
 
 // Parse test results from store logs
 const testResults = computed(() => {
   const logs = responseStore.testLogs || [];
+  console.log('testLogs:', logs);
   const results: Array<{ name: string; passed: boolean; duration?: number; message?: string }> = [];
 
   // Parse logs to extract test results
-  logs.forEach(log => {
+  logs.forEach((log: ScriptLogEntry) => {
     const message = log.message;
+    console.log('Processing log:', log.level, message);
 
-    // Check for test passed
+    // Check for test passed (final result)
     const passedMatch = message.match(/^✓ Test passed: (.+)$/);
     if (passedMatch) {
+      console.log('Passed match:', passedMatch[1]);
       const existingTest = results.find(r => r.name === passedMatch[1]);
-      if (!existingTest) {
+      if (existingTest) {
+        existingTest.passed = true;
+      } else {
         results.push({ name: passedMatch[1], passed: true, duration: 0 });
       }
+      return;
     }
 
-    // Check for test failed
+    // Check for test failed (final result)
     const failedMatch = message.match(/^✗ Test failed: (.+) - (.+)$/);
     if (failedMatch) {
+      console.log('Failed match:', failedMatch[1], failedMatch[2]);
       const existingTest = results.find(r => r.name === failedMatch[1]);
       if (existingTest) {
         existingTest.passed = false;
@@ -81,11 +89,13 @@ const testResults = computed(() => {
       } else {
         results.push({ name: failedMatch[1], passed: false, duration: 0, message: failedMatch[2] });
       }
+      return;
     }
 
-    // Check for test started
+    // Check for test started (only add if not already in results)
     const testMatch = message.match(/^Test: (.+)$/);
     if (testMatch && !results.find(r => r.name === testMatch[1])) {
+      console.log('Test start match:', testMatch[1]);
       results.push({ name: testMatch[1], passed: true, duration: 0 });
     }
 
@@ -106,6 +116,7 @@ const testResults = computed(() => {
     }
   });
 
+  console.log('Parsed results:', results);
   return results;
 });
 

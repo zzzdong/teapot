@@ -12,9 +12,6 @@
           </template>
           Snippets
         </n-button>
-        <n-tag v-if="testResult" :type="testResult.success ? 'success' : 'error'">
-          {{ testResult.success ? 'Tests Passed' : 'Tests Failed' }}
-        </n-tag>
       </n-space>
     </div>
 
@@ -31,25 +28,6 @@
 
     <div class="script-disabled-message" v-show="!scriptEnabled">
       <n-empty description="Test script is disabled. Enable it to edit and run tests." />
-    </div>
-
-    <div class="test-results" v-if="testLogs.length > 0">
-      <div class="test-results-header">
-        <n-space>
-          <span>Test Results</span>
-          <n-button text size="small" @click="handleClearResults">Clear</n-button>
-        </n-space>
-      </div>
-      <div class="test-logs">
-        <div
-          v-for="(log, index) in testLogs"
-          :key="index"
-          :class="['test-log-entry', `log-${log.level}`]"
-        >
-          <div class="log-timestamp">{{ formatTimestamp(log.timestamp) }}</div>
-          <div class="log-message">{{ log.message }}</div>
-        </div>
-      </div>
     </div>
 
     <n-drawer v-model:show="showSnippets" placement="right" :width="400">
@@ -72,13 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { NButton, NDrawer, NDrawerContent, NEmpty, NIcon, NSpace, NSwitch, NTag, useMessage } from 'naive-ui';
+import { ref, computed, watch, onUnmounted } from 'vue';
+import { NButton, NDrawer, NDrawerContent, NEmpty, NIcon, NSpace, NSwitch, useMessage } from 'naive-ui';
 import { CodeSlashOutline as CodeIcon } from '@vicons/ionicons5';
 import type { TestScript } from '@/types/request';
-import type { ScriptLogEntry } from '@/types/script';
 import MonacoEditor from '@/components/common/MonacoEditor.vue';
-import { useResponseStore } from '@/stores/response';
 
 interface Props {
   script: TestScript;
@@ -92,12 +68,10 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const message = useMessage();
-const responseStore = useResponseStore();
 
-const scriptEnabled = ref(props.script.enabled);
-const scriptContent = ref(props.script.content);
-const testLogs = computed(() => responseStore.testLogs);
-const testResult = computed(() => responseStore.testResult);
+// Initialize with prop values or defaults
+const scriptEnabled = ref(props.script?.enabled ?? false);
+const scriptContent = ref(props.script?.content ?? '');
 const showSnippets = ref(false);
 
 // Monaco Editor state
@@ -186,9 +160,11 @@ const snippets = [
 
 // Watch for prop changes
 watch(() => props.script, (newScript) => {
-  scriptEnabled.value = newScript.enabled;
-  scriptContent.value = newScript.content;
-}, { deep: true });
+  if (newScript) {
+    scriptEnabled.value = newScript.enabled;
+    scriptContent.value = newScript.content;
+  }
+}, { deep: true, immediate: true });
 
 function handleEnabledChange(enabled: boolean) {
   scriptEnabled.value = enabled;
@@ -204,7 +180,7 @@ function emitUpdate() {
   emit('update', {
     enabled: scriptEnabled.value,
     content: scriptContent.value
-  });
+  } as TestScript);
 }
 
 function handleInsertSnippet() {
@@ -240,7 +216,7 @@ async function handleEditorReady(editor: any) {
 
     if (monaco) {
       monaco.languages.registerCompletionItemProvider('javascript', {
-        provideCompletionItems: (model: any, position: any) => {
+        provideCompletionItems: (_model: any, _position: any) => {
           const suggestions = [
             {
               label: 'pm.test',
@@ -295,21 +271,6 @@ async function handleEditorReady(editor: any) {
   }
 }
 
-function formatTimestamp(timestamp: number): string {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString();
-}
-
-function handleClearResults() {
-  responseStore.testLogs = [];
-  responseStore.testResult = null;
-  message.info('Test results cleared');
-}
-
-onMounted(() => {
-  // Monaco Editor initialization is handled by the MonacoEditor component
-});
-
 onUnmounted(() => {
   if (editorInstance) {
     editorInstance.dispose();
@@ -351,65 +312,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   min-height: 200px;
-}
-
-.test-results {
-  border-top: 1px solid var(--n-border-color);
-  flex-shrink: 0;
-  max-height: 300px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.test-results-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--n-border-color);
-  font-weight: 600;
-  background: var(--n-color-modal);
-}
-
-.test-logs {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 16px 12px;
-}
-
-.test-log-entry {
-  display: flex;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--n-border-color);
-}
-
-.log-timestamp {
-  font-size: 12px;
-  color: #999;
-  min-width: 80px;
-  flex-shrink: 0;
-}
-
-.log-message {
-  flex: 1;
-  font-size: 13px;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  word-break: break-all;
-}
-
-.log-info .log-message {
-  color: var(--n-text-color);
-}
-
-.log-error .log-message {
-  color: #e84343;
-}
-
-.log-warn .log-message {
-  color: #d97706;
-}
-
-.log-log .log-message {
-  color: #666;
 }
 
 .snippets {

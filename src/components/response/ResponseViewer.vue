@@ -80,21 +80,38 @@ import {
   CopyOutline
 } from '@vicons/ionicons5';
 import { useResponseStore } from '@/stores/response';
+import type { RequestContext } from '@/types';
 import ResponseBody from './ResponseBody.vue';
 import ResponseHeaders from './ResponseHeaders.vue';
 import ResponseCookies from './ResponseCookies.vue';
 import ResponseTests from './ResponseTests.vue';
+
+interface Props {
+  context: RequestContext;
+}
+
+const props = defineProps<Props>();
 
 const message = useMessage();
 const responseStore = useResponseStore();
 
 const activeTab = ref('body');
 
-const hasResponse = computed(() => responseStore.hasResponse);
-const status = computed(() => responseStore.status);
-const statusText = computed(() => responseStore.statusText);
-const duration = computed(() => responseStore.getDuration());
-const size = computed(() => responseStore.getBodySize());
+// Use context response if available, otherwise fall back to response store
+const hasResponse = computed(() => !!props.context?.response || responseStore.hasResponse);
+const status = computed(() => props.context?.response?.status ?? responseStore.status);
+const statusText = computed(() => props.context?.response?.statusText ?? responseStore.statusText);
+const duration = computed(() => {
+  const ms = props.context?.response?.duration ?? responseStore.duration;
+  if (ms < 1000) return `${ms} ms`;
+  return `${(ms / 1000).toFixed(2)} s`;
+});
+const size = computed(() => {
+  const bytes = props.context?.response?.size ?? responseStore.size;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+});
 
 const statusTagType = computed(() => {
   if (!status.value) return 'default';

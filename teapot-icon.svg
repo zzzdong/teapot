@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="teapot.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="swatch5"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop5" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.5761719"
+     inkscape:cx="129.11028"
+     inkscape:cy="99.925649"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <!-- 外轮廓 -->
+  <path
+     d="M 86.341619,28.845922 H 180.09847 L 219.44286,235.7464 H 42.81165 Z"
+     fill="none"
+     stroke="#000000"
+     stroke-width="10"
+     stroke-linecap="square"
+     stroke-linejoin="miter"
+     id="path1"
+     style="opacity:1;fill:#808080;stroke:#f8bc31;stroke-width:26.45669291;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1" />
+  <!-- 把手 -->
+  <path
+     d="m 67.420074,72.11772 h -43 v 96 l 14,28"
+     fill="none"
+     stroke="#000000"
+     stroke-width="10"
+     stroke-linecap="square"
+     id="path2"
+     style="opacity:1;stroke:#f8bc31;stroke-width:11.3386;stroke-dasharray:none;stroke-opacity:1" />
+  <!-- 壶嘴 -->
+  <path
+     d="m 202.48946,90.731103 28,-55 10,13 -32,68.999997"
+     fill="none"
+     stroke="#000000"
+     stroke-width="10"
+     stroke-linecap="square"
+     id="path3"
+     style="stroke:#f8bc31;stroke-width:11.3386;stroke-dasharray:none;stroke-opacity:1" />
+  <!-- 小于号蒸汽（上下两段闭合） -->
+  <path
+     d="m 109.73729,95 -19.999992,43 19.999992,42 M 137.10284,94.413879 117.73729,139 l 20,42 m 26,-86 -20,43 20,42"
+     fill="none"
+     stroke="#000000"
+     stroke-width="8"
+     stroke-linecap="square"
+     id="path4"
+     style="stroke-width:11.33858268;stroke-dasharray:none;fill:none;stroke:#00D4FF;stroke-opacity:1"
+     sodipodi:nodetypes="ccccccccc" />
+</svg>

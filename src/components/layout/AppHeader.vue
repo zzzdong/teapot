@@ -2,7 +2,7 @@
   <div class="app-header">
     <div class="header-left">
       <div class="logo">
-        <span class="logo-icon">🫖</span>
+        <img src="@/assets/teapot-icon.svg" alt="Teapot" class="logo-icon" />
         <span class="logo-text">Teapot</span>
       </div>
     </div>
@@ -155,7 +155,8 @@ function handleSettingsClose() {
 }
 
 .logo-icon {
-  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .logo-text {

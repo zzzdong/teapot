@@ -1,15 +1,14 @@
-import type { Request } from './request';
+// This file is deprecated - use types/context.ts instead
+// Kept for backward compatibility
 
-export interface WorkspaceTab {
-  id: string;
-  request: Request;
-  isActive: boolean;
-  isModified: boolean;
-  name: string;
-  createdAt: number;
-}
+import type { WorkspaceTab as NewWorkspaceTab, WorkspaceTabsState as NewWorkspaceTabsState } from './context';
 
-export interface WorkspaceTabsState {
-  tabs: WorkspaceTab[];
-  activeTabId: string | null;
-}
+/**
+ * @deprecated Use WorkspaceTab from types/context.ts instead
+ */
+export type WorkspaceTab = NewWorkspaceTab;
+
+/**
+ * @deprecated Use WorkspaceTabsState from types/context.ts instead
+ */
+export type WorkspaceTabsState = NewWorkspaceTabsState;

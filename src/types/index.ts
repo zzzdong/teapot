@@ -6,6 +6,7 @@ export * from './auth';
 export * from './websocket';
 export * from './test';
 export * from './script';
+export * from './context';
 export * from './settings';
 export * from './history';
 export * from './workspace';

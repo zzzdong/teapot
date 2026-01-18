@@ -1,10 +1,10 @@
 <template>
   <div class="request-builder">
     <div class="request-bar">
-      <n-select v-model:value="request.method" :options="methodOptions" size="medium" style="width: 120px"
+      <n-select :value="request.method" :options="methodOptions" size="medium" style="width: 120px"
         @update:value="handleMethodChange" />
-      <n-input v-model:value="request.url" placeholder="Enter request URL" size="medium" clearable
-        @keyup.enter="handleSend" />
+      <n-input :value="request.url" placeholder="Enter request URL" size="medium" clearable
+        @update:value="handleUrlChange" @keyup.enter="handleSend" />
       <n-button type="primary" size="medium" :loading="isSending" @click="handleSend">
         Send
       </n-button>
@@ -24,22 +24,22 @@
 
     <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
       <n-tab-pane name="params" tab="Params">
-        <ParamsTab v-model:params="request.params" />
+        <ParamsTab :params="request.params" @update:params="handleParamsUpdate" />
       </n-tab-pane>
       <n-tab-pane name="headers" tab="Headers">
-        <HeadersTab v-model:headers="request.headers" />
+        <HeadersTab :headers="request.headers" @update:headers="handleHeadersUpdate" />
       </n-tab-pane>
       <n-tab-pane name="body" tab="Body">
         <BodyTab v-model:body="request.body" />
       </n-tab-pane>
       <n-tab-pane name="auth" tab="Authorization">
-        <AuthTab v-model:auth="request.auth" />
+        <AuthTab :auth="request.auth" @update:auth="handleAuthUpdate" />
       </n-tab-pane>
       <n-tab-pane name="pre-request" tab="Pre-request Script">
-        <PreRequestScriptTab v-model:script="request.preRequestScript" />
+        <PreRequestScriptTab :script="request.preRequestScript" @update="handlePreRequestScriptUpdate" />
       </n-tab-pane>
       <n-tab-pane name="tests" tab="Tests">
-        <TestsTab v-model:script="request.testScript" />
+        <TestsTab :script="request.testScript" @update="handleTestScriptUpdate" />
       </n-tab-pane>
     </n-tabs>
 
@@ -48,14 +48,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { NButton, NInput, NSelect, NTabs, NTabPane, useMessage, NDropdown, NIcon } from 'naive-ui';
 import { useHistoryStore } from '@/stores/history';
 import { useResponseStore } from '@/stores/response';
 import { useWorkspaceStore } from '@/stores/workspace';
 import { useCollectionsStore } from '@/stores/collections';
 import { useHttpClient } from '@/composables/useHttpClient';
-import type { Request, HttpMethod, RequestParam, RequestHeader, RequestBody, AuthConfig, PreRequestScript, TestScript } from '@/types';
+import type { RequestContext, HttpMethod, TestScript, PreRequestScript, RequestParam, RequestHeader, AuthConfig } from '@/types';
 import { ArrowDown as ArrowDownIcon } from '@vicons/ionicons5';
 import ParamsTab from './ParamsTab.vue';
 import AuthTab from './AuthTab.vue';
@@ -65,7 +65,12 @@ import PreRequestScriptTab from './PreRequestScriptTab.vue';
 import TestsTab from './TestsTab.vue';
 import SaveRequestDialog from './SaveRequestDialog.vue';
 
-const request = defineModel<Request>('request', { required: true });
+const props = defineProps<{
+  tabId: string;
+}>();
+
+const context = defineModel<RequestContext>('context', { required: true });
+const request = computed(() => context.value?.request);
 
 const message = useMessage();
 const historyStore = useHistoryStore();
@@ -73,6 +78,81 @@ const responseStore = useResponseStore();
 const workspaceStore = useWorkspaceStore();
 const collectionsStore = useCollectionsStore();
 const { sendRequest } = useHttpClient();
+
+// Watch for body changes and persist to store
+watch(() => request.value?.body, (newBody) => {
+  if (newBody && props.tabId) {
+    context.value.request.updatedAt = Date.now();
+    workspaceStore.updateTabContext(props.tabId, {
+      request: context.value.request
+    });
+  }
+}, { deep: true });
+
+function handleTestScriptUpdate(newTestScript: TestScript) {
+  if (context.value && context.value.request) {
+    context.value.request.testScript = newTestScript;
+    context.value.request.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: context.value.request
+      });
+    }
+  }
+}
+
+function handlePreRequestScriptUpdate(newPreRequestScript: PreRequestScript) {
+  if (context.value && context.value.request) {
+    context.value.request.preRequestScript = newPreRequestScript;
+    context.value.request.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: context.value.request
+      });
+    }
+  }
+}
+
+function handleParamsUpdate(newParams: RequestParam[]) {
+  if (context.value && context.value.request) {
+    context.value.request.params = newParams;
+    context.value.request.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: context.value.request
+      });
+    }
+  }
+}
+
+function handleHeadersUpdate(newHeaders: RequestHeader[]) {
+  if (context.value && context.value.request) {
+    context.value.request.headers = newHeaders;
+    context.value.request.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: context.value.request
+      });
+    }
+  }
+}
+
+function handleAuthUpdate(newAuth: AuthConfig) {
+  if (context.value && context.value.request) {
+    context.value.request.auth = newAuth;
+    context.value.request.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: context.value.request
+      });
+    }
+  }
+}
 
 const activeTab = ref('params');
 const showSaveDialog = ref(false);
@@ -97,6 +177,26 @@ const methodOptions = [
 function handleMethodChange(value: HttpMethod) {
   if (request.value) {
     request.value.method = value;
+    request.value.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: request.value
+      });
+    }
+  }
+}
+
+function handleUrlChange(value: string) {
+  if (request.value) {
+    request.value.url = value;
+    request.value.updatedAt = Date.now();
+
+    if (props.tabId) {
+      workspaceStore.updateTabContext(props.tabId, {
+        request: request.value
+      });
+    }
   }
 }
 
@@ -119,6 +219,9 @@ async function handleSend() {
       auth: request.value.auth
     };
 
+    // Set request sent timestamp
+    context.value.requestSentAt = Date.now();
+
     // Pass pre-request script and test script to sendRequest
     const { response, testResult } = await sendRequest(
       config,
@@ -126,13 +229,17 @@ async function handleSend() {
       request.value.testScript
     );
 
+    // Update context with response and test results
+    context.value.response = response;
+    context.value.testResult = testResult;
+    context.value.responseReceivedAt = Date.now();
+
+    // Also update global response store (for backward compatibility)
     responseStore.setResponse(response);
     historyStore.addToHistory(request.value, response);
 
     // Store test result for display
     if (testResult) {
-      // Store test result in response store or emit event
-      console.log('Test result:', testResult);
       responseStore.setTestResult(testResult);
     }
 
@@ -155,7 +262,7 @@ function handleSaveClick() {
   if (existingRequest) {
     // 直接更新现有请求
     collectionsStore.updateRequest(requestId, request.value);
-    workspaceStore.markTabAsSaved(requestId);
+    workspaceStore.markTabAsSaved(props.tabId);
     message.success('Request updated successfully');
   } else {
     // 打开保存对话框
@@ -178,7 +285,7 @@ function handleSaveSuccess(collectionId: string, folderId: string | null) {
     request.value
   );
 
-  workspaceStore.markTabAsSaved(request.value.id);
+  workspaceStore.markTabAsSaved(props.tabId);
 
   message.success('Request saved successfully');
   showSaveDialog.value = false;
