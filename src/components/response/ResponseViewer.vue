@@ -8,6 +8,21 @@
     </div>
 
     <div v-else class="response-content">
+      <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
+        <n-tab-pane name="body" tab="Body">
+          <ResponseBody :context="props.context" />
+        </n-tab-pane>
+        <n-tab-pane name="headers" tab="Headers">
+          <ResponseHeaders :context="props.context" style="height: 100%;" />
+        </n-tab-pane>
+        <n-tab-pane name="cookies" tab="Cookies">
+          <ResponseCookies :context="props.context" />
+        </n-tab-pane>
+        <n-tab-pane name="tests" tab="Test Results">
+          <ResponseTests :context="props.context" />
+        </n-tab-pane>
+      </n-tabs>
+
       <div class="response-bar">
         <div class="response-status">
           <n-tag :type="statusTagType" size="large">
@@ -50,21 +65,6 @@
           </n-space>
         </div>
       </div>
-
-      <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
-        <n-tab-pane name="body" tab="Body">
-          <ResponseBody :context="props.context" />
-        </n-tab-pane>
-        <n-tab-pane name="headers" tab="Headers">
-          <ResponseHeaders :context="props.context" style="height: 100%;" />
-        </n-tab-pane>
-        <n-tab-pane name="cookies" tab="Cookies">
-          <ResponseCookies :context="props.context" />
-        </n-tab-pane>
-        <n-tab-pane name="tests" tab="Test Results">
-          <ResponseTests :context="props.context" />
-        </n-tab-pane>
-      </n-tabs>
     </div>
   </div>
 </template>
@@ -203,7 +203,7 @@ async function handleCopy() {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
   background-color: #fafafa;
   flex-shrink: 0;
 }

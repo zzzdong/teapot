@@ -10,6 +10,13 @@
     </div>
 
     <div class="status-right">
+      <n-button text size="small" @click="toggleConsole" class="console-button">
+        <template #icon>
+          <n-icon><TerminalOutline /></n-icon>
+        </template>
+        Console
+      </n-button>
+      <span class="status-divider">|</span>
       <span class="status-info">
         Method: {{ requestStore.method }}
       </span>
@@ -29,15 +36,23 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRequestStore } from '@/stores/request';
 import { useEnvironmentStore } from '@/stores/environment';
+import { useWorkspaceStore } from '@/stores/workspace';
+import { NButton, NIcon } from 'naive-ui';
+import { TerminalOutline } from '@vicons/ionicons5';
 
 const requestStore = useRequestStore();
 const environmentStore = useEnvironmentStore();
+const workspaceStore = useWorkspaceStore();
 
 const currentTime = ref('');
 
 function updateTime() {
   const now = new Date();
   currentTime.value = now.toLocaleTimeString();
+}
+
+function toggleConsole() {
+  workspaceStore.toggleConsole();
 }
 
 let timer: number;
@@ -89,5 +104,11 @@ onUnmounted(() => {
 
 .status-info {
   color: #666;
+}
+
+.console-button {
+  font-size: 12px;
+  padding: 0 8px;
+  min-width: auto;
 }
 </style>

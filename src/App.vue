@@ -11,10 +11,6 @@
                 <div class="resizer" @mousedown="startLeftResize"></div>
               </div>
               <MainWorkspace :style="{ flex: '1' }" />
-              <div class="resizer-right-wrapper">
-                <div class="resizer" @mousedown="startRightResize"></div>
-                <RightSidebar :style="{ width: rightSidebarWidth + 'px' }" />
-              </div>
             </div>
             <StatusBar />
           </div>
@@ -30,7 +26,6 @@ import { NConfigProvider, darkTheme, type GlobalTheme } from 'naive-ui';
 import AppHeader from './components/layout/AppHeader.vue';
 import LeftSidebar from './components/layout/LeftSidebar.vue';
 import MainWorkspace from './components/layout/MainWorkspace.vue';
-import RightSidebar from './components/layout/RightSidebar.vue';
 import StatusBar from './components/layout/StatusBar.vue';
 import { useHistoryStore } from './stores/history';
 import { useCollectionsStore } from './stores/collections';
@@ -53,13 +48,9 @@ const themeOverrides = {
 
 // Resizer state
 const leftSidebarWidth = ref(280);
-const rightSidebarWidth = ref(300);
-
 const isResizingLeft = ref(false);
-const isResizingRight = ref(false);
 const startX = ref(0);
 const startLeftWidth = ref(0);
-const startRightWidth = ref(0);
 
 function startLeftResize(e: MouseEvent) {
   isResizingLeft.value = true;
@@ -67,17 +58,6 @@ function startLeftResize(e: MouseEvent) {
   startLeftWidth.value = leftSidebarWidth.value;
 
   document.addEventListener('mousemove', handleLeftMouseMove);
-  document.addEventListener('mouseup', stopResize);
-  document.body.style.cursor = 'col-resize';
-  document.body.style.userSelect = 'none';
-}
-
-function startRightResize(e: MouseEvent) {
-  isResizingRight.value = true;
-  startX.value = e.clientX;
-  startRightWidth.value = rightSidebarWidth.value;
-
-  document.addEventListener('mousemove', handleRightMouseMove);
   document.addEventListener('mouseup', stopResize);
   document.body.style.cursor = 'col-resize';
   document.body.style.userSelect = 'none';
@@ -91,20 +71,10 @@ function handleLeftMouseMove(e: MouseEvent) {
   leftSidebarWidth.value = newWidth;
 }
 
-function handleRightMouseMove(e: MouseEvent) {
-  if (!isResizingRight.value) return;
-
-  const diff = e.clientX - startX.value;
-  const newWidth = Math.max(200, Math.min(500, startRightWidth.value - diff));
-  rightSidebarWidth.value = newWidth;
-}
-
 function stopResize() {
   isResizingLeft.value = false;
-  isResizingRight.value = false;
 
   document.removeEventListener('mousemove', handleLeftMouseMove);
-  document.removeEventListener('mousemove', handleRightMouseMove);
   document.removeEventListener('mouseup', stopResize);
   document.body.style.cursor = '';
   document.body.style.userSelect = '';
@@ -112,7 +82,6 @@ function stopResize() {
 
 onUnmounted(() => {
   document.removeEventListener('mousemove', handleLeftMouseMove);
-  document.removeEventListener('mousemove', handleRightMouseMove);
   document.removeEventListener('mouseup', stopResize);
 });
 
@@ -166,12 +135,6 @@ onMounted(() => {
   max-width: 500px;
 }
 
-.resizer-right-wrapper {
-  display: flex;
-  min-width: 200px;
-  max-width: 500px;
-}
-
 .resizer {
   width: 4px;
   background-color: #e0e0e0;
@@ -191,9 +154,5 @@ onMounted(() => {
 
 .resizer-left-wrapper .resizer {
   border-right: 1px solid var(--border-color);
-}
-
-.resizer-right-wrapper .resizer {
-  border-left: 1px solid var(--border-color);
 }
 </style>

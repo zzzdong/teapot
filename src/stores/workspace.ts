@@ -8,6 +8,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   // State
   const tabs = ref<WorkspaceTab[]>([]);
   const activeTabId = ref<string | null>(null);
+  const showConsole = ref(false);
 
   // Computed
   const activeTab = computed(() => {
@@ -345,7 +346,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
       saveToStore();
     }
   }
-
   // Helper function to clear all workspace data (for testing)
   async function clearWorkspaceData() {
     try {
@@ -361,10 +361,15 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     }
   }
 
+  // Toggle console visibility
+  function toggleConsole() {
+    showConsole.value = !showConsole.value;
+  }
   return {
     // State
     tabs,
     activeTabId,
+    showConsole,
     // Computed
     activeTab,
     activeRequest,
@@ -386,6 +391,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     loadFromStore,
     loadRequestIntoNewTab,
     loadRequestIntoActiveTab,
+    toggleConsole,
     debugTabState,
     clearWorkspaceData
   };

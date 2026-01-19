@@ -9,18 +9,24 @@
 
     <div class="header-center">
       <n-space align="center">
-        <n-select
-          v-model:value="currentEnvironmentId"
-          :options="environmentOptions"
-          placeholder="Select Environment"
-          size="small"
-          style="width: 200px"
-          clearable
-          @update:value="handleEnvironmentChange"
-        />
-        <n-button text size="small" @click="handleAddEnvironment">
+        <n-select v-model:value="currentEnvironmentId" :options="environmentOptions" placeholder="Select Environment"
+          size="small" style="width: 200px" clearable @update:value="handleEnvironmentChange">
+          <template #action>
+            <n-button text size="small" @click="handleAddEnvironment">
+              <template #icon>
+                <n-icon>
+                  <AddOutline />
+                </n-icon>
+              </template>
+              Add Environment
+            </n-button>
+          </template>
+        </n-select>
+        <n-button text size="small" @click="environmentDrawerVisible = true">
           <template #icon>
-            <n-icon><AddOutline /></n-icon>
+            <n-icon>
+              <PencilOutline />
+            </n-icon>
           </template>
         </n-button>
       </n-space>
@@ -30,40 +36,52 @@
       <n-space>
         <n-button text @click="handleImport">
           <template #icon>
-            <n-icon><ImportIcon /></n-icon>
+            <n-icon>
+              <ImportIcon />
+            </n-icon>
           </template>
           Import
         </n-button>
         <n-button text @click="handleExport">
           <template #icon>
-            <n-icon><ExportIcon /></n-icon>
+            <n-icon>
+              <ExportIcon />
+            </n-icon>
           </template>
           Export
         </n-button>
         <n-button text @click="handleSettings">
           <template #icon>
-            <n-icon><SettingsIcon /></n-icon>
+            <n-icon>
+              <SettingsIcon />
+            </n-icon>
           </template>
         </n-button>
       </n-space>
     </div>
 
     <SettingsDialog v-model:show="settingsVisible" @close="handleSettingsClose" />
+
+    <n-drawer v-model:show="environmentDrawerVisible" title="Environment Editor" placement="right" :width="400">
+      <EnvironmentPanel />
+    </n-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, h, ref } from 'vue';
-import { NButton, NIcon, NSelect, NSpace, useMessage, useDialog } from 'naive-ui';
-import { DownloadOutline as ImportIcon, CloudUploadOutline as ExportIcon, SettingsOutline as SettingsIcon, AddOutline } from '@vicons/ionicons5';
+import { NButton, NIcon, NSelect, NSpace, useMessage, useDialog, NDrawer } from 'naive-ui';
+import { DownloadOutline as ImportIcon, CloudUploadOutline as ExportIcon, SettingsOutline as SettingsIcon, AddOutline, PencilOutline } from '@vicons/ionicons5';
 import { useEnvironmentStore } from '@/stores/environment';
 import SettingsDialog from '@/components/settings/SettingsDialog.vue';
+import EnvironmentPanel from './EnvironmentPanel.vue';
 
 const dialog = useDialog();
 const message = useMessage();
 const environmentStore = useEnvironmentStore();
 
 const settingsVisible = ref(false);
+const environmentDrawerVisible = ref(false);
 
 const currentEnvironmentId = computed({
   get: () => environmentStore.currentEnvironmentId || null,
@@ -76,23 +94,11 @@ const environmentOptions = computed(() => {
     value: env.id
   }));
 
-  // Add option to create new environment
-  if (environmentStore.environments.length === 0) {
-    options.push({
-      label: '+ Create Environment',
-      value: '__create__'
-    });
-  }
-
   return options;
 });
 
 function handleEnvironmentChange(value: string | null) {
-  if (value === '__create__') {
-    handleAddEnvironment();
-  } else {
-    environmentStore.setCurrentEnvironment(value);
-  }
+  environmentStore.setCurrentEnvironment(value);
 }
 
 function handleAddEnvironment() {
