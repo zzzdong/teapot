@@ -7,19 +7,11 @@
   ],
   "permissions": [
     "core:default",
-    "http:allow-fetch",
-    "http:allow-fetch-cancel",
-    "http:allow-fetch-read-body",
-    "http:allow-fetch-send",
+    "dialog:default",
+    "fs:write-all",
+    "fs:read-all",
     "http:default",
-    "store:allow-get",
-    "store:allow-set",
-    "store:allow-delete",
-    "store:allow-clear",
-    "store:allow-has",
-    "store:allow-keys",
-    "store:allow-values",
-    "store:allow-length",
-    "store:allow-get-store"
+    "log:default",
+    "store:default"
   ]
 }

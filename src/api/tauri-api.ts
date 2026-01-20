@@ -362,11 +362,75 @@ export const websocket = {
   close: (id: string) => Promise.reject('WebSocket not implemented')
 };
 
-// File operations - placeholder (not implemented)
+// File operations
 export const file = {
   read: (path: string) => Promise.reject('File operations not implemented'),
   write: (path: string, data: string) => Promise.reject('File operations not implemented'),
-  select: () => Promise.reject('File operations not implemented')
+  select: () => Promise.reject('File operations not implemented'),
+  save: async (defaultName: string) => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      try {
+        const { save } = await import('@tauri-apps/plugin-dialog');
+        return await save({
+          defaultPath: defaultName,
+          filters: [
+            {
+              name: 'JSON',
+              extensions: ['json']
+            }
+          ]
+        });
+      } catch (e) {
+        console.warn('Tauri file save dialog failed:', e);
+      }
+    }
+    return null;
+  },
+  open: async () => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      try {
+        const { open } = await import('@tauri-apps/plugin-dialog');
+        return await open({
+          multiple: false,
+          filters: [
+            {
+              name: 'JSON',
+              extensions: ['json']
+            }
+          ]
+        });
+      } catch (e) {
+        console.warn('Tauri file open dialog failed:', e);
+      }
+    }
+    return null;
+  },
+  writeText: async (path: string, content: string) => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      try {
+        const { writeTextFile } = await import('@tauri-apps/plugin-fs');
+        await writeTextFile(path, content);
+      } catch (e) {
+        console.warn('Tauri write text file failed:', e);
+        throw e;
+      }
+    } else {
+      throw new Error('File operations not available');
+    }
+  },
+  readText: async (path: string) => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      try {
+        const { readTextFile } = await import('@tauri-apps/plugin-fs');
+        return await readTextFile(path);
+      } catch (e) {
+        console.warn('Tauri read text file failed:', e);
+        throw e;
+      }
+    } else {
+      throw new Error('File operations not available');
+    }
+  }
 };
 
 // Script execution - placeholder (not implemented)

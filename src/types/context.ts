@@ -37,3 +37,13 @@ export interface WorkspaceTabsState {
   tabs: WorkspaceTab[];
   activeTabId: string | null;
 }
+
+/**
+ * Payload for saving a request from workspace to collections
+ */
+export interface SaveRequestPayload {
+  name: string;
+  collectionId: string;
+  folderId: string | null;
+  description: string;
+}

@@ -1,48 +1,22 @@
 <template>
-  <n-modal
-    v-model:show="show"
-    preset="dialog"
-    title="保存请求"
-    :show-icon="false"
-    :block-scroll="true"
-    @after-leave="handleAfterLeave"
-  >
-    <n-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-placement="left"
-      label-width="80"
-    >
+  <n-modal v-model:show="show" preset="dialog" title="保存请求" :show-icon="false" :block-scroll="true"
+    @after-leave="handleAfterLeave">
+    <n-form ref="formRef" :model="formData" :rules="formRules" label-placement="left" label-width="80">
       <n-form-item label="请求名称" path="name">
-        <n-input
-          v-model:value="formData.name"
-          placeholder="输入请求名称"
-        />
+        <n-input v-model:value="formData.name" placeholder="输入请求名称" />
       </n-form-item>
-      
+
       <n-form-item label="保存到" path="locationId">
-        <n-tree-select
-          v-model:value="formData.locationId"
-          :options="collectionTreeOptions"
-          placeholder="选择Collection或文件夹"
-          key-field="id"
-          label-field="name"
-          children-field="children"
-          clearable
-        />
+        <n-tree-select v-model:value="formData.locationId" :options="collectionTreeOptions"
+          placeholder="选择Collection或文件夹" key-field="id" label-field="name" children-field="children" clearable />
       </n-form-item>
-      
+
       <n-form-item label="描述" path="description">
-        <n-input
-          v-model:value="formData.description"
-          type="textarea"
-          placeholder="输入描述(可选)"
-          :autosize="{ minRows: 2, maxRows: 4 }"
-        />
+        <n-input v-model:value="formData.description" type="textarea" placeholder="输入描述(可选)"
+          :autosize="{ minRows: 2, maxRows: 4 }" />
       </n-form-item>
     </n-form>
-    
+
     <template #action>
       <n-space>
         <n-button @click="handleCancel">取消</n-button>
@@ -57,12 +31,13 @@ import { ref, computed, watch } from 'vue';
 import { NModal, NForm, NFormItem, NInput, NTreeSelect, NButton, NSpace, useMessage } from 'naive-ui';
 import { useCollectionsStore } from '@/stores/collections';
 import { useWorkspaceStore } from '@/stores/workspace';
+import type { SaveRequestPayload } from '@/types/context';
 
 interface Emits {
-  (e: 'save', collectionId: string, folderId: string | null): void;
+  (e: 'save', payload: SaveRequestPayload): void;
 }
-
 const show = defineModel<boolean>('show', { default: false });
+const isSaveAs = defineModel<boolean>('isSaveAs', { default: false });
 const emit = defineEmits<Emits>();
 
 const collectionsStore = useCollectionsStore();
@@ -92,7 +67,7 @@ const collectionTreeOptions = computed(() => {
   const items = collectionsStore.allItems;
   // 获取所有集合（顶层）
   const collections = items.filter(item => item.type === 'collection');
-  
+
   // 构建树
   return collections
     .slice()
@@ -116,27 +91,27 @@ function buildFolderTreeForCollection(parentId: string): any[] {
       };
       return node;
     });
-  
+
   return folders;
 }
 
 async function handleSave() {
   try {
     await formRef.value?.validate();
-    
+
     const locationId = formData.value.locationId!;
-    
+
     // 确定collectionId和folderId
     let collectionId = '';
     let folderId: string | null = null;
-    
+
     const selectedItem = collectionsStore.findItem(locationId);
-    
+
     if (!selectedItem) {
       message.error('选择的项目不存在');
       return;
     }
-    
+
     if (selectedItem.type === 'collection') {
       collectionId = selectedItem.id;
       folderId = null;
@@ -154,19 +129,17 @@ async function handleSave() {
       message.error('请选择Collection或文件夹');
       return;
     }
-    
-    // Update request name and description
-    if (workspaceStore.activeTab) {
+
+    // Update request name and description (only for normal save, not Save As)
+    if (!isSaveAs.value && workspaceStore.activeTabId) {
       workspaceStore.updateTabName(
-        workspaceStore.activeTab.id,
-        formData.value.name
+        workspaceStore.activeTabId,
+        formData.value.name,
+        formData.value.description
       );
-      workspaceStore.updateActiveTab({
-        description: formData.value.description
-      });
     }
-    
-    emit('save', collectionId, folderId);
+
+    emit('save', { name: formData.value.name, collectionId, folderId, description: formData.value.description });
   } catch (error) {
     console.error('Form validation failed:', error);
   }
@@ -189,9 +162,10 @@ function handleAfterLeave() {
 watch(
   show,
   (newShow) => {
-    if (newShow && workspaceStore.activeTab) {
-      formData.value.name = workspaceStore.activeTab.context.request.name;
-      formData.value.description = workspaceStore.activeTab.context.request.description || '';
+    if (newShow && workspaceStore.activeTabId) {
+      const activeTab = workspaceStore.tabs.find(t => t.id === workspaceStore.activeTabId);
+      formData.value.name = activeTab?.context.request.name || '';
+      formData.value.description = activeTab?.context.request.description || '';
     }
   }
 );

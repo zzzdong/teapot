@@ -10,19 +10,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const activeTabId = ref<string | null>(null);
   const showConsole = ref(false);
 
-  // Computed
-  const activeTab = computed(() => {
-    return tabs.value.find(tab => tab.id === activeTabId.value) || null;
-  });
-
-  const activeContext = computed(() => {
-    return activeTab.value?.context || null;
-  });
-
-  // Derived computed for backward compatibility
-  const activeRequest = computed(() => {
-    return activeContext.value?.request || null;
-  });
+  // Computed - No active state management, purely derived
 
   // Debug function to log tab state
   function debugTabState() {
@@ -98,7 +86,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
       isModified: false,
       name: defaultContext.request.name,
       createdAt: Date.now()
-    };
+    } as WorkspaceTab;
 
     // Set all tabs to inactive first
     tabs.value.forEach(t => t.isActive = false);
@@ -138,19 +126,14 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     saveToStore();
   }
 
-  function updateActiveTab(updates: Partial<Request>) {
-    if (!activeTab.value) return;
+  function saveTab(tabId: string) {
+    const tab = tabs.value.find(t => t.id === tabId);
+    if (!tab) return;
 
-    Object.assign(activeTab.value.context.request, updates, { updatedAt: Date.now() });
-    activeTab.value.isModified = true;
-
-    // Update tab name if request name changed
-    if (updates.name) {
-      activeTab.value.name = updates.name;
-    }
-
+    tab.isModified = false;
     saveToStore();
   }
+
 
   function updateTabContext(tabId: string, contextUpdates: Partial<RequestContext>) {
     const tab = tabs.value.find(t => t.id === tabId);
@@ -183,26 +166,14 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     saveToStore();
   }
 
-  function updateTabRequest(tabId: string, updates: Partial<Request>) {
-    const tab = tabs.value.find(t => t.id === tabId);
-    if (!tab) return;
-
-    Object.assign(tab.context.request, updates, { updatedAt: Date.now() });
-    tab.isModified = true;
-
-    // Update tab name if request name changed
-    if (updates.name) {
-      tab.name = updates.name;
-    }
-
-    saveToStore();
-  }
-
-  function updateTabName(tabId: string, name: string) {
+  function updateTabName(tabId: string, name: string, description?: string) {
     const tab = tabs.value.find(t => t.id === tabId);
     if (tab) {
       tab.name = name;
       tab.context.request.name = name;
+      if (description) {
+        tab.context.request.description = description;
+      }
       saveToStore();
     }
   }
@@ -212,12 +183,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     if (tab) {
       tab.isModified = false;
       saveToStore();
-    }
-  }
-
-  function markActiveTabAsSaved() {
-    if (activeTabId.value) {
-      markTabAsSaved(activeTabId.value);
     }
   }
 
@@ -336,16 +301,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     createTab(request);
   }
 
-  function loadRequestIntoActiveTab(request: Request) {
-    if (!activeTab.value) {
-      createTab(request);
-    } else {
-      activeTab.value.context.request = { ...request };
-      activeTab.value.name = request.name;
-      activeTab.value.isModified = false;
-      saveToStore();
-    }
-  }
+
   // Helper function to clear all workspace data (for testing)
   async function clearWorkspaceData() {
     try {
@@ -368,29 +324,22 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   return {
     // State
     tabs,
-    activeTabId,
     showConsole,
-    // Computed
-    activeTab,
-    activeRequest,
-    activeContext,
+    activeTabId,
     // Actions
     createTab,
     closeTab,
     activateTab,
-    updateActiveTab,
-    updateTabRequest,
+    saveTab,
     updateTabContext,
     updateTabName,
     markTabAsSaved,
-    markActiveTabAsSaved,
     closeAllTabs,
     closeOtherTabs,
     closeAllOtherTabs,
     saveToStore,
     loadFromStore,
     loadRequestIntoNewTab,
-    loadRequestIntoActiveTab,
     toggleConsole,
     debugTabState,
     clearWorkspaceData

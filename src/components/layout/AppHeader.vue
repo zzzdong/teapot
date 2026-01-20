@@ -65,6 +65,8 @@
     <n-drawer v-model:show="environmentDrawerVisible" title="Environment Editor" placement="right" :width="400">
       <EnvironmentPanel />
     </n-drawer>
+
+    <ImportModal v-model:modelValue="importModalVisible" />
   </div>
 </template>
 
@@ -73,15 +75,21 @@ import { computed, h, ref } from 'vue';
 import { NButton, NIcon, NSelect, NSpace, useMessage, useDialog, NDrawer } from 'naive-ui';
 import { DownloadOutline as ImportIcon, CloudUploadOutline as ExportIcon, SettingsOutline as SettingsIcon, AddOutline, OptionsOutline } from '@vicons/ionicons5';
 import { useEnvironmentStore } from '@/stores/environment';
+import { useCollectionsStore } from '@/stores/collections';
+import * as tauriApi from '@/api/tauri-api';
 import SettingsDialog from '@/components/settings/SettingsDialog.vue';
 import EnvironmentPanel from './EnvironmentPanel.vue';
+import ImportModal from '@/components/common/ImportModal.vue';
+
 
 const dialog = useDialog();
 const message = useMessage();
 const environmentStore = useEnvironmentStore();
+const collectionStore = useCollectionsStore();
 
 const settingsVisible = ref(false);
 const environmentDrawerVisible = ref(false);
+const importModalVisible = ref(false);
 
 const currentEnvironmentId = computed({
   get: () => environmentStore.currentEnvironmentId || null,
@@ -122,11 +130,29 @@ function handleAddEnvironment() {
 }
 
 function handleImport() {
-  message.info('Import functionality coming soon');
+  importModalVisible.value = true;
 }
 
-function handleExport() {
-  message.info('Export functionality coming soon');
+async function handleExport() {
+  try {
+    const defaultName = `teapot-export-${Date.now()}.json`;
+    const filePath = await tauriApi.file.save(defaultName);
+
+    if (!filePath) return;
+
+    const exportData = {
+      version: '1.0.0',
+      exportedAt: new Date().toISOString(),
+      environments: environmentStore.environments,
+      collections: collectionStore.collections
+    };
+
+    await tauriApi.file.writeText(filePath, JSON.stringify(exportData, null, 2));
+    message.success('Export successful');
+  } catch (error) {
+    message.error('Failed to export');
+    console.error('Export error:', error);
+  }
 }
 
 function handleSettings() {

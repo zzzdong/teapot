@@ -27,8 +27,8 @@
         language="javascript"
         theme="vs-dark"
         :options="editorOptions"
+        :completionItems="completionItems"
         @change="handleContentChange"
-        @ready="handleEditorReady"
       />
     </div>
 
@@ -67,9 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { NButton, NCollapse, NCollapseItem, NDrawer, NDrawerContent, NEmpty, NIcon, NSpace, NSwitch, useMessage } from 'naive-ui';
-import { CodeSlashOutline as CodeIcon, PlayOutline as PlayIcon } from '@vicons/ionicons5';
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue';
+import { useMessage } from 'naive-ui';
 import type { PreRequestScript } from '@/types/request';
 import type { ScriptContext, ScriptResult, ScriptLogEntry } from '@/types/script';
 import { executeScript, validateScriptSyntax } from '@/utils/scriptExecutor';
@@ -243,6 +242,111 @@ const snippets = [
   }
 ];
 
+const completionItems = computed(() => {
+  return [
+    {
+      label: 'pm.environment',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.environment',
+      detail: 'Environment variables API',
+      documentation: 'Manage environment variables'
+    },
+    {
+      label: 'pm.globals',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.globals',
+      detail: 'Global variables API',
+      documentation: 'Manage global variables'
+    },
+    {
+      label: 'pm.variables.get',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.variables.get("${1:key}")',
+      detail: 'Get a variable value',
+      documentation: 'Get variable by key name',
+      insertTextRules: 4 // monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+    },
+    {
+      label: 'pm.sendRequest',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.sendRequest(${1:url}, ${2:callback})',
+      detail: 'Send a request',
+      documentation: 'Send an HTTP request',
+      insertTextRules: 4 // monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+    },
+    {
+      label: 'pm.execution',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.execution',
+      detail: 'Execution context API',
+      documentation: 'Access execution context'
+    },
+    {
+      label: 'pm.request',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.request',
+      detail: 'Request object API',
+      documentation: 'Access and modify request data'
+    },
+    {
+      label: 'pm.response',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.response',
+      detail: 'Response object API',
+      documentation: 'Access response data'
+    },
+    {
+      label: 'pm.test',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.test("name", () => {\n  // test code\n});',
+      detail: 'Define a test',
+      documentation: 'Define a test case'
+    },
+    {
+      label: 'pm.expect',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.expect(value)',
+      detail: 'Assertion helper',
+      documentation: 'Create an assertion'
+    },
+    {
+      label: 'pm.info',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.info("message")',
+      detail: 'Log info message',
+      documentation: 'Log an informational message'
+    },
+    {
+      label: 'pm.warn',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.warn("message")',
+      detail: 'Log warning message',
+      documentation: 'Log a warning message'
+    },
+    {
+      label: 'pm.error',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.error("message")',
+      detail: 'Log error message',
+      documentation: 'Log an error message'
+    },
+    {
+      label: 'pm.sendRequest',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.sendRequest("https://api.example.com", (err, res) => {\n  // handle response\n});',
+      detail: 'Send an HTTP request',
+      documentation: 'Send an HTTP request from scripts'
+    },
+    {
+      label: 'pm.variables',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.variables',
+      detail: 'Variables API',
+      documentation: 'Access environment and global variables'
+    }
+  ];
+});
+
 // Watch for prop changes
 watch(() => props.script, (newScript) => {
   scriptEnabled.value = newScript.enabled;
@@ -286,105 +390,6 @@ function handleInsertSnippetCode(code: string) {
     setTimeout(() => {
       editorInstance.getAction('editor.action.formatDocument').run();
     }, 100);
-  }
-}
-
-async function handleEditorReady(editor: any) {
-  editorInstance = editor;
-
-  // Set up PM API IntelliSense (if Monaco is available)
-  try {
-    const monaco = await import('monaco-editor');
-
-    if (monaco) {
-      monaco.languages.registerCompletionItemProvider('javascript', {
-        provideCompletionItems: (model: any, position: any) => {
-          const suggestions = [
-            {
-              label: 'pm.environment',
-              kind: (monaco.languages.CompletionItemKind as any).Module,
-              insertText: 'pm.environment',
-              detail: 'Environment variables API',
-              documentation: 'Manage environment variables'
-            },
-            {
-              label: 'pm.globals',
-              kind: (monaco.languages.CompletionItemKind as any).Module,
-              insertText: 'pm.globals',
-              detail: 'Global variables API',
-              documentation: 'Manage global variables'
-            },
-            {
-              label: 'pm.request',
-              kind: (monaco.languages.CompletionItemKind as any).Module,
-              insertText: 'pm.request',
-              detail: 'Request object API',
-              documentation: 'Access and modify request data'
-            },
-            {
-              label: 'pm.response',
-              kind: (monaco.languages.CompletionItemKind as any).Module,
-              insertText: 'pm.response',
-              detail: 'Response object API',
-              documentation: 'Access response data'
-            },
-            {
-              label: 'pm.test',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.test("name", () => {\n  // test code\n});',
-              detail: 'Define a test',
-              documentation: 'Define a test case'
-            },
-            {
-              label: 'pm.expect',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.expect(value)',
-              detail: 'Assertion helper',
-              documentation: 'Create an assertion'
-            },
-            {
-              label: 'pm.info',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.info("message")',
-              detail: 'Log info message',
-              documentation: 'Log an informational message'
-            },
-            {
-              label: 'pm.warn',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.warn("message")',
-              detail: 'Log warning message',
-              documentation: 'Log a warning message'
-            },
-            {
-              label: 'pm.error',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.error("message")',
-              detail: 'Log error message',
-              documentation: 'Log an error message'
-            },
-            {
-              label: 'pm.sendRequest',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.sendRequest("https://api.example.com", (err, res) => {\n  // handle response\n});',
-              detail: 'Send an HTTP request',
-              documentation: 'Send an HTTP request from scripts'
-            },
-            {
-              label: 'pm.variables',
-              kind: (monaco.languages.CompletionItemKind as any).Module,
-              insertText: 'pm.variables',
-              detail: 'Variables API',
-              documentation: 'Access environment and global variables'
-            }
-          ];
-
-          return { suggestions } as any;
-        }
-      } as any);
-    }
-  } catch (error) {
-    console.warn('Failed to set up Monaco completions:', error);
   }
 }
 

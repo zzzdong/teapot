@@ -25,6 +25,8 @@ tauri = { version = "2.9.5", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-http = "2"
 tauri-plugin-store = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
 reqwest = { version = "0.13", features = ["json", "multipart", "cookies"] }
 bytes = "1.0"
 serde_cbor = "0.11"

@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { NTabs, NTabPane, NButton, NIcon, useMessage } from 'naive-ui';
+import { ref, computed } from 'vue';
+import { NTabs, NTabPane, NButton, NIcon } from 'naive-ui';
 import { CodeSlashOutline } from '@vicons/ionicons5';
 import { useWorkspaceStore } from '@/stores/workspace';
 import type { RequestContext, TestScript, PreRequestScript, RequestParam, RequestHeader, AuthConfig } from '@/types';
@@ -56,20 +56,7 @@ const props = defineProps<{
 const context = defineModel<RequestContext>('context', { required: true });
 const request = computed(() => context.value?.request);
 
-const message = useMessage();
 const workspaceStore = useWorkspaceStore();
-
-// Watch for body changes and persist to store
-watch(() => request.value?.body, (newBody) => {
-  if (newBody && props.tabId && context.value?.request) {
-    // Ensure the body is properly updated in the request object
-    context.value.request.body = newBody;
-    context.value.request.updatedAt = Date.now();
-    workspaceStore.updateTabContext(props.tabId, {
-      request: context.value.request
-    });
-  }
-}, { deep: true, immediate: true });
 
 function handleTestScriptUpdate(newTestScript: TestScript) {
   if (context.value && context.value.request) {

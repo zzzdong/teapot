@@ -127,8 +127,8 @@ function handleToggleExpand(id: string) {
 
 function handleSelectItem(item: any) {
   collectionsStore.setSelectedItem(item.id);
-  // Load request into a new tab or existing tab
-  workspaceStore.loadRequestIntoNewTab(item.request);
+  // Load request into a new tab - use createTab directly
+  workspaceStore.createTab(item.request);
 }
 
 function handleCreateCollection() {

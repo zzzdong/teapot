@@ -267,6 +267,12 @@ export const useEnvironmentStore = defineStore('environment', () => {
     saveToStore();
   }
 
+  function importEnvironments(envs: Environment[]) {
+    envs.forEach(env => {
+      importEnvironment(env);
+    });
+  }
+
   async function saveToStore() {
     try {
       const api = tauriApi;
@@ -330,6 +336,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
     exportVariables,
     exportEnvironment,
     importEnvironment,
+    importEnvironments,
     saveToStore,
     loadFromStore
   };

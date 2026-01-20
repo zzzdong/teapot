@@ -6,6 +6,26 @@
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import * as monaco from 'monaco-editor';
 
+// 配置 Monaco Editor Web Worker
+// 这个配置解决了 "You must define a function MonacoEnvironment.getWorkerUrl" 警告
+(window as any).MonacoEnvironment = {
+  getWorker: function(workerId: string, label: string) {
+    if (label === 'json') {
+      return new Worker(new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url))
+    }
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return new Worker(new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url))
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return new Worker(new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url))
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return new Worker(new URL('monaco-editor/esm/vs/language/typescript/ts.worker.js', import.meta.url))
+    }
+    return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url))
+  }
+};
+
 interface Props {
   value: string;
   language: string;
@@ -77,6 +97,7 @@ onMounted(() => {
   });
 });
 
+// Clean up on unmount
 onUnmounted(() => {
   if (editorRef.value && (editorRef.value as any)._resizeObserver) {
     (editorRef.value as any)._resizeObserver.disconnect();
@@ -126,6 +147,7 @@ defineExpose({
   setValue: (value: string) => editorInstance?.setValue(value),
   format: () => editorInstance?.getAction('editor.action.formatDocument')?.run()
 });
+
 </script>
 
 <style scoped>

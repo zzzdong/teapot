@@ -21,8 +21,8 @@
         language="javascript"
         theme="vs-dark"
         :options="editorOptions"
+        :completionItems="completionItems"
         @change="handleContentChange"
-        @ready="handleEditorReady"
       />
     </div>
 
@@ -206,70 +206,67 @@ function handleInsertSnippetCode(code: string) {
   }
 }
 
-
-async function handleEditorReady(editor: any) {
-  editorInstance = editor;
-
-  // Set up PM API IntelliSense (if Monaco is available)
-  try {
-    const monaco = await import('monaco-editor');
-
-    if (monaco) {
-      monaco.languages.registerCompletionItemProvider('javascript', {
-        provideCompletionItems: (_model: any, _position: any) => {
-          const suggestions = [
-            {
-              label: 'pm.test',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.test("name", () => {\n  // test code\n});',
-              detail: 'Define a test',
-              documentation: 'Define a test case'
-            },
-            {
-              label: 'pm.response.code',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.response.code()',
-              detail: 'Response status code',
-              documentation: 'Get response status code'
-            },
-            {
-              label: 'pm.response.json',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.response.json()',
-              detail: 'Parse response as JSON',
-              documentation: 'Parse response body as JSON'
-            },
-            {
-              label: 'pm.response.text',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.response.text()',
-              detail: 'Get response as text',
-              documentation: 'Get response body as text'
-            },
-            {
-              label: 'pm.response.headers',
-              kind: (monaco.languages.CompletionItemKind as any).Module,
-              insertText: 'pm.response.headers',
-              detail: 'Response headers API',
-              documentation: 'Access response headers'
-            },
-            {
-              label: 'pm.expect',
-              kind: (monaco.languages.CompletionItemKind as any).Function,
-              insertText: 'pm.expect(value)',
-              detail: 'Assertion helper',
-              documentation: 'Create an assertion'
-            }
-          ];
-
-          return { suggestions } as any;
-        }
-      } as any);
+// 添加计算属性用于获取补全项
+const completionItems = computed(() => {
+  return [
+    {
+      label: 'pm.test',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.test("name", () => {\n  // test code\n});',
+      detail: 'Define a test',
+      documentation: 'Define a test case'
+    },
+    {
+      label: 'pm.response.code',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.response.code()',
+      detail: 'Response status code',
+      documentation: 'Get response status code'
+    },
+    {
+      label: 'pm.response.json',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.response.json()',
+      detail: 'Parse response as JSON',
+      documentation: 'Parse response body as JSON'
+    },
+    {
+      label: 'pm.response.text',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.response.text()',
+      detail: 'Get response as text',
+      documentation: 'Get response body as text'
+    },
+    {
+      label: 'pm.response.headers',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.response.headers',
+      detail: 'Response headers API',
+      documentation: 'Access response headers'
+    },
+    {
+      label: 'pm.expect',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.expect(value)',
+      detail: 'Assertion helper',
+      documentation: 'Create an assertion'
+    },
+    {
+      label: 'pm.cookies',
+      kind: 2, // monaco.languages.CompletionItemKind.Module,
+      insertText: 'pm.cookies',
+      detail: 'Cookies API',
+      documentation: 'Access response cookies'
+    },
+    {
+      label: 'pm.response.time',
+      kind: 3, // monaco.languages.CompletionItemKind.Function,
+      insertText: 'pm.response.time()',
+      detail: 'Response time',
+      documentation: 'Get response time in milliseconds'
     }
-  } catch (error) {
-    console.warn('Failed to set up Monaco completions:', error);
-  }
-}
+  ];
+});
 
 onUnmounted(() => {
   if (editorInstance) {
