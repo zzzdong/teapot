@@ -98,7 +98,8 @@ const localRaw = computed({
     body.value = {
       ...body.value,
       type: 'raw',
-      raw: value
+      raw: value,
+      rawType: body.value.rawType || 'json'
     };
   }
 });
@@ -107,7 +108,8 @@ function handleRawTypeUpdate(rawType: RawBodyType) {
   body.value = {
     ...body.value,
     type: 'raw',
-    rawType
+    rawType,
+    raw: body.value.raw
   };
 }
 

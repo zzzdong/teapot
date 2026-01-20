@@ -1,49 +1,52 @@
 <template>
   <div class="raw-editor">
-    <n-radio-group :value="localRawType" @update:value="(val: RawBodyType) => { localRawType = val; emit('update', content.value); }" size="small">
-      <n-space>
-        <n-radio-button value="text">Text</n-radio-button>
-        <n-radio-button value="json">JSON</n-radio-button>
-        <n-radio-button value="xml">XML</n-radio-button>
-        <n-radio-button value="html">HTML</n-radio-button>
-        <n-radio-button value="javascript">JavaScript</n-radio-button>
-      </n-space>
-    </n-radio-group>
-
-    <div class="editor-container">
-      <n-input
-        :value="content"
-        type="textarea"
-        placeholder="Enter request body"
-        :autosize="{ minRows: 10 }"
-        @update:value="handleContentChange"
-      />
+    <div class="toolbar">
+      <div class="type-selector">
+        <n-radio-group :value="localRawType" @update:value="(val: RawBodyType) => { localRawType = val; emit('update:raw', content.value); }" size="small">
+          <n-space>
+            <n-radio-button value="text">Text</n-radio-button>
+            <n-radio-button value="json">JSON</n-radio-button>
+            <n-radio-button value="xml">XML</n-radio-button>
+            <n-radio-button value="html">HTML</n-radio-button>
+            <n-radio-button value="javascript">JavaScript</n-radio-button>
+          </n-space>
+        </n-radio-group>
+      </div>
+      <div class="actions">
+        <n-space>
+          <n-button text @click="handleFormat" size="small">
+            <template #icon>
+              <n-icon><FormatIcon /></n-icon>
+            </template>
+            Format
+          </n-button>
+          <n-button text @click="handleMinify" size="small">
+            <template #icon>
+              <n-icon><CompressIcon /></n-icon>
+            </template>
+            Minify
+          </n-button>
+        </n-space>
+      </div>
     </div>
 
-    <div class="editor-actions">
-      <n-space>
-        <n-button text @click="handleFormat">
-          <template #icon>
-            <n-icon><FormatIcon /></n-icon>
-          </template>
-          Format
-        </n-button>
-        <n-button text @click="handleMinify">
-          <template #icon>
-            <n-icon><CompressIcon /></n-icon>
-          </template>
-          Minify
-        </n-button>
-      </n-space>
+    <div class="editor-container">
+      <MonacoEditor
+        v-model:value="content"
+        :language="monacoLanguage"
+        :options="editorOptions"
+        height="100%"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { NButton, NIcon, NInput, NRadioGroup, NRadioButton, NSpace, useMessage } from 'naive-ui';
+import { NButton, NIcon, NRadioGroup, NRadioButton, NSpace, useMessage } from 'naive-ui';
 import { CodeSlashOutline as FormatIcon, RemoveCircleOutline as CompressIcon } from '@vicons/ionicons5';
 import type { RawBodyType } from '@/types/request';
+import MonacoEditor from '@/components/common/MonacoEditor.vue';
 
 interface Props {
   raw?: string;
@@ -51,7 +54,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update', raw: string): void;
+  (e: 'update:raw', raw: string): void;
 }
 
 const props = defineProps<Props>();
@@ -62,6 +65,27 @@ const message = useMessage();
 const localRawType = ref<RawBodyType>(props.rawType || 'json');
 const content = ref(props.raw || '');
 
+const editorOptions = {
+  minimap: { enabled: false },
+  fontSize: 14,
+  lineNumbers: 'on',
+  scrollBeyondLastLine: false,
+  wordWrap: 'on',
+  automaticLayout: true,
+  tabSize: 2
+};
+
+const monacoLanguage = computed(() => {
+  const typeMap: Record<RawBodyType, string> = {
+    text: 'text',
+    json: 'json',
+    xml: 'xml',
+    html: 'html',
+    javascript: 'javascript'
+  };
+  return typeMap[localRawType.value] || 'text';
+});
+
 // Watch for prop changes
 watch(() => props.raw, (newRaw) => {
   content.value = newRaw || '';
@@ -71,21 +95,16 @@ watch(() => props.rawType, (newRawType) => {
   localRawType.value = newRawType || 'json';
 });
 
-watch([localRawType, content], ([newRawType, newContent]) => {
-  emit('update', newContent);
+watch(content, (newContent) => {
+  emit('update:raw', newContent);
 });
-
-function handleContentChange(value: string) {
-  content.value = value;
-  emit('update', value);
-}
 
 function handleFormat() {
   if (localRawType.value === 'json') {
     try {
       const parsed = JSON.parse(content.value);
       content.value = JSON.stringify(parsed, null, 2);
-      handleContentChange(content.value);
+      emit('update:raw', content.value);
     } catch (error) {
       message.error('Invalid JSON');
     }
@@ -99,7 +118,7 @@ function handleMinify() {
     try {
       const parsed = JSON.parse(content.value);
       content.value = JSON.stringify(parsed);
-      handleContentChange(content.value);
+      emit('update:raw', content.value);
     } catch (error) {
       message.error('Invalid JSON');
     }
@@ -117,16 +136,21 @@ function handleMinify() {
   min-height: 0;
 }
 
-.editor-container {
-  flex: 1;
-  margin-top: 12px;
-  min-height: 0;
-  overflow: auto;
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-.editor-actions {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
+.type-selector {
+  display: flex;
+  align-items: center;
+}
+
+.editor-container {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>

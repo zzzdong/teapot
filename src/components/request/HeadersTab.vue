@@ -1,13 +1,16 @@
 <template>
   <div class="headers-tab">
-    <n-data-table
-      :row-key="getRowKey"
-      :columns="columns"
-      :data="headers"
-      :pagination="false"
-      :bordered="false"
-      size="small"
-    />
+    <div class="table-wrapper">
+      <n-data-table
+        :row-key="getRowKey"
+        :columns="columns"
+        :data="headers"
+        :pagination="false"
+        :bordered="false"
+        size="small"
+        :max-height="tableHeight"
+      />
+    </div>
     <n-button
       text
       type="primary"
@@ -36,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, watch, computed } from 'vue';
+import { h, ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { NButton, NCheckbox, NInput, NDataTable, NIcon, NSpace, NTag } from 'naive-ui';
 import { AddOutline as AddIcon, TrashOutline as TrashIcon } from '@vicons/ionicons5';
 import type { RequestHeader } from '@/types/request';
@@ -47,6 +50,8 @@ const headers = defineModel<RequestHeader[]>('headers', {
     { key: 'Accept', value: 'application/json', enabled: true }
   ]
 });
+
+const tableHeight = ref(300);
 
 // Use key + value + enabled as a unique identifier for each row
 // This avoids re-rendering the entire row when content changes
@@ -188,6 +193,27 @@ function handleRemoveHeader(index: number) {
   }
   debouncedEmit();
 }
+
+// Calculate table height dynamically
+function updateTableHeight() {
+  const element = document.querySelector('.headers-tab');
+  if (element) {
+    const height = element.clientHeight;
+    const buttonHeight = 40;
+    const commonHeadersHeight = document.querySelector('.common-headers')?.clientHeight || 0;
+    const padding = 24;
+    tableHeight.value = height - buttonHeight - commonHeadersHeight - padding;
+  }
+}
+
+onMounted(() => {
+  updateTableHeight();
+  window.addEventListener('resize', updateTableHeight);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateTableHeight);
+});
 </script>
 
 <style scoped>
@@ -195,9 +221,16 @@ function handleRemoveHeader(index: number) {
   display: flex;
   flex-direction: column;
   flex: 1;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px 0;
+}
+
+.table-wrapper {
+  flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 12px 0;
 }
 
 .add-button {

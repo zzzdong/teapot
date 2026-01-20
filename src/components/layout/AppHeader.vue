@@ -22,10 +22,10 @@
             </n-button>
           </template>
         </n-select>
-        <n-button text size="small" @click="environmentDrawerVisible = true">
+        <n-button quaternary circle size="small" @click="environmentDrawerVisible = true">
           <template #icon>
             <n-icon>
-              <PencilOutline />
+              <OptionsOutline />
             </n-icon>
           </template>
         </n-button>
@@ -33,7 +33,7 @@
     </div>
 
     <div class="header-right">
-      <n-space>
+      <n-space align="center">
         <n-button text @click="handleImport">
           <template #icon>
             <n-icon>
@@ -50,7 +50,7 @@
           </template>
           Export
         </n-button>
-        <n-button text @click="handleSettings">
+        <n-button quaternary circle size="small" @click="handleSettings">
           <template #icon>
             <n-icon>
               <SettingsIcon />
@@ -71,7 +71,7 @@
 <script setup lang="ts">
 import { computed, h, ref } from 'vue';
 import { NButton, NIcon, NSelect, NSpace, useMessage, useDialog, NDrawer } from 'naive-ui';
-import { DownloadOutline as ImportIcon, CloudUploadOutline as ExportIcon, SettingsOutline as SettingsIcon, AddOutline, PencilOutline } from '@vicons/ionicons5';
+import { DownloadOutline as ImportIcon, CloudUploadOutline as ExportIcon, SettingsOutline as SettingsIcon, AddOutline, OptionsOutline } from '@vicons/ionicons5';
 import { useEnvironmentStore } from '@/stores/environment';
 import SettingsDialog from '@/components/settings/SettingsDialog.vue';
 import EnvironmentPanel from './EnvironmentPanel.vue';

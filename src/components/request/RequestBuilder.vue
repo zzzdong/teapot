@@ -1,6 +1,16 @@
 <template>
   <div class="request-builder">
     <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
+      <template #suffix>
+        <n-button text @click="codeGeneratorVisible = true">
+          <template #icon>
+            <n-icon>
+              <CodeSlashOutline />
+            </n-icon>
+          </template>
+          Code
+        </n-button>
+      </template>
       <n-tab-pane name="params" tab="Params">
         <ParamsTab :params="request.params" @update:params="handleParamsUpdate" />
       </n-tab-pane>
@@ -20,12 +30,15 @@
         <TestsTab :script="request.testScript" @update="handleTestScriptUpdate" />
       </n-tab-pane>
     </n-tabs>
+
+    <CodeGeneratorDrawer v-model:show="codeGeneratorVisible" :context="context" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { NTabs, NTabPane, useMessage } from 'naive-ui';
+import { NTabs, NTabPane, NButton, NIcon, useMessage } from 'naive-ui';
+import { CodeSlashOutline } from '@vicons/ionicons5';
 import { useWorkspaceStore } from '@/stores/workspace';
 import type { RequestContext, TestScript, PreRequestScript, RequestParam, RequestHeader, AuthConfig } from '@/types';
 import ParamsTab from './ParamsTab.vue';
@@ -34,6 +47,7 @@ import HeadersTab from './HeadersTab.vue';
 import BodyTab from './BodyTab.vue';
 import PreRequestScriptTab from './PreRequestScriptTab.vue';
 import TestsTab from './TestsTab.vue';
+import CodeGeneratorDrawer from './CodeGeneratorDrawer.vue';
 
 const props = defineProps<{
   tabId: string;
@@ -123,6 +137,7 @@ function handleAuthUpdate(newAuth: AuthConfig) {
 }
 
 const activeTab = ref('params');
+const codeGeneratorVisible = ref(false);
 
 </script>
 

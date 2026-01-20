@@ -294,7 +294,8 @@ export const request = {
         verify_ssl: mergedConfig.sslVerification !== false,
         follow_redirects: mergedConfig.followRedirects !== false,
         user_agent: mergedConfig.userAgent || undefined,
-        ca_cert_paths: mergedConfig.caCertPaths || undefined
+        ca_cert_paths: mergedConfig.caCertPaths || undefined,
+        proxy: mergedConfig.proxy || undefined
       };
 
       // Call custom Tauri command
@@ -397,7 +398,9 @@ export const mergeRequestConfig = (requestConfig: any, globalSettings: any = {})
     // Merge follow redirects setting
     followRedirects: requestConfig.followRedirects ?? globalSettings.followRedirects ?? DEFAULT_CONFIG.FOLLOW_REDIRECTS,
     // Merge CA certificate paths
-    caCertPaths: requestConfig.caCertPaths ?? globalSettings.caCertPaths ?? undefined
+    caCertPaths: requestConfig.caCertPaths ?? globalSettings.caCertPaths ?? undefined,
+    // Merge proxy settings - request-level proxy can override global settings
+    proxy: requestConfig.proxy ?? globalSettings.proxy ?? undefined
   };
 };
 
@@ -405,4 +408,68 @@ export const mergeRequestConfig = (requestConfig: any, globalSettings: any = {})
 export const env = {
   get: (key: string) => Promise.reject('Environment variables not implemented'),
   set: (key: string, value: any) => Promise.reject('Environment variables not implemented')
+};
+
+// HTTP Client configuration management
+export const httpClient = {
+  updateConfig: async (config: any) => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      // 转换为 camelCase 格式
+      const rustConfig = {
+        timeout: config.defaultTimeout || 30000,
+        verify_ssl: config.verifySsl !== false,
+        follow_redirects: config.followRedirects !== false,
+        user_agent: config.defaultUserAgent || 'Teapot/1.0',
+        ca_cert_paths: config.caCertPaths || [],
+        proxy: config.proxy ? {
+          enabled: config.proxy.enabled || false,
+          host: config.proxy.host || '',
+          port: config.proxy.port || 8080,
+          protocol: config.proxy.protocol || 'http',
+          username: config.proxy.username,
+          password: config.proxy.password
+        } : undefined
+      };
+      await invoke('update_config', { config: rustConfig });
+    }
+  },
+  getConfig: async () => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      return await invoke('get_config');
+    }
+    return null;
+  },
+  clearCookies: async () => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('clear_cookies');
+    }
+  },
+  getAllCookies: async () => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      return await invoke('get_all_cookies');
+    }
+    return [];
+  },
+  deleteCookie: async (domain: string, name: string) => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('delete_cookie', { domain, name });
+    }
+  },
+  saveCookiesNow: async () => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('save_cookies_now');
+    }
+  },
+  initCookieStorage: async () => {
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('init_cookie_storage');
+    }
+  }
 };

@@ -9,27 +9,31 @@
     <n-drawer-content title="Generate Code" closable>
       <div class="code-generator-drawer">
         <div class="language-selector">
-          <n-text strong>Select Language</n-text>
-          <n-select
-            id="language"
-            v-model:value="selectedLanguage"
-            :options="languageOptions"
-            placeholder="Choose a language"
-            style="width: 100%"
-          />
+          <div class="language-selector-left">
+            <n-text strong>Select Language</n-text>
+            <n-select
+              id="language"
+              v-model:value="selectedLanguage"
+              :options="languageOptions"
+              placeholder="Choose a language"
+              style="width: 100%"
+            />
+          </div>
+          <n-button type="primary" @click="copyCode">
+            <template #icon>
+              <n-icon><CopyOutline /></n-icon>
+            </template>
+            Copy Code
+          </n-button>
         </div>
 
         <div class="code-output">
           <n-text strong>Generated Code</n-text>
-          <n-code :code="generatedCode" :language="codeLanguage" />
-          <div class="code-actions">
-            <n-button type="primary" @click="copyCode">
-              <template #icon>
-                <n-icon><CopyOutline /></n-icon>
-              </template>
-              Copy Code
-            </n-button>
-          </div>
+          <MonacoEditor
+            :value="generatedCode"
+            :language="codeLanguage"
+            :options="editorOptions"
+          />
         </div>
       </div>
     </n-drawer-content>
@@ -38,10 +42,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { NDrawer, NDrawerContent, NButton, NSelect, NCode, NIcon, useMessage } from 'naive-ui';
+import { NDrawer, NDrawerContent, NButton, NSelect, NIcon, NText, useMessage } from 'naive-ui';
 import { CopyOutline } from '@vicons/ionicons5';
 import type { RequestContext } from '@/types';
 import * as Handlebars from 'handlebars';
+import MonacoEditor from '@/components/common/MonacoEditor.vue';
 
 interface Props {
   show?: boolean;
@@ -63,7 +68,7 @@ const drawerVisible = computed({
 });
 
 const message = useMessage();
-const selectedLanguage = ref('javascript');
+const selectedLanguage = ref('curl');
 const codeLanguage = computed(() => {
   const languageMap: Record<string, string> = {
     javascript: 'javascript',
@@ -78,14 +83,25 @@ const codeLanguage = computed(() => {
 });
 
 const languageOptions = [
+  { label: 'cURL', value: 'curl' },
   { label: 'JavaScript (Fetch)', value: 'javascript' },
   { label: 'TypeScript (Fetch)', value: 'typescript' },
   { label: 'Python (Requests)', value: 'python' },
-  { label: 'cURL', value: 'curl' },
   { label: 'Go (net/http)', value: 'go' },
   { label: 'Java (HttpClient)', value: 'java' },
   { label: 'C# (HttpClient)', value: 'csharp' }
 ];
+
+// Monaco Editor 只读选项
+const editorOptions = computed(() => ({
+  readOnly: true,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  fontSize: 14,
+  lineNumbers: 'on',
+  wordWrap: 'on',
+  padding: { top: 16, bottom: 16 }
+}));
 
 // Handlebars templates
 const templates: Record<string, HandlebarsTemplateDelegate<any>> = {
@@ -680,7 +696,7 @@ function copyCode() {
 
 watch(() => props.context, () => {
   // Reset language when context changes
-  selectedLanguage.value = 'javascript';
+  selectedLanguage.value = 'curl';
 });
 </script>
 
@@ -691,21 +707,25 @@ watch(() => props.context, () => {
 
 .language-selector {
   margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.language-selector-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .code-output {
   margin-top: 16px;
 }
 
-.code-actions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-:deep(.n-code) {
-  max-height: 400px;
-  overflow: auto;
+.code-output :deep(.monaco-editor-container) {
+  border: 1px solid var(--n-border-color);
+  border-radius: 4px;
+  min-height: 400px;
 }
 </style>

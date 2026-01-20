@@ -8,7 +8,7 @@ export interface HttpClientSettings {
   defaultUserAgent?: string;
   followRedirects?: boolean;
   caCertPaths?: string[];
-  proxy?: {
+  proxy: {
     enabled: boolean;
     host: string;
     port: number;

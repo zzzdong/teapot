@@ -54,6 +54,14 @@
               style="width: 300px;"
             />
             <n-button
+              type="primary"
+              size="small"
+              @click="selectCertPath(index)"
+              style="margin-left: 8px;"
+            >
+              选择
+            </n-button>
+            <n-button
               type="error"
               size="small"
               @click="removeCertPath(index)"
@@ -130,9 +138,11 @@ import {
   NDivider,
   NRadioGroup,
   NRadio,
+  NButton,
   type FormInst
 } from 'naive-ui';
 import { useSettingsStore } from '@/stores/settings';
+import { open } from '@tauri-apps/plugin-dialog';
 
 const settingsStore = useSettingsStore();
 const formRef = ref<FormInst | null>(null);
@@ -145,12 +155,52 @@ if (!Array.isArray(form.value.caCertPaths)) {
   form.value.caCertPaths = [];
 }
 
+// 确保 proxy 对象存在（提供默认值）
+if (!form.value.proxy) {
+  form.value.proxy = {
+    enabled: false,
+    host: '',
+    port: 8080,
+    protocol: 'http',
+    username: undefined,
+    password: undefined
+  };
+}
+
 // 添加CA证书路径
 function addCertPath() {
   if (!Array.isArray(form.value.caCertPaths)) {
     form.value.caCertPaths = [];
   }
   form.value.caCertPaths.push('');
+}
+
+// 选择CA证书文件
+async function selectCertPath(index: number) {
+  try {
+    const selected = await open({
+      multiple: false,
+      filters: [
+        {
+          name: 'PEM 证书',
+          extensions: ['pem', 'crt', 'cer']
+        },
+        {
+          name: '所有文件',
+          extensions: ['*']
+        }
+      ]
+    });
+
+    if (selected && typeof selected === 'string') {
+      if (!Array.isArray(form.value.caCertPaths)) {
+        form.value.caCertPaths = [];
+      }
+      form.value.caCertPaths[index] = selected;
+    }
+  } catch (error) {
+    console.error('Failed to open file dialog:', error);
+  }
 }
 
 // 移除CA证书路径
@@ -162,15 +212,32 @@ function removeCertPath(index: number) {
 
 // 当 store 中的 httpClient 更新时，同步到表单（例如加载后）
 watch(() => settingsStore.httpClient, (newVal) => {
-  form.value = { ...newVal };
+  const synced = { ...newVal };
+  // 确保 proxy 对象存在
+  if (!synced.proxy) {
+    synced.proxy = {
+      enabled: false,
+      host: '',
+      port: 8080,
+      protocol: 'http',
+      username: undefined,
+      password: undefined
+    };
+  }
+  form.value = synced;
 }, { deep: true });
 
 // 表单变化时更新 store（使用防抖避免频繁更新）
 let updateTimeout: ReturnType<typeof setTimeout> | null = null;
-watch(form, (newVal) => {
+watch(form, async (newVal) => {
   if (updateTimeout) clearTimeout(updateTimeout);
-  updateTimeout = setTimeout(() => {
+  updateTimeout = setTimeout(async () => {
+    // 更新前端 store
     settingsStore.updateHttpClient(newVal);
+    // 持久化到 Tauri store
+    await settingsStore.save();
+    // 更新后端配置
+    await import('@/api/tauri-api').then(api => api.httpClient.updateConfig(newVal));
   }, 300);
 }, { deep: true });
 </script>

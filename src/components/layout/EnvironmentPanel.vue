@@ -244,12 +244,12 @@ const dialog = useDialog();
 const message = useMessage();
 const environmentStore = useEnvironmentStore();
 
-const selectedScope = ref<'global' | 'environment' | 'dynamic'>('global');
+const selectedScope = ref<'global' | 'environment' | 'dynamic'>('environment');
 const showSecrets = ref<Record<string, boolean>>({});
 
 const scopeOptions = [
-  { label: 'Global', value: 'global' },
   { label: 'Environment', value: 'environment' },
+  { label: 'Global', value: 'global' },
   { label: 'Dynamic', value: 'dynamic' }
 ];
 

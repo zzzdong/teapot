@@ -66,7 +66,7 @@
       <ConsolePanel />
     </div>
 
-    <CodeGeneratorDrawer :show="showCodeDialog" :context="currentCodeContext" />
+    <CodeGeneratorDrawer v-model:show="showCodeDialog" :context="currentCodeContext" />
   </div>
 </template>
 
