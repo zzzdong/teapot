@@ -123,7 +123,7 @@ function handleAuthUpdate(newAuth: AuthConfig) {
   }
 }
 
-const activeTab = ref('params');
+const activeTab = ref('body');
 const codeGeneratorVisible = ref(false);
 
 </script>

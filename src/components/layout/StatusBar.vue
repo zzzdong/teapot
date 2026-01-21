@@ -1,7 +1,7 @@
 <template>
   <div class="status-bar">
     <div class="status-left">
-      <span v-if="requestStore.isSending" class="status-sending">
+      <span v-if="isSending" class="status-sending">
         Sending request...
       </span>
       <span v-else class="status-ready">
@@ -18,7 +18,7 @@
       </n-button>
       <span class="status-divider">|</span>
       <span class="status-info">
-        Method: {{ requestStore.method }}
+        Method: {{ activeMethod }}
       </span>
       <span class="status-divider">|</span>
       <span class="status-info">
@@ -33,18 +33,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRequestStore } from '@/stores/request';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useEnvironmentStore } from '@/stores/environment';
 import { useWorkspaceStore } from '@/stores/workspace';
 import { NButton, NIcon } from 'naive-ui';
 import { TerminalOutline } from '@vicons/ionicons5';
 
-const requestStore = useRequestStore();
 const environmentStore = useEnvironmentStore();
 const workspaceStore = useWorkspaceStore();
 
 const currentTime = ref('');
+
+const activeTab = computed(() => {
+  if (!workspaceStore.activeTabId) return null;
+  return workspaceStore.tabs.find(t => t.id === workspaceStore.activeTabId) || null;
+});
+
+const activeMethod = computed(() => {
+  return activeTab.value?.context?.request?.method || 'GET';
+});
+
+const isSending = computed(() => {
+  return activeTab.value?.context?.requestSentAt !== undefined &&
+         activeTab.value?.context?.responseReceivedAt === undefined;
+});
 
 function updateTime() {
   const now = new Date();
