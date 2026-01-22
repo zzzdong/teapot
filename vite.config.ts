@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig({
   plugins: [vue()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -23,10 +23,6 @@ export default defineConfig(async () => ({
     }
   },
 
-  optimizeDeps: {
-    exclude: ['monaco-editor']
-  },
-
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -35,13 +31,6 @@ export default defineConfig(async () => ({
     // don't minify for debug builds
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
-    sourcemap: !!process.env.TAURI_DEBUG,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          monaco: ['monaco-editor']
-        }
-      }
-    }
+    sourcemap: !!process.env.TAURI_DEBUG
   },
-}));
+});

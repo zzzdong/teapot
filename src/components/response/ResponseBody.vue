@@ -23,7 +23,7 @@
           v-if="isJson"
           class="code-viewer"
         >
-          <MonacoEditor
+          <CodeEditor
             :value="formattedJson"
             language="json"
             theme="vs"
@@ -35,7 +35,7 @@
           v-else-if="isXml"
           class="code-viewer"
         >
-          <MonacoEditor
+          <CodeEditor
             :value="formattedXml"
             language="xml"
             theme="vs"
@@ -47,7 +47,7 @@
           v-else
           class="text-viewer"
         >
-          <MonacoEditor
+          <CodeEditor
             :value="bodyText"
             language="plaintext"
             theme="vs"
@@ -62,7 +62,7 @@
         v-else-if="viewType === 'raw'"
         class="raw-view"
       >
-        <MonacoEditor
+        <CodeEditor
           :value="bodyText"
           language="plaintext"
           theme="vs"
@@ -105,7 +105,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { NInput, NRadioGroup, NRadioButton, NSpace } from 'naive-ui';
-import MonacoEditor from '@/components/common/MonacoEditor.vue';
+import { CodeEditor } from 'monaco-editor-vue3';
 import type { RequestContext } from '@/types';
 
 interface Props {

@@ -10,5 +10,6 @@
   "bracketSpacing": true,
   "arrowParens": "always",
   "vueIndentScriptAndStyle": false,
-  "singleAttributePerLine": true
+  "singleAttributePerLine": true,
+  "endOfLine": "lf"
 }

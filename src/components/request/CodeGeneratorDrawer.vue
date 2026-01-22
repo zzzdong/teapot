@@ -35,7 +35,7 @@
 
         <div class="code-output">
           <n-text strong>Generated Code</n-text>
-          <MonacoEditor
+          <CodeEditor
             :value="generatedCode"
             :language="codeLanguage"
             :options="editorOptions"
@@ -50,8 +50,8 @@
 import { ref, computed, watch } from 'vue';
 import { NDrawer, NDrawerContent, NButton, NSelect, NIcon, NText, useMessage } from 'naive-ui';
 import { CopyOutline } from '@vicons/ionicons5';
+import { CodeEditor } from 'monaco-editor-vue3';
 import type { RequestContext } from '@/types';
-import MonacoEditor from '@/components/common/MonacoEditor.vue';
 import { generateCode, languageOptions, languageMap } from '@/utils/codeGenerator';
 
 const selectOptions = languageOptions.map((opt) => ({

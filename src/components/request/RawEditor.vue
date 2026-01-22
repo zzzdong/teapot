@@ -48,7 +48,7 @@
     </div>
 
     <div class="editor-container">
-      <MonacoEditor
+      <CodeEditor
         v-model:value="content"
         :language="monacoLanguage"
         :options="editorOptions"
@@ -62,8 +62,8 @@
 import { ref, watch, computed } from 'vue';
 import { NButton, NIcon, NRadioGroup, NRadioButton, NSpace, useMessage } from 'naive-ui';
 import { CodeSlashOutline as FormatIcon, RemoveCircleOutline as CompressIcon } from '@vicons/ionicons5';
+import { CodeEditor } from 'monaco-editor-vue3';
 import type { RawBodyType } from '@/types/request';
-import MonacoEditor from '@/components/common/MonacoEditor.vue';
 
 interface Props {
   raw?: string;

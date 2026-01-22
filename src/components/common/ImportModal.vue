@@ -54,11 +54,11 @@
           >
             <div class="tab-content">
               <div class="text-editor-wrapper">
-                <MonacoEditor
+                <CodeEditor
                   v-model:value="textContent"
                   language="text"
-                  :min-lines="15"
-                  :max-lines="15"
+                  :options="{ minimap: { enabled: false } }"
+                  height="300px"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ import {
   useMessage,
 } from 'naive-ui';
 import { AttachOutline } from '@vicons/ionicons5';
-import MonacoEditor from '@/components/common/MonacoEditor.vue';
+import { CodeEditor } from 'monaco-editor-vue3';
 import { curlToRequest } from '@/utils/curlParser';
 import { convertPostmanToTeapot, isPostmanCollection, isTeapotFormat } from '@/utils/postmanParser';
 import { useWorkspaceStore } from '@/stores/workspace';

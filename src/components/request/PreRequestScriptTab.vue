@@ -35,13 +35,11 @@
       class="script-editor-container"
       v-show="scriptEnabled"
     >
-      <MonacoEditor
+      <CodeEditor
         v-model:value="scriptContent"
         language="javascript"
         theme="vs"
         :options="editorOptions"
-        :completionItems="completionItems"
-        @change="handleContentChange"
       />
     </div>
 
@@ -98,11 +96,11 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue';
 import { useMessage } from 'naive-ui';
+import { CodeEditor } from 'monaco-editor-vue3';
 import type { PreRequestScript } from '@/types/request';
 import type { ScriptContext, ScriptResult, ScriptLogEntry } from '@/types/script';
 import { executeScript, validateScriptSyntax } from '@/utils/scriptExecutor';
 import ScriptLogPanel from './ScriptLogPanel.vue';
-import MonacoEditor from '@/components/common/MonacoEditor.vue';
 import { useEnvironmentStore } from '@/stores/environment';
 
 interface Props {
@@ -133,7 +131,7 @@ const isRunning = ref(false);
 const showSnippets = ref(false);
 
 // Monaco Editor state
-let editorInstance: any = null;
+const editorInstance: any = null;
 
 const editorOptions = computed(() => ({
   fontSize: 13,

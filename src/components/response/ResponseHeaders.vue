@@ -139,7 +139,7 @@ const sortedHeaders = computed(() => {
 });
 
 const filteredHeaders = computed(() => {
-  let headers = sortedHeaders.value;
+  const headers = sortedHeaders.value;
 
   if (!searchText.value) {
     return headers;
