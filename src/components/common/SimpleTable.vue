@@ -1,23 +1,35 @@
 <template>
   <div class="simple-table">
-    <div v-if="data.length === 0" class="no-data">
+    <div
+      v-if="data.length === 0"
+      class="no-data"
+    >
       {{ noDataText || 'No data' }}
     </div>
-    <div v-else class="table-wrapper">
-      <n-table :bordered="bordered" :single-line="singleLine">
+    <div
+      v-else
+      class="table-wrapper"
+    >
+      <n-table
+        :bordered="bordered"
+        :single-line="singleLine"
+      >
         <thead>
           <tr>
             <th
               v-for="column in columns"
               :key="column.key"
-              :class="{ 'sortable': column.sortable, 'actions-column': !column.title }"
+              :class="{ sortable: column.sortable, 'actions-column': !column.title }"
               :style="{ width: column.width ? column.width + 'px' : '' }"
               @click="column.sortable ? handleSort(column.key) : null"
             >
               <template v-if="column.title">
                 <div class="th-content">
                   <span>{{ column.title }}</span>
-                  <slot v-if="column.sortable" :name="`sort-icon-${column.key}`">
+                  <slot
+                    v-if="column.sortable"
+                    :name="`sort-icon-${column.key}`"
+                  >
                   </slot>
                 </div>
               </template>
@@ -25,7 +37,10 @@
           </tr>
         </thead>
         <tbody class="table-body">
-          <tr v-for="row in data" :key="rowKey ? row[rowKey] : JSON.stringify(row)">
+          <tr
+            v-for="row in data"
+            :key="rowKey ? row[rowKey] : JSON.stringify(row)"
+          >
             <td
               v-for="column in columns"
               :key="column.key"
@@ -78,7 +93,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   bordered: false,
   singleLine: false,
-  noDataText: 'No data'
+  noDataText: 'No data',
 });
 
 const emit = defineEmits<Emits>();
@@ -89,7 +104,7 @@ function getCellContent(row: any, column: Column) {
 
 function rowIndex(row: any) {
   if (props.rowKey) {
-    return props.data.findIndex(item => item[props.rowKey!] === row[props.rowKey!]);
+    return props.data.findIndex((item) => item[props.rowKey!] === row[props.rowKey!]);
   }
   return props.data.indexOf(row);
 }
@@ -188,6 +203,6 @@ function handleSort(key: string) {
 }
 
 .table-body {
-    overflow: visible;
+  overflow: visible;
 }
 </style>

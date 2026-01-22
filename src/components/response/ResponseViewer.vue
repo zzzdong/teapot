@@ -1,31 +1,63 @@
 <template>
   <div class="response-viewer">
-    <div v-if="!hasResponse" class="no-response">
-      <n-icon size="64" :color="'#ccc'">
+    <div
+      v-if="!hasResponse"
+      class="no-response"
+    >
+      <n-icon
+        size="64"
+        :color="'#ccc'"
+      >
         <DocumentTextOutline />
       </n-icon>
       <p>Send a request to see the response</p>
     </div>
 
-    <div v-else class="response-content">
-      <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
-        <n-tab-pane name="body" tab="Body">
+    <div
+      v-else
+      class="response-content"
+    >
+      <n-tabs
+        class="tab-container"
+        v-model:value="activeTab"
+        type="line"
+        animated
+      >
+        <n-tab-pane
+          name="body"
+          tab="Body"
+        >
           <ResponseBody :context="props.context" />
         </n-tab-pane>
-        <n-tab-pane name="headers" tab="Headers">
-          <ResponseHeaders :context="props.context" style="height: 100%;" />
+        <n-tab-pane
+          name="headers"
+          tab="Headers"
+        >
+          <ResponseHeaders
+            :context="props.context"
+            style="height: 100%"
+          />
         </n-tab-pane>
-        <n-tab-pane name="cookies" tab="Cookies">
+        <n-tab-pane
+          name="cookies"
+          tab="Cookies"
+        >
           <ResponseCookies :context="props.context" />
         </n-tab-pane>
-        <n-tab-pane name="tests" tab="Test Results">
+        <n-tab-pane
+          name="tests"
+          tab="Test Results"
+        >
           <ResponseTests :context="props.context" />
         </n-tab-pane>
       </n-tabs>
 
       <div class="response-bar">
         <div class="response-status">
-          <n-tag :type="statusTagType" size="large">
+          <n-tag
+            :type="statusTagType"
+            size="large"
+          >
             {{ status }}
           </n-tag>
           <span class="status-text">{{ statusText }}</span>
@@ -34,13 +66,19 @@
         <div class="response-info">
           <n-space :size="16">
             <span class="info-item">
-              <n-icon :size="14" :color="'#666'">
+              <n-icon
+                :size="14"
+                :color="'#666'"
+              >
                 <TimeOutline />
               </n-icon>
               {{ duration }}
             </span>
             <span class="info-item">
-              <n-icon :size="14" :color="'#666'">
+              <n-icon
+                :size="14"
+                :color="'#666'"
+              >
                 <CloudDownloadOutline />
               </n-icon>
               {{ size }}
@@ -50,13 +88,21 @@
 
         <div class="response-actions">
           <n-space>
-            <n-button text size="small" @click="handleDownload">
+            <n-button
+              text
+              size="small"
+              @click="handleDownload"
+            >
               <template #icon>
                 <n-icon><DownloadOutline /></n-icon>
               </template>
               Download
             </n-button>
-            <n-button text size="small" @click="handleCopy">
+            <n-button
+              text
+              size="small"
+              @click="handleCopy"
+            >
               <template #icon>
                 <n-icon><CopyOutline /></n-icon>
               </template>
@@ -77,7 +123,7 @@ import {
   TimeOutline,
   CloudDownloadOutline,
   DownloadOutline,
-  CopyOutline
+  CopyOutline,
 } from '@vicons/ionicons5';
 import type { RequestContext } from '@/types';
 import ResponseBody from './ResponseBody.vue';
@@ -254,5 +300,4 @@ async function handleCopy() {
   height: 100%;
   overflow: hidden;
 }
-
 </style>

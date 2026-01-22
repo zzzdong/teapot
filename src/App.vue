@@ -1,5 +1,8 @@
 <template>
-  <n-config-provider :theme="theme" :theme-overrides="themeOverrides">
+  <n-config-provider
+    :theme="theme"
+    :theme-overrides="themeOverrides"
+  >
     <n-message-provider>
       <n-dialog-provider>
         <n-notification-provider>
@@ -8,7 +11,10 @@
             <div class="app-content">
               <div class="resizer-left-wrapper">
                 <LeftSidebar :style="{ width: leftSidebarWidth + 'px' }" />
-                <div class="resizer" @mousedown="startLeftResize"></div>
+                <div
+                  class="resizer"
+                  @mousedown="startLeftResize"
+                ></div>
               </div>
               <MainWorkspace :style="{ flex: '1' }" />
             </div>
@@ -42,8 +48,8 @@ const themeOverrides = {
     borderRadius: '4px',
     borderRadiusSmall: '2px',
     borderRadiusMedium: '4px',
-    borderRadiusLarge: '6px'
-  }
+    borderRadiusLarge: '6px',
+  },
 };
 
 // Resizer state
@@ -100,12 +106,7 @@ onMounted(() => {
   console.log('  - debugWorkspace() - Show current workspace state');
   console.log('  - clearWorkspace() - Clear all workspace data');
 
-  Promise.all([
-    loadHistory(),
-    loadCollections(),
-    loadEnvironments(),
-    loadWorkspace()
-  ]).then(() => {
+  Promise.all([loadHistory(), loadCollections(), loadEnvironments(), loadWorkspace()]).then(() => {
     // Debug: Log workspace state after loading
     setTimeout(() => {
       debugTabState();

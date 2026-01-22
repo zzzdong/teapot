@@ -17,13 +17,13 @@ export const useCollectionsStore = defineStore('collections', () => {
     const items: CollectionItem[] = [];
 
     // Add all collections first
-    collections.value.forEach(collection => {
+    collections.value.forEach((collection) => {
       items.push(collection);
 
       // Helper function to recursively collect children
       function collectChildren(parentId: string) {
-        const children = collections.value.filter(item => item.parentId === parentId);
-        children.forEach(child => {
+        const children = collections.value.filter((item) => item.parentId === parentId);
+        children.forEach((child) => {
           items.push(child);
           collectChildren(child.id);
         });
@@ -37,26 +37,26 @@ export const useCollectionsStore = defineStore('collections', () => {
 
   const selectedItem = computed(() => {
     if (!selectedItemId.value) return null;
-    return allItems.value.find(item => item.id === selectedItemId.value) || null;
+    return allItems.value.find((item) => item.id === selectedItemId.value) || null;
   });
 
   const currentCollection = computed(() => {
     if (!currentCollectionId.value) return null;
-    return collections.value.find(c => c.id === currentCollectionId.value && c.type === 'collection') || null;
+    return collections.value.find((c) => c.id === currentCollectionId.value && c.type === 'collection') || null;
   });
 
   const collectionOptions = computed(() => {
     return collections.value
-      .filter(item => item.type === 'collection')
-      .map(collection => ({
+      .filter((item) => item.type === 'collection')
+      .map((collection) => ({
         label: collection.name,
-        value: collection.id
+        value: collection.id,
       }));
   });
 
   // Helper to get direct children of a parent (not recursive)
   function getDirectChildren(parentId: string): CollectionItem[] {
-    return allItems.value.filter(item => item.parentId === parentId);
+    return allItems.value.filter((item) => item.parentId === parentId);
   }
 
   // Actions
@@ -67,9 +67,9 @@ export const useCollectionsStore = defineStore('collections', () => {
       type: 'collection',
       name,
       description,
-      order: collections.value.filter(c => c.type === 'collection').length,
+      order: collections.value.filter((c) => c.type === 'collection').length,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
     collections.value.push(collection);
     saveToStore();
@@ -85,7 +85,7 @@ export const useCollectionsStore = defineStore('collections', () => {
       description,
       order: 0,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
     expandedItems.value.add(folder.id);
     collections.value.push(folder);
@@ -102,7 +102,7 @@ export const useCollectionsStore = defineStore('collections', () => {
       request,
       order: 0,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
     collections.value.push(collectionRequest);
     saveToStore();
@@ -123,13 +123,13 @@ export const useCollectionsStore = defineStore('collections', () => {
     let i = 0;
     while (i < children.length) {
       const childId = children[i];
-      const childItems = allItems.value.filter(item => item.parentId === childId);
-      childItems.forEach(child => children.push(child.id));
+      const childItems = allItems.value.filter((item) => item.parentId === childId);
+      childItems.forEach((child) => children.push(child.id));
       i++;
     }
 
     // Delete from collections array
-    collections.value = collections.value.filter(item => !children.includes(item.id));
+    collections.value = collections.value.filter((item) => !children.includes(item.id));
 
     saveToStore();
   }
@@ -163,11 +163,11 @@ export const useCollectionsStore = defineStore('collections', () => {
   }
 
   function findItem(id: string): CollectionItem | null {
-    return collections.value.find(c => c.id === id) || null;
+    return collections.value.find((c) => c.id === id) || null;
   }
 
   function findRequestByRequestId(requestId: string): CollectionRequest | null {
-    const item = collections.value.find(item => {
+    const item = collections.value.find((item) => {
       if (item.type !== 'request') return false;
       const requestItem = item as CollectionRequest;
       return requestItem.request?.id === requestId;
@@ -178,33 +178,33 @@ export const useCollectionsStore = defineStore('collections', () => {
   function findAncestorCollection(itemId: string): string | null {
     const item = findItem(itemId);
     if (!item) return null;
-    
+
     if (item.type === 'collection') {
       return item.id;
     }
-    
+
     // 对于文件夹或请求，向上查找祖先collection
     let currentItem: CollectionItem | null = item;
     while (currentItem && currentItem.type !== 'collection') {
       currentItem = currentItem.parentId ? findItem(currentItem.parentId) : null;
     }
-    
+
     return currentItem ? currentItem.id : null;
   }
 
   function updateRequest(requestId: string, updates: Partial<Request>) {
     const collectionRequest = findRequestByRequestId(requestId);
     if (!collectionRequest) return;
-    
+
     // 更新请求数据
     collectionRequest.request = { ...collectionRequest.request, ...updates };
     collectionRequest.updatedAt = Date.now();
-    
+
     // 如果名称更新了，也更新集合项名称
     if (updates.name) {
       collectionRequest.name = updates.name;
     }
-    
+
     saveToStore();
   }
 
@@ -234,7 +234,7 @@ export const useCollectionsStore = defineStore('collections', () => {
   }
 
   function expandAll() {
-    allItems.value.forEach(item => {
+    allItems.value.forEach((item) => {
       if (item.type === 'folder' || item.type === 'collection') {
         expandedItems.value.add(item.id);
       }
@@ -264,12 +264,12 @@ export const useCollectionsStore = defineStore('collections', () => {
   }
 
   function exportCollection(id: string): CollectionItem | null {
-    const collection = collections.value.find(c => c.id === id);
+    const collection = collections.value.find((c) => c.id === id);
     return collection ? { ...collection } : null;
   }
 
   function importCollection(collection: CollectionItem) {
-    const existing = collections.value.find(c => c.id === collection.id);
+    const existing = collections.value.find((c) => c.id === collection.id);
     if (existing) {
       const index = collections.value.indexOf(existing);
       collections.value[index] = { ...collection };
@@ -280,11 +280,11 @@ export const useCollectionsStore = defineStore('collections', () => {
   }
 
   function exportAllCollections(): CollectionItem[] {
-    return collections.value.map(c => ({ ...c }));
+    return collections.value.map((c) => ({ ...c }));
   }
 
   function importAllCollections(collectionsToImport: Collection[]) {
-    collectionsToImport.forEach(collection => {
+    collectionsToImport.forEach((collection) => {
       importCollection(collection);
     });
   }
@@ -315,7 +315,7 @@ export const useCollectionsStore = defineStore('collections', () => {
             collections.value = value.map((c: any) => ({
               ...c,
               createdAt: c.createdAt || Date.now(),
-              updatedAt: c.updatedAt || Date.now()
+              updatedAt: c.updatedAt || Date.now(),
             }));
           }
         }
@@ -379,6 +379,6 @@ export const useCollectionsStore = defineStore('collections', () => {
     exportAllCollections,
     importAllCollections,
     saveToStore,
-    loadFromStore
+    loadFromStore,
   };
 });

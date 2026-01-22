@@ -1,11 +1,4 @@
-export type HttpMethod =
-  | 'GET'
-  | 'POST'
-  | 'PUT'
-  | 'DELETE'
-  | 'PATCH'
-  | 'HEAD'
-  | 'OPTIONS';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
 
 export interface RequestParam {
   key: string;
@@ -21,13 +14,7 @@ export interface RequestHeader {
   enabled: boolean;
 }
 
-export type BodyType =
-  | 'none'
-  | 'form-data'
-  | 'x-www-form-urlencoded'
-  | 'raw'
-  | 'binary'
-  | 'graphql';
+export type BodyType = 'none' | 'form-data' | 'x-www-form-urlencoded' | 'raw' | 'binary' | 'graphql';
 
 export type RawBodyType = 'text' | 'json' | 'xml' | 'html' | 'javascript';
 

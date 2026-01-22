@@ -1,26 +1,65 @@
 <template>
-  <n-modal v-model:show="show" preset="dialog" title="保存请求" :show-icon="false" :block-scroll="true"
-    @after-leave="handleAfterLeave">
-    <n-form ref="formRef" :model="formData" :rules="formRules" label-placement="left" label-width="80">
-      <n-form-item label="请求名称" path="name">
-        <n-input v-model:value="formData.name" placeholder="输入请求名称" />
+  <n-modal
+    v-model:show="show"
+    preset="dialog"
+    title="保存请求"
+    :show-icon="false"
+    :block-scroll="true"
+    @after-leave="handleAfterLeave"
+  >
+    <n-form
+      ref="formRef"
+      :model="formData"
+      :rules="formRules"
+      label-placement="left"
+      label-width="80"
+    >
+      <n-form-item
+        label="请求名称"
+        path="name"
+      >
+        <n-input
+          v-model:value="formData.name"
+          placeholder="输入请求名称"
+        />
       </n-form-item>
 
-      <n-form-item label="保存到" path="locationId">
-        <n-tree-select v-model:value="formData.locationId" :options="collectionTreeOptions"
-          placeholder="选择Collection或文件夹" key-field="id" label-field="name" children-field="children" clearable />
+      <n-form-item
+        label="保存到"
+        path="locationId"
+      >
+        <n-tree-select
+          v-model:value="formData.locationId"
+          :options="collectionTreeOptions"
+          placeholder="选择Collection或文件夹"
+          key-field="id"
+          label-field="name"
+          children-field="children"
+          clearable
+        />
       </n-form-item>
 
-      <n-form-item label="描述" path="description">
-        <n-input v-model:value="formData.description" type="textarea" placeholder="输入描述(可选)"
-          :autosize="{ minRows: 2, maxRows: 4 }" />
+      <n-form-item
+        label="描述"
+        path="description"
+      >
+        <n-input
+          v-model:value="formData.description"
+          type="textarea"
+          placeholder="输入描述(可选)"
+          :autosize="{ minRows: 2, maxRows: 4 }"
+        />
       </n-form-item>
     </n-form>
 
     <template #action>
       <n-space>
         <n-button @click="handleCancel">取消</n-button>
-        <n-button type="primary" @click="handleSave">保存</n-button>
+        <n-button
+          type="primary"
+          @click="handleSave"
+          >保存</n-button
+        >
       </n-space>
     </template>
   </n-modal>
@@ -49,45 +88,43 @@ const formRef = ref<any>(null);
 const formData = ref({
   name: '',
   locationId: null as string | null,
-  description: ''
+  description: '',
 });
 
 const formRules = {
   name: [
     { required: true, message: '请输入请求名称', trigger: 'blur' },
-    { min: 1, max: 100, message: '名称长度应在1-100之间', trigger: 'blur' }
+    { min: 1, max: 100, message: '名称长度应在1-100之间', trigger: 'blur' },
   ],
-  locationId: [
-    { required: true, message: '请选择保存位置', trigger: 'change' }
-  ]
+  locationId: [{ required: true, message: '请选择保存位置', trigger: 'change' }],
 };
 
 // Computed
 const collectionTreeOptions = computed(() => {
   const items = collectionsStore.allItems;
   // 获取所有集合（顶层）
-  const collections = items.filter(item => item.type === 'collection');
+  const collections = items.filter((item) => item.type === 'collection');
 
   // 构建树
   return collections
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map(collection => ({
+    .map((collection) => ({
       id: collection.id,
       name: collection.name,
-      children: buildFolderTreeForCollection(collection.id)
+      children: buildFolderTreeForCollection(collection.id),
     }));
 });
 
 // Methods
 function buildFolderTreeForCollection(parentId: string): any[] {
   const folders = collectionsStore.allItems
-    .filter(item => item.parentId === parentId && item.type === 'folder')
-    .map(folder => {
+    .filter((item) => item.parentId === parentId && item.type === 'folder')
+    .map((folder) => {
       const node: any = {
         id: folder.id,
         name: folder.name,
-        children: buildFolderTreeForCollection(folder.id)
+        children: buildFolderTreeForCollection(folder.id),
       };
       return node;
     });
@@ -132,11 +169,7 @@ async function handleSave() {
 
     // Update request name and description (only for normal save, not Save As)
     if (!isSaveAs.value && workspaceStore.activeTabId) {
-      workspaceStore.updateTabName(
-        workspaceStore.activeTabId,
-        formData.value.name,
-        formData.value.description
-      );
+      workspaceStore.updateTabName(workspaceStore.activeTabId, formData.value.name, formData.value.description);
     }
 
     emit('save', { name: formData.value.name, collectionId, folderId, description: formData.value.description });
@@ -154,19 +187,16 @@ function handleAfterLeave() {
   formData.value = {
     name: '',
     locationId: null,
-    description: ''
+    description: '',
   };
 }
 
 // Watch
-watch(
-  show,
-  (newShow) => {
-    if (newShow && workspaceStore.activeTabId) {
-      const activeTab = workspaceStore.tabs.find(t => t.id === workspaceStore.activeTabId);
-      formData.value.name = activeTab?.context.request.name || '';
-      formData.value.description = activeTab?.context.request.description || '';
-    }
+watch(show, (newShow) => {
+  if (newShow && workspaceStore.activeTabId) {
+    const activeTab = workspaceStore.tabs.find((t) => t.id === workspaceStore.activeTabId);
+    formData.value.name = activeTab?.context.request.name || '';
+    formData.value.description = activeTab?.context.request.description || '';
   }
-);
+});
 </script>

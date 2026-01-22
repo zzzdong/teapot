@@ -1,7 +1,13 @@
 <template>
   <div class="response-cookies">
-    <div v-if="cookies.length === 0" class="no-cookies">
-      <n-icon size="48" :color="'#ccc'">
+    <div
+      v-if="cookies.length === 0"
+      class="no-cookies"
+    >
+      <n-icon
+        size="48"
+        :color="'#ccc'"
+      >
         <CookieOutline />
       </n-icon>
       <p>No cookies in response</p>
@@ -38,10 +44,10 @@ const cookies = computed(() => {
 
   const extractedCookies: Cookie[] = [];
   const setCookieHeader = response.headers['set-cookie'];
-  
+
   if (setCookieHeader) {
     const cookiesArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
-    cookiesArray.forEach(cookieString => {
+    cookiesArray.forEach((cookieString) => {
       const parts = cookieString.split(';');
       const [name, value] = parts[0].split('=');
       const cookie: Cookie = {
@@ -50,7 +56,7 @@ const cookies = computed(() => {
         domain: '',
         path: '/',
         httpOnly: false,
-        secure: false
+        secure: false,
       };
 
       parts.slice(1).forEach((part: string) => {
@@ -76,42 +82,52 @@ const columns = [
     title: 'Name',
     key: 'name',
     width: 150,
-    render: (row: any) => h('span', {
-      style: 'font-weight: 500;'
-    }, row.name)
+    render: (row: any) =>
+      h(
+        'span',
+        {
+          style: 'font-weight: 500;',
+        },
+        row.name
+      ),
   },
   {
     title: 'Value',
     key: 'value',
     ellipsis: {
-      tooltip: true
-    }
+      tooltip: true,
+    },
   },
   {
     title: 'Domain',
     key: 'domain',
-    width: 120
+    width: 120,
   },
   {
     title: 'Path',
     key: 'path',
-    width: 80
+    width: 80,
   },
   {
     title: 'Flags',
     key: 'flags',
     width: 150,
-    render: (row: any) => h('div', { style: 'display: flex; gap: 4px; flex-wrap: wrap;' }, [
-      row.httpOnly && h(NTag, { size: 'small', type: 'info' }, { default: () => 'HttpOnly' }),
-      row.secure && h(NTag, { size: 'small', type: 'success' }, { default: () => 'Secure' }),
-      row.sameSite && h(NTag, { size: 'small', type: 'warning' }, { default: () => row.sameSite })
-    ].filter(Boolean))
+    render: (row: any) =>
+      h(
+        'div',
+        { style: 'display: flex; gap: 4px; flex-wrap: wrap;' },
+        [
+          row.httpOnly && h(NTag, { size: 'small', type: 'info' }, { default: () => 'HttpOnly' }),
+          row.secure && h(NTag, { size: 'small', type: 'success' }, { default: () => 'Secure' }),
+          row.sameSite && h(NTag, { size: 'small', type: 'warning' }, { default: () => row.sameSite }),
+        ].filter(Boolean)
+      ),
   },
   {
     title: 'Expires',
     key: 'expires',
-    width: 150
-  }
+    width: 150,
+  },
 ];
 </script>
 

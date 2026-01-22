@@ -10,7 +10,11 @@
         clearable
         @update:value="handleCollectionChange"
       />
-      <n-button text size="small" @click="handleCreateCollection">
+      <n-button
+        text
+        size="small"
+        @click="handleCreateCollection"
+      >
         <template #icon>
           <n-icon><AddOutline /></n-icon>
         </template>
@@ -22,7 +26,10 @@
         trigger="click"
         @select="handleCollectionAction"
       >
-        <n-button text size="small">
+        <n-button
+          text
+          size="small"
+        >
           <template #icon>
             <n-icon><EllipsisVerticalOutline /></n-icon>
           </template>
@@ -31,8 +38,14 @@
     </div>
 
     <n-scrollbar style="max-height: calc(100vh - 140px)">
-      <div v-if="!currentCollection" class="empty-state">
-        <n-icon size="48" :color="'#ccc'">
+      <div
+        v-if="!currentCollection"
+        class="empty-state"
+      >
+        <n-icon
+          size="48"
+          :color="'#ccc'"
+        >
           <FolderOutline />
         </n-icon>
         <p>No collection selected</p>
@@ -45,16 +58,27 @@
           <span class="item-count">{{ currentCollectionItems.length }} items</span>
         </div>
 
-        <div v-if="currentCollectionItems.length === 0" class="no-items">
+        <div
+          v-if="currentCollectionItems.length === 0"
+          class="no-items"
+        >
           <p>No items in this collection</p>
           <div class="add-buttons">
-            <n-button type="primary" size="small" @click="handleCreateFolder(currentCollection.id)">
+            <n-button
+              type="primary"
+              size="small"
+              @click="handleCreateFolder(currentCollection.id)"
+            >
               <template #icon>
                 <n-icon><AddCircleOutline /></n-icon>
               </template>
               Add Folder
             </n-button>
-            <n-button type="primary" size="small" @click="handleCreateRequest(currentCollection.id)">
+            <n-button
+              type="primary"
+              size="small"
+              @click="handleCreateRequest(currentCollection.id)"
+            >
               <template #icon>
                 <n-icon><DocumentTextOutline /></n-icon>
               </template>
@@ -63,7 +87,10 @@
           </div>
         </div>
 
-        <div v-else class="items-tree">
+        <div
+          v-else
+          class="items-tree"
+        >
           <CollectionTreeItem
             v-for="item in currentCollectionItems"
             :key="item.id"
@@ -94,7 +121,7 @@ import {
   DocumentTextOutline,
   CopyOutline,
   DownloadOutline,
-  CloudUploadOutline
+  CloudUploadOutline,
 } from '@vicons/ionicons5';
 import { useCollectionsStore } from '@/stores/collections';
 import { useWorkspaceStore } from '@/stores/workspace';
@@ -106,7 +133,7 @@ const workspaceStore = useWorkspaceStore();
 
 const currentCollectionId = computed({
   get: () => collectionsStore.currentCollectionId,
-  set: (value) => collectionsStore.setCurrentCollection(value)
+  set: (value) => collectionsStore.setCurrentCollection(value),
 });
 
 const currentCollection = computed(() => collectionsStore.currentCollection);
@@ -114,7 +141,7 @@ const collectionOptions = computed(() => collectionsStore.collectionOptions);
 
 const currentCollectionItems = computed(() => {
   if (!currentCollectionId.value) return [];
-  return collectionsStore.collections.filter(item => item.parentId === currentCollectionId.value);
+  return collectionsStore.collections.filter((item) => item.parentId === currentCollectionId.value);
 });
 
 function handleCollectionChange(value: string | null) {
@@ -134,11 +161,12 @@ function handleSelectItem(item: any) {
 function handleCreateCollection() {
   dialog.create({
     title: 'Create Collection',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'Collection name',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'Collection name',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Create',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -147,18 +175,19 @@ function handleCreateCollection() {
         const newCollection = collectionsStore.createCollection(input.value);
         collectionsStore.setCurrentCollection(newCollection.id);
       }
-    }
+    },
   });
 }
 
 function handleCreateFolder(parentId: string) {
   dialog.create({
     title: 'Create Folder',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'Folder name',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'Folder name',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Create',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -166,18 +195,19 @@ function handleCreateFolder(parentId: string) {
       if (input && input.value) {
         collectionsStore.createFolder(parentId, input.value);
       }
-    }
+    },
   });
 }
 
 function handleCreateRequest(parentId: string) {
   dialog.create({
     title: 'Create Request',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'Request name',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'Request name',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Create',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -193,26 +223,26 @@ function handleCreateRequest(parentId: string) {
           body: {
             type: 'none' as const,
             rawType: 'json' as const,
-            raw: ''
+            raw: '',
           },
           auth: {
             type: 'noauth' as const,
-            config: {}
+            config: {},
           },
           preRequestScript: {
             enabled: false,
-            content: ''
+            content: '',
           },
           testScript: {
             enabled: false,
-            content: ''
+            content: '',
           },
           createdAt: Date.now(),
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         };
         collectionsStore.createRequest(parentId, input.value, defaultRequest);
       }
-    }
+    },
   });
 }
 
@@ -220,47 +250,47 @@ const collectionActionOptions = [
   {
     label: 'Add Folder',
     key: 'add-folder',
-    icon: () => h(AddCircleOutline)
+    icon: () => h(AddCircleOutline),
   },
   {
     label: 'Add Request',
     key: 'add-request',
-    icon: () => h(DocumentTextOutline)
+    icon: () => h(DocumentTextOutline),
   },
   {
-    type: 'divider'
+    type: 'divider',
   },
   {
     label: 'Rename',
     key: 'rename',
-    icon: () => h(CreateOutline)
+    icon: () => h(CreateOutline),
   },
   {
     label: 'Duplicate',
     key: 'duplicate',
-    icon: () => h(CopyOutline)
+    icon: () => h(CopyOutline),
   },
   {
-    type: 'divider'
+    type: 'divider',
   },
   {
     label: 'Export',
     key: 'export',
-    icon: () => h(DownloadOutline)
+    icon: () => h(DownloadOutline),
   },
   {
     label: 'Import',
     key: 'import',
-    icon: () => h(CloudUploadOutline)
+    icon: () => h(CloudUploadOutline),
   },
   {
-    type: 'divider'
+    type: 'divider',
   },
   {
     label: 'Delete',
     key: 'delete',
-    icon: () => h(TrashOutline)
-  }
+    icon: () => h(TrashOutline),
+  },
 ];
 
 function handleCollectionAction(key: string) {
@@ -287,7 +317,7 @@ function handleCollectionAction(key: string) {
       onPositiveClick: () => {
         collectionsStore.deleteItem(currentCollection.value!.id);
         collectionsStore.setCurrentCollection(null);
-      }
+      },
     });
   }
 }
@@ -295,12 +325,13 @@ function handleCollectionAction(key: string) {
 function handleRenameItem(item: any) {
   dialog.create({
     title: `Rename ${item.type === 'folder' ? 'Folder' : item.type === 'request' ? 'Request' : 'Collection'}`,
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'New name',
-      value: item.name,
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'New name',
+        value: item.name,
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Save',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -308,7 +339,7 @@ function handleRenameItem(item: any) {
       if (input && input.value.trim()) {
         collectionsStore.updateItem(item.id, { name: input.value.trim() });
       }
-    }
+    },
   });
 }
 
@@ -321,7 +352,7 @@ function handleDeleteItem(item: any) {
     negativeText: 'Cancel',
     onPositiveClick: () => {
       collectionsStore.deleteItem(item.id);
-    }
+    },
   });
 }
 
@@ -344,10 +375,11 @@ function handleExportCollection() {
 function handleImportCollection() {
   dialog.create({
     title: 'Import Collection',
-    content: () => h('textarea', {
-      placeholder: 'Paste JSON collection data',
-      style: 'width: 100%; height: 150px; padding: 8px; margin-top: 8px; font-family: monospace;'
-    }),
+    content: () =>
+      h('textarea', {
+        placeholder: 'Paste JSON collection data',
+        style: 'width: 100%; height: 150px; padding: 8px; margin-top: 8px; font-family: monospace;',
+      }),
     positiveText: 'Import',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -360,7 +392,7 @@ function handleImportCollection() {
           console.error('Invalid JSON:', error);
         }
       }
-    }
+    },
   });
 }
 </script>

@@ -1,19 +1,36 @@
 <template>
   <div class="binary-editor">
-    <div v-if="!file" class="upload-area" @click="handleSelectFile">
-      <n-icon size="48" :color="'#999'">
+    <div
+      v-if="!file"
+      class="upload-area"
+      @click="handleSelectFile"
+    >
+      <n-icon
+        size="48"
+        :color="'#999'"
+      >
         <CloudUploadIcon />
       </n-icon>
       <p class="upload-text">Click to select a file</p>
       <p class="upload-hint">Binary file upload</p>
     </div>
-    <div v-else class="file-info">
-      <n-icon size="48" :color="'#18a058'">
+    <div
+      v-else
+      class="file-info"
+    >
+      <n-icon
+        size="48"
+        :color="'#18a058'"
+      >
         <DocumentIcon />
       </n-icon>
       <p class="file-name">{{ file.name }}</p>
       <p class="file-size">{{ formatFileSize(file.size) }}</p>
-      <n-button type="error" size="small" @click="handleClearFile">
+      <n-button
+        type="error"
+        size="small"
+        @click="handleClearFile"
+      >
         Clear File
       </n-button>
     </div>
@@ -47,9 +64,12 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const file = ref<File | null>(props.binary || null);
 
 // Watch for prop changes
-watch(() => props.binary, (newBinary) => {
-  file.value = newBinary || null;
-});
+watch(
+  () => props.binary,
+  (newBinary) => {
+    file.value = newBinary || null;
+  }
+);
 
 function handleSelectFile() {
   fileInput.value?.click();

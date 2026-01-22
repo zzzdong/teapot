@@ -1,19 +1,36 @@
 <template>
   <div class="main-workspace">
-    <n-tabs v-if="hasTabs" type="card" addable closable :value="activeTabId" @update:value="handleTabActivate"
-      @close="handleTabClose" @add="handleCreateTab">
+    <n-tabs
+      v-if="hasTabs"
+      type="card"
+      addable
+      closable
+      :value="activeTabId"
+      @update:value="handleTabActivate"
+      @close="handleTabClose"
+      @add="handleCreateTab"
+    >
       <template #suffix>
-        <div class="tabs-actions">
-          <n-button v-if="hasMultipleTabs" size="small" @click="workspaceStore.closeAllOtherTabs()" title="关闭其他标签页">
-            关闭其他
-          </n-button>
-          <n-button v-if="hasTabs" size="small" @click="workspaceStore.closeAllTabs()" title="关闭所有标签页">
-            关闭所有
-          </n-button>
-        </div>
+        <n-button
+          strong
+          secondary
+          @click="handleShowCurrentCodeDialog"
+          style="margin-right: 12px"
+        >
+          <template #icon>
+            <n-icon>
+              <CodeSlashOutline />
+            </n-icon>
+          </template>
+          Code
+        </n-button>
       </template>
-
-      <n-tab-pane v-for="tab in workspaceStore.tabs" :key="tab.id" :name="tab.id" :tab="getTabLabel(tab)">
+      <n-tab-pane
+        v-for="tab in workspaceStore.tabs"
+        :key="tab.id"
+        :name="tab.id"
+        :tab="getTabLabel(tab)"
+      >
         <template #tab>
           <div @contextmenu="(e: MouseEvent) => handleContextMenu(e, tab)">
             {{ getTabLabel(tab) }}
@@ -21,19 +38,43 @@
         </template>
         <div class="tab-content">
           <div class="request-bar">
-            <n-select :value="tab.context.request.method" :options="methodOptions" size="medium" style="width: 120px"
-              @update:value="(value) => handleMethodChange(value, tab.id)" />
-            <n-input :value="tab.context.request.url" placeholder="Enter request URL" size="medium" clearable
-              @update:value="(value) => handleUrlChange(value, tab.id)" @keyup.enter="() => handleSend(tab.id)" />
-            <n-button type="primary" size="medium" :loading="isSending" @click="() => handleSend(tab.id)">
+            <n-select
+              :value="tab.context.request.method"
+              :options="methodOptions"
+              size="medium"
+              style="width: 120px"
+              @update:value="(value) => handleMethodChange(value, tab.id)"
+            />
+            <n-input
+              :value="tab.context.request.url"
+              placeholder="Enter request URL"
+              size="medium"
+              clearable
+              @update:value="(value) => handleUrlChange(value, tab.id)"
+              @keyup.enter="() => handleSend(tab.id)"
+            />
+            <n-button
+              type="primary"
+              size="medium"
+              :loading="isSending"
+              @click="() => handleSend(tab.id)"
+            >
               Send
             </n-button>
             <n-button-group>
-              <n-button type="primary" size="medium" @click="() => handleSaveClick(tab.id)">
+              <n-button
+                type="primary"
+                size="medium"
+                @click="() => handleSaveClick(tab.id)"
+              >
                 Save
               </n-button>
-              <n-dropdown trigger="click" :options="saveOptions" @select="(key) => handleSaveSelect(key, tab.id)"
-                placement="bottom-end">
+              <n-dropdown
+                trigger="click"
+                :options="saveOptions"
+                @select="(key) => handleSaveSelect(key, tab.id)"
+                placement="bottom-end"
+              >
                 <n-button ghost>
                   <n-icon>
                     <ArrowDownIcon />
@@ -45,8 +86,11 @@
 
           <div class="workspace-content">
             <div class="workspace-left">
-              <RequestBuilder :context="tab.context" :tab-id="tab.id"
-                @update:context="(ctx) => handleContextUpdate(ctx, tab.id)" />
+              <RequestBuilder
+                :context="tab.context"
+                :tab-id="tab.id"
+                @update:context="(ctx) => handleContextUpdate(ctx, tab.id)"
+              />
             </div>
             <div class="workspace-right">
               <ResponseViewer :context="tab.context" />
@@ -56,10 +100,16 @@
       </n-tab-pane>
     </n-tabs>
 
-    <div class="empty-workspace" v-else>
+    <div
+      class="empty-workspace"
+      v-else
+    >
       <div class="empty-state">
         <p>没有打开的请求</p>
-        <n-button type="primary" @click="handleCreateTab">
+        <n-button
+          type="primary"
+          @click="handleCreateTab"
+        >
           <template #icon>
             <n-icon>
               <AddIcon />
@@ -70,25 +120,41 @@
       </div>
     </div>
 
-    <SaveRequestDialog v-model:show="showSaveDialog" v-model:isSaveAs="isSaveAsMode" @save="handleSaveRequest" />
+    <SaveRequestDialog
+      v-model:show="showSaveDialog"
+      v-model:isSaveAs="isSaveAsMode"
+      @save="handleSaveRequest"
+    />
 
-    <div v-if="workspaceStore.showConsole" class="console-panel-container">
+    <div
+      v-if="workspaceStore.showConsole"
+      class="console-panel-container"
+    >
       <ConsolePanel />
     </div>
 
-    <CodeGeneratorDrawer v-model:show="showCodeDialog" :context="currentCodeContext" />
+    <CodeGeneratorDrawer
+      v-model:show="showCodeDialog"
+      :context="currentCodeContext"
+    />
 
     <!-- 右键菜单 -->
-    <n-dropdown :show="contextMenuOption.show" :options="contextMenuOptions" :x="contextMenuOption.x"
-      :y="contextMenuOption.y" placement="top-start" @clickoutside="() => contextMenuOption.show = false"
-      @select="handleContextMenuSelect" />
+    <n-dropdown
+      :show="contextMenuOption.show"
+      :options="contextMenuOptions"
+      :x="contextMenuOption.x"
+      :y="contextMenuOption.y"
+      placement="top-start"
+      @clickoutside="() => (contextMenuOption.show = false)"
+      @select="handleContextMenuSelect"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { NTabs, NTabPane, NButton, NIcon, NSelect, NInput, NDropdown, useMessage, useDialog } from 'naive-ui';
-import { Add as AddIcon, ArrowDown as ArrowDownIcon } from '@vicons/ionicons5';
+import { Add as AddIcon, ArrowDown as ArrowDownIcon, CodeSlashOutline } from '@vicons/ionicons5';
 import { useWorkspaceStore } from '@/stores/workspace';
 import { useHttpClient } from '@/composables/useHttpClient';
 import { useHistoryStore } from '@/stores/history';
@@ -113,30 +179,29 @@ const activeTabId = computed(() => workspaceStore.activeTabId || undefined);
 const contextMenuOption = ref<{ show: boolean; x: number; y: number; tab?: WorkspaceTab }>({
   show: false,
   x: 0,
-  y: 0
+  y: 0,
 });
 
 const contextMenuOptions = [
   {
     label: '克隆标签页',
-    key: 'clone'
+    key: 'clone',
   },
   {
     label: '关闭标签页',
-    key: 'close'
+    key: 'close',
   },
   {
     label: '关闭其他标签页',
-    key: 'closeOthers'
+    key: 'closeOthers',
   },
   {
     label: '关闭所有标签页',
-    key: 'closeAll'
-  }
+    key: 'closeAll',
+  },
 ];
 
 const hasTabs = computed(() => workspaceStore.tabs.length > 0);
-const hasMultipleTabs = computed(() => workspaceStore.tabs.length > 1);
 
 const isSending = ref(false);
 const showCodeDialog = ref(false);
@@ -149,12 +214,12 @@ const methodOptions = [
   { label: 'DELETE', value: 'DELETE' },
   { label: 'PATCH', value: 'PATCH' },
   { label: 'HEAD', value: 'HEAD' },
-  { label: 'OPTIONS', value: 'OPTIONS' }
+  { label: 'OPTIONS', value: 'OPTIONS' },
 ];
 
 const saveOptions = [
   { label: 'Save As...', key: 'saveAs' },
-  { label: 'Code', key: 'code' }
+  { label: 'Code', key: 'code' },
 ];
 
 const showSaveDialog = ref(false);
@@ -171,7 +236,7 @@ function handleTabActivate(tabId: string) {
 }
 
 function handleTabClose(tabId: string) {
-  const tab = workspaceStore.tabs.find(t => t.id === tabId);
+  const tab = workspaceStore.tabs.find((t) => t.id === tabId);
 
   // 检查标签页是否已修改
   if (tab && tab.isModified) {
@@ -183,7 +248,7 @@ function handleTabClose(tabId: string) {
       negativeText: '取消',
       onPositiveClick: () => {
         workspaceStore.closeTab(tabId);
-      }
+      },
     });
   } else {
     // 如果没有未保存的更改，直接关闭
@@ -191,7 +256,7 @@ function handleTabClose(tabId: string) {
   }
 }
 
-function getTabLabel(tab: any) {
+function getTabLabel(tab: WorkspaceTab) {
   return tab.isModified ? `${tab.name} •` : tab.name;
 }
 
@@ -202,7 +267,7 @@ function handleContextMenu(e: MouseEvent, tab: WorkspaceTab) {
     show: true,
     x: e.clientX,
     y: e.clientY,
-    tab: tab
+    tab: tab,
   };
 }
 
@@ -238,7 +303,7 @@ function cloneTab() {
   const clonedRequest = {
     ...originalTab.context.request,
     id: Date.now().toString(), // 生成新的ID
-    name: `${originalTab.context.request.name} (Copy)` // 添加(Copy)后缀
+    name: `${originalTab.context.request.name} (Copy)`, // 添加(Copy)后缀
   };
 
   // 创建新标签页
@@ -247,29 +312,29 @@ function cloneTab() {
 }
 
 function handleMethodChange(value: HttpMethod, tabId: string) {
-  const tab = workspaceStore.tabs.find(t => t.id === tabId);
+  const tab = workspaceStore.tabs.find((t) => t.id === tabId);
   if (tab?.context?.request) {
     tab.context.request.method = value;
     tab.context.request.updatedAt = Date.now();
     workspaceStore.updateTabContext(tabId, {
-      request: tab.context.request
+      request: tab.context.request,
     });
   }
 }
 
 function handleUrlChange(value: string, tabId: string) {
-  const tab = workspaceStore.tabs.find(t => t.id === tabId);
+  const tab = workspaceStore.tabs.find((t) => t.id === tabId);
   if (tab?.context?.request) {
     tab.context.request.url = value;
     tab.context.request.updatedAt = Date.now();
     workspaceStore.updateTabContext(tabId, {
-      request: tab.context.request
+      request: tab.context.request,
     });
   }
 }
 
 async function handleSend(tabId: string) {
-  const tab = workspaceStore.tabs.find(t => t.id === tabId);
+  const tab = workspaceStore.tabs.find((t) => t.id === tabId);
   if (!tab?.context?.request) {
     message.warning('No request context found');
     return;
@@ -292,18 +357,14 @@ async function handleSend(tabId: string) {
       params: request.params,
       headers: request.headers,
       body: request.body,
-      auth: request.auth
+      auth: request.auth,
     };
 
     // Set request sent timestamp
     tab.context.requestSentAt = Date.now();
 
     // Pass pre-request script and test script to sendRequest
-    const { response, testResult } = await sendRequest(
-      config,
-      request.preRequestScript,
-      request.testScript
-    );
+    const { response, testResult } = await sendRequest(config, request.preRequestScript, request.testScript);
 
     // Update context with response and test results
     tab.context.response = response;
@@ -324,7 +385,7 @@ async function handleSend(tabId: string) {
 }
 
 function handleSaveClick(tabId: string) {
-  const tab = workspaceStore.tabs.find(t => t.id === tabId);
+  const tab = workspaceStore.tabs.find((t) => t.id === tabId);
   if (!tab?.context.request) return;
 
   const request = tab.context.request;
@@ -343,6 +404,14 @@ function handleSaveClick(tabId: string) {
   }
 }
 
+function showCodeGenerator(tabId: string) {
+  const tab = workspaceStore.tabs.find((t) => t.id === tabId);
+  if (tab?.context) {
+    currentCodeContext.value = tab.context;
+    showCodeDialog.value = true;
+  }
+}
+
 function handleSaveSelect(key: string, tabId: string) {
   if (key === 'saveAs') {
     // Save As: 无论请求是否存在，都打开保存对话框
@@ -350,11 +419,13 @@ function handleSaveSelect(key: string, tabId: string) {
     currentTabIdForSave.value = tabId;
     showSaveDialog.value = true;
   } else if (key === 'code') {
-    const tab = workspaceStore.tabs.find(t => t.id === tabId);
-    if (tab?.context) {
-      currentCodeContext.value = tab.context;
-      showCodeDialog.value = true;
-    }
+    showCodeGenerator(tabId);
+  }
+}
+
+function handleShowCurrentCodeDialog() {
+  if (activeTabId.value) {
+    showCodeGenerator(activeTabId.value);
   }
 }
 
@@ -362,12 +433,10 @@ function handleContextUpdate(updatedContext: RequestContext, tabId: string) {
   workspaceStore.updateTabContext(tabId, updatedContext);
 }
 
-
-
 function handleSaveRequest(payload: SaveRequestPayload) {
   if (!currentTabIdForSave.value) return;
 
-  const tab = workspaceStore.tabs.find(t => t.id === currentTabIdForSave.value!);
+  const tab = workspaceStore.tabs.find((t) => t.id === currentTabIdForSave.value!);
   if (!tab?.context?.request) return;
 
   workspaceStore.saveTab(tab.id);
@@ -377,22 +446,16 @@ function handleSaveRequest(payload: SaveRequestPayload) {
     ...tab.context.request,
     id: Date.now().toString(), // 生成新的ID（Save As应该创建新请求）
     name: payload.name,
-    description: payload.description
+    description: payload.description,
   };
 
   // 保存请求到集合
-  collectionsStore.createRequest(
-    payload.folderId || payload.collectionId,
-    newRequest.name,
-    newRequest
-  );
+  collectionsStore.createRequest(payload.folderId || payload.collectionId, newRequest.name, newRequest);
 
   message.success('Request saved successfully');
   showSaveDialog.value = false;
   currentTabIdForSave.value = null;
 }
-
-
 </script>
 
 <style scoped>
@@ -476,7 +539,7 @@ function handleSaveRequest(payload: SaveRequestPayload) {
   flex-direction: column;
 }
 
-.workspace-left>* {
+.workspace-left > * {
   flex: 1;
 }
 
@@ -488,7 +551,7 @@ function handleSaveRequest(payload: SaveRequestPayload) {
   flex-direction: column;
 }
 
-.workspace-right>* {
+.workspace-right > * {
   flex: 1;
 }
 
@@ -505,7 +568,6 @@ function handleSaveRequest(payload: SaveRequestPayload) {
   justify-content: center;
   background-color: #fff;
 }
-
 
 .empty-state {
   text-align: center;

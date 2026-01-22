@@ -1,7 +1,10 @@
 <template>
   <div class="documentation-panel">
     <div class="empty-state">
-      <n-icon size="64" :color="'#ccc'">
+      <n-icon
+        size="64"
+        :color="'#ccc'"
+      >
         <DocumentTextOutline />
       </n-icon>
       <h3>Documentation</h3>

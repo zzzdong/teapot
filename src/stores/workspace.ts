@@ -22,7 +22,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
         name: tab.name,
         hasContext: !!tab.context,
         hasRequest: !!tab.context?.request,
-        testScript: tab.context?.request?.testScript
+        testScript: tab.context?.request?.testScript,
       });
     });
     console.log('Active tab ID:', activeTabId.value);
@@ -46,30 +46,30 @@ export const useWorkspaceStore = defineStore('workspace', () => {
         urlencoded: [],
         graphql: {
           query: '',
-          variables: '{}'
+          variables: '{}',
         },
-        binary: null
+        binary: null,
       },
       auth: {
         type: 'noauth',
-        config: {}
+        config: {},
       },
       preRequestScript: {
         enabled: false,
-        content: ''
+        content: '',
       },
       testScript: {
         enabled: false,
-        content: ''
+        content: '',
       },
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
   }
 
   function createDefaultContext(): RequestContext {
     return {
-      request: createDefaultRequest()
+      request: createDefaultRequest(),
     };
   }
 
@@ -85,11 +85,11 @@ export const useWorkspaceStore = defineStore('workspace', () => {
       isActive: true,
       isModified: false,
       name: defaultContext.request.name,
-      createdAt: Date.now()
+      createdAt: Date.now(),
     } as WorkspaceTab;
 
     // Set all tabs to inactive first
-    tabs.value.forEach(t => t.isActive = false);
+    tabs.value.forEach((t) => (t.isActive = false));
 
     // Add new tab and make it active
     tabs.value.push(tab);
@@ -100,7 +100,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
 
   function closeTab(tabId: string) {
-    const index = tabs.value.findIndex(tab => tab.id === tabId);
+    const index = tabs.value.findIndex((tab) => tab.id === tabId);
     if (index === -1) return;
 
     const wasActive = tabs.value[index].id === activeTabId.value;
@@ -119,7 +119,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
 
   function activateTab(tabId: string) {
-    tabs.value.forEach(tab => {
+    tabs.value.forEach((tab) => {
       tab.isActive = tab.id === tabId;
     });
     activeTabId.value = tabId;
@@ -127,16 +127,15 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
 
   function saveTab(tabId: string) {
-    const tab = tabs.value.find(t => t.id === tabId);
+    const tab = tabs.value.find((t) => t.id === tabId);
     if (!tab) return;
 
     tab.isModified = false;
     saveToStore();
   }
 
-
   function updateTabContext(tabId: string, contextUpdates: Partial<RequestContext>) {
-    const tab = tabs.value.find(t => t.id === tabId);
+    const tab = tabs.value.find((t) => t.id === tabId);
     if (!tab) return;
 
     // Update request
@@ -167,7 +166,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
 
   function updateTabName(tabId: string, name: string, description?: string) {
-    const tab = tabs.value.find(t => t.id === tabId);
+    const tab = tabs.value.find((t) => t.id === tabId);
     if (tab) {
       tab.name = name;
       tab.context.request.name = name;
@@ -179,7 +178,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
 
   function markTabAsSaved(tabId: string) {
-    const tab = tabs.value.find(t => t.id === tabId);
+    const tab = tabs.value.find((t) => t.id === tabId);
     if (tab) {
       tab.isModified = false;
       saveToStore();
@@ -193,7 +192,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
 
   function closeOtherTabs(keepTabId: string) {
-    tabs.value = tabs.value.filter(tab => tab.id === keepTabId);
+    tabs.value = tabs.value.filter((tab) => tab.id === keepTabId);
     activateTab(keepTabId);
     saveToStore();
   }
@@ -208,14 +207,17 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     try {
       if (tauriApi?.store) {
         // Save tabs with context data
-        await tauriApi.store.set('workspaceTabs', tabs.value.map(tab => ({
-          id: tab.id,
-          context: tab.context,
-          isActive: tab.isActive,
-          isModified: tab.isModified,
-          name: tab.name,
-          createdAt: tab.createdAt
-        })));
+        await tauriApi.store.set(
+          'workspaceTabs',
+          tabs.value.map((tab) => ({
+            id: tab.id,
+            context: tab.context,
+            isActive: tab.isActive,
+            isModified: tab.isModified,
+            name: tab.name,
+            createdAt: tab.createdAt,
+          }))
+        );
         await tauriApi.store.set('activeTabId', activeTabId.value);
       }
     } catch (error) {
@@ -249,18 +251,18 @@ export const useWorkspaceStore = defineStore('workspace', () => {
       preRequestScript: storedRequest.preRequestScript || defaultRequest.preRequestScript,
       testScript: storedRequest.testScript || defaultRequest.testScript,
       createdAt: storedRequest.createdAt || defaultRequest.createdAt,
-      updatedAt: storedRequest.updatedAt || defaultRequest.updatedAt
+      updatedAt: storedRequest.updatedAt || defaultRequest.updatedAt,
     };
 
     return {
       id: storedTab.id,
       context: {
-        request: migratedRequest
+        request: migratedRequest,
       },
       isActive: storedTab.isActive || false,
       isModified: storedTab.isModified || false,
       name: storedTab.name || storedRequest.name || 'Untitled',
-      createdAt: storedTab.createdAt || Date.now()
+      createdAt: storedTab.createdAt || Date.now(),
     };
   }
 
@@ -276,10 +278,10 @@ export const useWorkspaceStore = defineStore('workspace', () => {
 
           // Restore active tab if it still exists
           if (storedActiveTabId) {
-            const activeTabExists = tabs.value.find(t => t.id === storedActiveTabId);
+            const activeTabExists = tabs.value.find((t) => t.id === storedActiveTabId);
             if (activeTabExists) {
               activeTabId.value = storedActiveTabId;
-              tabs.value.forEach(tab => {
+              tabs.value.forEach((tab) => {
                 tab.isActive = tab.id === storedActiveTabId;
               });
             } else if (tabs.value.length > 0) {
@@ -300,7 +302,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   function loadRequestIntoNewTab(request: Request) {
     createTab(request);
   }
-
 
   // Helper function to clear all workspace data (for testing)
   async function clearWorkspaceData() {
@@ -342,6 +343,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     loadRequestIntoNewTab,
     toggleConsole,
     debugTabState,
-    clearWorkspaceData
+    clearWorkspaceData,
   };
 });

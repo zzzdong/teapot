@@ -3,7 +3,11 @@
     <div class="panel-header">
       <span>Console</span>
       <n-space>
-        <n-button text size="small" @click="handleClearLogs">
+        <n-button
+          text
+          size="small"
+          @click="handleClearLogs"
+        >
           <template #icon>
             <n-icon><TrashOutline /></n-icon>
           </template>
@@ -12,16 +16,28 @@
       </n-space>
     </div>
 
-    <div class="console-content" ref="contentRef">
-      <div v-if="logs.length === 0" class="empty-state">
-        <n-icon size="48" :color="'#ccc'">
+    <div
+      class="console-content"
+      ref="contentRef"
+    >
+      <div
+        v-if="logs.length === 0"
+        class="empty-state"
+      >
+        <n-icon
+          size="48"
+          :color="'#ccc'"
+        >
           <TerminalOutline />
         </n-icon>
         <p>Console is empty</p>
         <p class="hint">Script execution logs will appear here</p>
       </div>
 
-      <div v-else class="logs-list">
+      <div
+        v-else
+        class="logs-list"
+      >
         <div
           v-for="(log, index) in logs"
           :key="index"
@@ -33,8 +49,14 @@
             <span class="log-type">{{ log.type.toUpperCase() }}</span>
           </div>
           <div class="log-message">{{ log.message }}</div>
-          <div v-if="log.data" class="log-data">
-            <n-code :code="formatData(log.data)" language="json" />
+          <div
+            v-if="log.data"
+            class="log-data"
+          >
+            <n-code
+              :code="formatData(log.data)"
+              language="json"
+            />
           </div>
         </div>
       </div>
@@ -56,13 +78,17 @@ const contentRef = ref<HTMLElement>();
 const logs = computed(() => consoleStore.logs);
 
 // Auto-scroll to bottom when logs are added
-watch(logs, () => {
-  nextTick(() => {
-    if (contentRef.value) {
-      contentRef.value.scrollTop = contentRef.value.scrollHeight;
-    }
-  });
-}, { deep: true });
+watch(
+  logs,
+  () => {
+    nextTick(() => {
+      if (contentRef.value) {
+        contentRef.value.scrollTop = contentRef.value.scrollHeight;
+      }
+    });
+  },
+  { deep: true }
+);
 
 function handleClearLogs() {
   consoleStore.clear();
@@ -172,10 +198,18 @@ function formatData(data: any): string {
   border-radius: 2px;
 }
 
-.log-log .log-type { color: #2080f0; }
-.log-info .log-type { color: #18a058; }
-.log-warn .log-type { color: #f0a020; }
-.log-error .log-type { color: #d03050; }
+.log-log .log-type {
+  color: #2080f0;
+}
+.log-info .log-type {
+  color: #18a058;
+}
+.log-warn .log-type {
+  color: #f0a020;
+}
+.log-error .log-type {
+  color: #d03050;
+}
 
 .log-message {
   font-size: 12px;

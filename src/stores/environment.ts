@@ -14,7 +14,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   // Computed
   const currentEnvironment = computed(() => {
     if (!currentEnvironmentId.value) return null;
-    return environments.value.find(env => env.id === currentEnvironmentId.value) || null;
+    return environments.value.find((env) => env.id === currentEnvironmentId.value) || null;
   });
 
   const currentVariables = computed(() => {
@@ -22,16 +22,16 @@ export const useEnvironmentStore = defineStore('environment', () => {
 
     // Add global variables
     globalVariables.value
-      .filter(v => v.enabled)
-      .forEach(v => {
+      .filter((v) => v.enabled)
+      .forEach((v) => {
         vars[v.key] = resolveVariableValue(v.value);
       });
 
     // Add current environment variables
     if (currentEnvironment.value) {
       currentEnvironment.value.variables
-        .filter(v => v.enabled)
-        .forEach(v => {
+        .filter((v) => v.enabled)
+        .forEach((v) => {
           vars[v.key] = resolveVariableValue(v.value);
         });
     }
@@ -51,7 +51,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
       name,
       variables: [],
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
     environments.value.push(env);
     saveToStore();
@@ -59,19 +59,19 @@ export const useEnvironmentStore = defineStore('environment', () => {
   }
 
   function updateEnvironment(id: string, updates: Partial<Environment>) {
-    const index = environments.value.findIndex(env => env.id === id);
+    const index = environments.value.findIndex((env) => env.id === id);
     if (index !== -1) {
       environments.value[index] = {
         ...environments.value[index],
         ...updates,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
       saveToStore();
     }
   }
 
   function deleteEnvironment(id: string) {
-    environments.value = environments.value.filter(env => env.id !== id);
+    environments.value = environments.value.filter((env) => env.id !== id);
     if (currentEnvironmentId.value === id) {
       currentEnvironmentId.value = null;
     }
@@ -84,7 +84,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   }
 
   function addVariableToEnvironment(environmentId: string, variable: EnvironmentVariable) {
-    const env = environments.value.find(e => e.id === environmentId);
+    const env = environments.value.find((e) => e.id === environmentId);
     if (env) {
       env.variables.push(variable);
       env.updatedAt = Date.now();
@@ -93,7 +93,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   }
 
   function updateVariableInEnvironment(environmentId: string, index: number, variable: EnvironmentVariable) {
-    const env = environments.value.find(e => e.id === environmentId);
+    const env = environments.value.find((e) => e.id === environmentId);
     if (env && env.variables[index]) {
       env.variables[index] = variable;
       env.updatedAt = Date.now();
@@ -102,7 +102,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   }
 
   function deleteVariableFromEnvironment(environmentId: string, index: number) {
-    const env = environments.value.find(e => e.id === environmentId);
+    const env = environments.value.find((e) => e.id === environmentId);
     if (env) {
       env.variables.splice(index, 1);
       env.updatedAt = Date.now();
@@ -143,7 +143,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
 
     // Check environment
     if (currentEnvironment.value && (!scope || scope === 'environment')) {
-      const envVar = currentEnvironment.value.variables.find(v => v.key === key && v.enabled);
+      const envVar = currentEnvironment.value.variables.find((v) => v.key === key && v.enabled);
       if (envVar) {
         return resolveVariableValue(envVar.value);
       }
@@ -151,7 +151,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
 
     // Check global
     if (!scope || scope === 'global') {
-      const globalVar = globalVariables.value.find(v => v.key === key && v.enabled);
+      const globalVar = globalVariables.value.find((v) => v.key === key && v.enabled);
       if (globalVar) {
         return resolveVariableValue(globalVar.value);
       }
@@ -173,7 +173,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
       '{{$randomTime}}': () => new Date().toTimeString(),
       '{{$randomCity}}': () => ['New York', 'London', 'Paris', 'Tokyo', 'Sydney'][Math.floor(Math.random() * 5)],
       '{{$randomCountry}}': () => ['USA', 'UK', 'France', 'Japan', 'Australia'][Math.floor(Math.random() * 5)],
-      '{{$randomZipCode}}': () => Math.random().toString(36).substring(2, 7).toUpperCase()
+      '{{$randomZipCode}}': () => Math.random().toString(36).substring(2, 7).toUpperCase(),
     };
 
     if (dynamicVars[value]) {
@@ -202,7 +202,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => resolveVariablesInObject(item));
+      return obj.map((item) => resolveVariablesInObject(item));
     }
 
     if (obj && typeof obj === 'object') {
@@ -226,7 +226,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
         addVariableToEnvironment(currentEnvironment.value!.id, {
           key,
           value: String(value),
-          enabled: true
+          enabled: true,
         });
       });
     } else if (scope === 'local') {
@@ -237,27 +237,31 @@ export const useEnvironmentStore = defineStore('environment', () => {
   function exportVariables(scope: VariableScope): Record<string, any> {
     if (scope === 'global') {
       const result: Record<string, any> = {};
-      globalVariables.value.filter(v => v.enabled).forEach(v => {
-        result[v.key] = v.value;
-      });
+      globalVariables.value
+        .filter((v) => v.enabled)
+        .forEach((v) => {
+          result[v.key] = v.value;
+        });
       return result;
     } else if (scope === 'environment' && currentEnvironment.value) {
       const result: Record<string, any> = {};
-      currentEnvironment.value.variables.filter(v => v.enabled).forEach(v => {
-        result[v.key] = v.value;
-      });
+      currentEnvironment.value.variables
+        .filter((v) => v.enabled)
+        .forEach((v) => {
+          result[v.key] = v.value;
+        });
       return result;
     }
     return { ...localVariables.value };
   }
 
   function exportEnvironment(id: string): Environment | null {
-    const env = environments.value.find(e => e.id === id);
+    const env = environments.value.find((e) => e.id === id);
     return env ? { ...env } : null;
   }
 
   function importEnvironment(env: Environment) {
-    const existing = environments.value.find(e => e.id === env.id);
+    const existing = environments.value.find((e) => e.id === env.id);
     if (existing) {
       const index = environments.value.indexOf(existing);
       environments.value[index] = { ...env };
@@ -268,7 +272,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   }
 
   function importEnvironments(envs: Environment[]) {
-    envs.forEach(env => {
+    envs.forEach((env) => {
       importEnvironment(env);
     });
   }
@@ -276,7 +280,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   async function saveToStore() {
     try {
       const api = tauriApi;
-      
+
       if (api) {
         await api.store.set('environments', environments.value);
         await api.store.set('currentEnvironmentId', currentEnvironmentId.value);
@@ -290,7 +294,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
   async function loadFromStore() {
     try {
       const api = tauriApi;
-      
+
       if (api) {
         const stored = await api.store.get('environments');
         if (stored) environments.value = stored;
@@ -338,6 +342,6 @@ export const useEnvironmentStore = defineStore('environment', () => {
     importEnvironment,
     importEnvironments,
     saveToStore,
-    loadFromStore
+    loadFromStore,
   };
 });

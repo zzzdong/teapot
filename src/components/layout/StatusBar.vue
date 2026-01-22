@@ -1,29 +1,36 @@
 <template>
   <div class="status-bar">
     <div class="status-left">
-      <span v-if="isSending" class="status-sending">
+      <span
+        v-if="isSending"
+        class="status-sending"
+      >
         Sending request...
       </span>
-      <span v-else class="status-ready">
+      <span
+        v-else
+        class="status-ready"
+      >
         Ready
       </span>
     </div>
 
     <div class="status-right">
-      <n-button text size="small" @click="toggleConsole" class="console-button">
+      <n-button
+        text
+        size="small"
+        @click="toggleConsole"
+        class="console-button"
+      >
         <template #icon>
           <n-icon><TerminalOutline /></n-icon>
         </template>
         Console
       </n-button>
       <span class="status-divider">|</span>
-      <span class="status-info">
-        Method: {{ activeMethod }}
-      </span>
+      <span class="status-info"> Method: {{ activeMethod }} </span>
       <span class="status-divider">|</span>
-      <span class="status-info">
-        Environment: {{ environmentStore.currentEnvironment?.name || 'None' }}
-      </span>
+      <span class="status-info"> Environment: {{ environmentStore.currentEnvironment?.name || 'None' }} </span>
       <span class="status-divider">|</span>
       <span class="status-info">
         {{ currentTime }}
@@ -46,7 +53,7 @@ const currentTime = ref('');
 
 const activeTab = computed(() => {
   if (!workspaceStore.activeTabId) return null;
-  return workspaceStore.tabs.find(t => t.id === workspaceStore.activeTabId) || null;
+  return workspaceStore.tabs.find((t) => t.id === workspaceStore.activeTabId) || null;
 });
 
 const activeMethod = computed(() => {
@@ -54,8 +61,9 @@ const activeMethod = computed(() => {
 });
 
 const isSending = computed(() => {
-  return activeTab.value?.context?.requestSentAt !== undefined &&
-         activeTab.value?.context?.responseReceivedAt === undefined;
+  return (
+    activeTab.value?.context?.requestSentAt !== undefined && activeTab.value?.context?.responseReceivedAt === undefined
+  );
 });
 
 function updateTime() {

@@ -18,7 +18,7 @@ export function useHttpClient() {
     if (!body) return body;
 
     const resolved: RequestBody = {
-      type: body.type
+      type: body.type,
     };
 
     // Resolve raw body
@@ -31,7 +31,7 @@ export function useHttpClient() {
     if (body.formData) {
       resolved.formData = body.formData.map((item: FormDataItem) => ({
         ...item,
-        value: environmentStore.resolveVariablesInText(item.value)
+        value: environmentStore.resolveVariablesInText(item.value),
       }));
     }
 
@@ -39,7 +39,7 @@ export function useHttpClient() {
     if (body.urlencoded) {
       resolved.urlencoded = body.urlencoded.map((param: any) => ({
         ...param,
-        value: environmentStore.resolveVariablesInText(param.value)
+        value: environmentStore.resolveVariablesInText(param.value),
       }));
     }
 
@@ -47,7 +47,7 @@ export function useHttpClient() {
     if (body.graphql) {
       resolved.graphql = {
         query: environmentStore.resolveVariablesInText(body.graphql.query),
-        variables: environmentStore.resolveVariablesInText(body.graphql.variables)
+        variables: environmentStore.resolveVariablesInText(body.graphql.variables),
       };
     }
 
@@ -64,7 +64,7 @@ export function useHttpClient() {
 
     const resolved: any = {
       type: auth.type,
-      config: { ...auth.config }
+      config: { ...auth.config },
     };
 
     // Resolve different auth types
@@ -91,7 +91,7 @@ export function useHttpClient() {
       case 'aws4':
         // Resolve all config values for these auth types
         if (auth.config) {
-          Object.keys(auth.config).forEach(key => {
+          Object.keys(auth.config).forEach((key) => {
             resolved.config[key] = environmentStore.resolveVariablesInText(String(auth.config[key]));
           });
         }
@@ -129,17 +129,18 @@ export function useHttpClient() {
           scriptContext = {
             environment: { ...environmentStore.currentVariables },
             globals: environmentStore.globalVariables
-              .filter(v => v.enabled)
+              .filter((v) => v.enabled)
               .reduce((acc, v) => ({ ...acc, [v.key]: v.value }), {}),
             request: {
               url: config.url,
               method: config.method,
-              headers: config.headers?.reduce((acc: any, h: any) => {
-                if (h.enabled) acc[h.key] = h.value;
-                return acc;
-              }, {}) || {},
-              body: config.body
-            }
+              headers:
+                config.headers?.reduce((acc: any, h: any) => {
+                  if (h.enabled) acc[h.key] = h.value;
+                  return acc;
+                }, {}) || {},
+              body: config.body,
+            },
           };
 
           // Execute pre-request script
@@ -150,7 +151,7 @@ export function useHttpClient() {
           } else {
             // Log script execution to console
             if (scriptResult.logs && scriptResult.logs.length > 0) {
-              scriptResult.logs.forEach(log => {
+              scriptResult.logs.forEach((log) => {
                 if (log.level === 'error') {
                   consoleStore.error(log.message, log.message);
                 } else if (log.level === 'warn') {
@@ -172,7 +173,7 @@ export function useHttpClient() {
               Object.entries(scriptResult.modifiedContext.environment).forEach(([key, value]) => {
                 if (environmentStore.currentEnvironment) {
                   // Check if variable already exists in current environment
-                  const existingIndex = currentEnvVars.findIndex(v => v.key === key);
+                  const existingIndex = currentEnvVars.findIndex((v) => v.key === key);
                   if (existingIndex >= 0) {
                     environmentStore.updateVariableInEnvironment(
                       environmentStore.currentEnvironment.id,
@@ -180,18 +181,15 @@ export function useHttpClient() {
                       {
                         key,
                         value: String(value),
-                        enabled: true
+                        enabled: true,
                       }
                     );
                   } else {
-                    environmentStore.addVariableToEnvironment(
-                      environmentStore.currentEnvironment.id,
-                      {
-                        key,
-                        value: String(value),
-                        enabled: true
-                      }
-                    );
+                    environmentStore.addVariableToEnvironment(environmentStore.currentEnvironment.id, {
+                      key,
+                      value: String(value),
+                      enabled: true,
+                    });
                   }
                 } else {
                   // No current environment, use local variables as fallback
@@ -201,18 +199,18 @@ export function useHttpClient() {
 
               // Update global variables
               Object.entries(scriptResult.modifiedContext.globals).forEach(([key, value]) => {
-                const existingIndex = environmentStore.globalVariables.findIndex(v => v.key === key);
+                const existingIndex = environmentStore.globalVariables.findIndex((v) => v.key === key);
                 if (existingIndex >= 0) {
                   environmentStore.updateGlobalVariable(existingIndex, {
                     key,
                     value: String(value),
-                    enabled: true
+                    enabled: true,
                   });
                 } else {
                   environmentStore.addGlobalVariable({
                     key,
                     value: String(value),
-                    enabled: true
+                    enabled: true,
                   });
                 }
               });
@@ -231,16 +229,18 @@ export function useHttpClient() {
       const resolvedUrl = environmentStore.resolveVariablesInText(config.url);
 
       // Resolve variables in headers values
-      const resolvedHeaders = config.headers?.map((header: any) => ({
-        ...header,
-        value: environmentStore.resolveVariablesInText(header.value)
-      })) || [];
+      const resolvedHeaders =
+        config.headers?.map((header: any) => ({
+          ...header,
+          value: environmentStore.resolveVariablesInText(header.value),
+        })) || [];
 
       // Resolve variables in params values
-      const resolvedParams = config.params?.map((param: any) => ({
-        ...param,
-        value: environmentStore.resolveVariablesInText(param.value)
-      })) || [];
+      const resolvedParams =
+        config.params?.map((param: any) => ({
+          ...param,
+          value: environmentStore.resolveVariablesInText(param.value),
+        })) || [];
 
       // Resolve variables in body
       const resolvedBody = config.body ? resolveBody(config.body) : undefined;
@@ -256,7 +256,7 @@ export function useHttpClient() {
         params: resolvedParams,
         body: resolvedBody,
         auth: resolvedAuth,
-        timeout: config.timeout || 30000
+        timeout: config.timeout || 30000,
       });
 
       // Execute test script after response is received
@@ -271,34 +271,37 @@ export function useHttpClient() {
           testResult = {
             success: false,
             error: syntaxCheck.error,
-            logs: [{
-              level: 'error',
-              message: `Syntax error: ${syntaxCheck.error}`,
-              timestamp: Date.now()
-            }],
-            modifiedContext: undefined
+            logs: [
+              {
+                level: 'error',
+                message: `Syntax error: ${syntaxCheck.error}`,
+                timestamp: Date.now(),
+              },
+            ],
+            modifiedContext: undefined,
           };
         } else {
           // Create script context with response data
           const scriptContext: ScriptContext = {
             environment: { ...environmentStore.currentVariables },
             globals: environmentStore.globalVariables
-              .filter(v => v.enabled)
+              .filter((v) => v.enabled)
               .reduce((acc, v) => ({ ...acc, [v.key]: v.value }), {}),
             request: {
               url: config.url,
               method: config.method,
-              headers: config.headers?.reduce((acc: any, h: any) => {
-                if (h.enabled) acc[h.key] = h.value;
-                return acc;
-              }, {}) || {},
-              body: config.body
+              headers:
+                config.headers?.reduce((acc: any, h: any) => {
+                  if (h.enabled) acc[h.key] = h.value;
+                  return acc;
+                }, {}) || {},
+              body: config.body,
             },
             response: {
               status: response.status,
               headers: response.headers,
-              body: response.body
-            }
+              body: response.body,
+            },
           };
 
           // Execute test script
@@ -306,7 +309,7 @@ export function useHttpClient() {
 
           // Log test script execution to console
           if (testResult.logs && testResult.logs.length > 0) {
-            testResult.logs.forEach(log => {
+            testResult.logs.forEach((log) => {
               if (log.level === 'error') {
                 consoleStore.error(log.message);
               } else if (log.level === 'warn') {
@@ -333,6 +336,10 @@ export function useHttpClient() {
 
   return {
     isLoading,
-    sendRequest: sendRequest as (config: RequestConfig, preRequestScript?: PreRequestScript, testScript?: TestScript) => Promise<{ response: Response; testResult?: ScriptResult }>
+    sendRequest: sendRequest as (
+      config: RequestConfig,
+      preRequestScript?: PreRequestScript,
+      testScript?: TestScript
+    ) => Promise<{ response: Response; testResult?: ScriptResult }>,
   };
 }

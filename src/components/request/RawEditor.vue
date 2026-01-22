@@ -2,7 +2,16 @@
   <div class="raw-editor">
     <div class="toolbar">
       <div class="type-selector">
-        <n-radio-group :value="localRawType" @update:value="(val: RawBodyType) => { localRawType = val; emit('update:raw', content.value); }" size="small">
+        <n-radio-group
+          :value="localRawType"
+          @update:value="
+            (val: RawBodyType) => {
+              localRawType = val;
+              emit('update:raw', content);
+            }
+          "
+          size="small"
+        >
           <n-space>
             <n-radio-button value="text">Text</n-radio-button>
             <n-radio-button value="json">JSON</n-radio-button>
@@ -14,13 +23,21 @@
       </div>
       <div class="actions">
         <n-space>
-          <n-button text @click="handleFormat" size="small">
+          <n-button
+            text
+            @click="handleFormat"
+            size="small"
+          >
             <template #icon>
               <n-icon><FormatIcon /></n-icon>
             </template>
             Format
           </n-button>
-          <n-button text @click="handleMinify" size="small">
+          <n-button
+            text
+            @click="handleMinify"
+            size="small"
+          >
             <template #icon>
               <n-icon><CompressIcon /></n-icon>
             </template>
@@ -72,7 +89,7 @@ const editorOptions = {
   scrollBeyondLastLine: false,
   wordWrap: 'on',
   automaticLayout: true,
-  tabSize: 2
+  tabSize: 2,
 };
 
 const monacoLanguage = computed(() => {
@@ -81,19 +98,25 @@ const monacoLanguage = computed(() => {
     json: 'json',
     xml: 'xml',
     html: 'html',
-    javascript: 'javascript'
+    javascript: 'javascript',
   };
   return typeMap[localRawType.value] || 'text';
 });
 
 // Watch for prop changes
-watch(() => props.raw, (newRaw) => {
-  content.value = newRaw || '';
-});
+watch(
+  () => props.raw,
+  (newRaw) => {
+    content.value = newRaw || '';
+  }
+);
 
-watch(() => props.rawType, (newRawType) => {
-  localRawType.value = newRawType || 'json';
-});
+watch(
+  () => props.rawType,
+  (newRawType) => {
+    localRawType.value = newRawType || 'json';
+  }
+);
 
 watch(content, (newContent) => {
   emit('update:raw', newContent);

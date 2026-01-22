@@ -6,10 +6,16 @@
       animated
       :bar-width="40"
     >
-      <n-tab-pane name="collections" tab="Collections">
+      <n-tab-pane
+        name="collections"
+        tab="Collections"
+      >
         <CollectionsPanel />
       </n-tab-pane>
-      <n-tab-pane name="history" tab="History">
+      <n-tab-pane
+        name="history"
+        tab="History"
+      >
         <HistoryPanel />
       </n-tab-pane>
     </n-tabs>

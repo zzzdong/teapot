@@ -2,7 +2,17 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import type { RequestContext } from '@/types/context';
-import type { Request, RequestConfig, HttpMethod, RequestParam, RequestHeader, RequestBody, AuthConfig, PreRequestScript, TestScript } from '@/types/request';
+import type {
+  Request,
+  RequestConfig,
+  HttpMethod,
+  RequestParam,
+  RequestHeader,
+  RequestBody,
+  AuthConfig,
+  PreRequestScript,
+  TestScript,
+} from '@/types/request';
 import type { Response, ResponseViewType, Cookie } from '@/types/response';
 import type { ScriptResult } from '@/types/script';
 import * as tauriApi from '@/api/tauri-api';
@@ -103,24 +113,24 @@ export const useContextStore = defineStore('context', () => {
         urlencoded: [],
         graphql: {
           query: '',
-          variables: '{}'
+          variables: '{}',
         },
-        binary: null
+        binary: null,
       },
       auth: {
         type: 'noauth',
-        config: {}
+        config: {},
       },
       preRequestScript: {
         enabled: false,
-        content: ''
+        content: '',
       },
       testScript: {
         enabled: false,
-        content: ''
+        content: '',
       },
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
   }
 
@@ -130,11 +140,11 @@ export const useContextStore = defineStore('context', () => {
       ...defaultRequest,
       ...request,
       id: request?.id || defaultRequest.id,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
     const context: RequestContext = {
-      request: finalRequest
+      request: finalRequest,
     };
 
     const contextId = uuidv4();
@@ -159,7 +169,7 @@ export const useContextStore = defineStore('context', () => {
       context.request = {
         ...context.request,
         ...updates.request,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
     }
 
@@ -202,7 +212,7 @@ export const useContextStore = defineStore('context', () => {
       ...context.request,
       ...request,
       id: request.id || context.request.id,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
     contexts.value.set(contextId, context);
@@ -366,10 +376,10 @@ export const useContextStore = defineStore('context', () => {
   function extractCookies(response: Response): Cookie[] {
     const cookies: Cookie[] = [];
     const setCookieHeader = response.headers['set-cookie'] || response.headers['Set-Cookie'];
-    
+
     if (setCookieHeader) {
       const cookiesArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
-      cookiesArray.forEach(cookieString => {
+      cookiesArray.forEach((cookieString) => {
         const parts = cookieString.split(';');
         const [name, value] = parts[0].split('=');
         const cookie: Cookie = {
@@ -378,7 +388,7 @@ export const useContextStore = defineStore('context', () => {
           domain: '',
           path: '/',
           httpOnly: false,
-          secure: false
+          secure: false,
         };
 
         parts.slice(1).forEach((part: string) => {
@@ -404,7 +414,6 @@ export const useContextStore = defineStore('context', () => {
     if (!targetResponse) return '';
 
     const body = targetResponse.body;
-
 
     if (typeof body === 'object') {
       return JSON.stringify(body, null, 2);
@@ -455,10 +464,10 @@ export const useContextStore = defineStore('context', () => {
       id: request.id,
       method: request.method,
       url: request.url,
-      params: request.params.filter(p => p.enabled),
-      headers: request.headers.filter(h => h.enabled),
+      params: request.params.filter((p) => p.enabled),
+      headers: request.headers.filter((h) => h.enabled),
       body: request.body,
-      auth: request.auth
+      auth: request.auth,
     };
   }
 
@@ -468,7 +477,7 @@ export const useContextStore = defineStore('context', () => {
         const contextsToSave = Array.from(contexts.value.entries()).map(([id, context]) => ({
           id,
           context,
-          viewType: viewTypes.value.get(id) || 'pretty'
+          viewType: viewTypes.value.get(id) || 'pretty',
         }));
 
         await tauriApi.store.set('contexts', contextsToSave);
@@ -560,6 +569,6 @@ export const useContextStore = defineStore('context', () => {
     downloadResponse,
     exportConfig,
     saveToStore,
-    loadFromStore
+    loadFromStore,
   };
 });

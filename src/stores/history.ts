@@ -16,18 +16,16 @@ export const useHistoryStore = defineStore('history', () => {
     let items = [...history.value];
 
     if (filter.value.method) {
-      items = items.filter(item => item.request.method === filter.value.method);
+      items = items.filter((item) => item.request.method === filter.value.method);
     }
 
     if (filter.value.url) {
       const urlLower = filter.value.url.toLowerCase();
-      items = items.filter(item =>
-        item.request.url.toLowerCase().includes(urlLower)
-      );
+      items = items.filter((item) => item.request.url.toLowerCase().includes(urlLower));
     }
 
     if (filter.value.status) {
-      items = items.filter(item => {
+      items = items.filter((item) => {
         if (!item.response) return false;
         const status = item.response.status;
         if (filter.value.status === '2xx') return status >= 200 && status < 300;
@@ -39,35 +37,32 @@ export const useHistoryStore = defineStore('history', () => {
     }
 
     if (filter.value.startDate) {
-      items = items.filter(item => item.timestamp >= filter.value.startDate!);
+      items = items.filter((item) => item.timestamp >= filter.value.startDate!);
     }
 
     if (filter.value.endDate) {
-      items = items.filter(item => item.timestamp <= filter.value.endDate!);
+      items = items.filter((item) => item.timestamp <= filter.value.endDate!);
     }
 
     if (filter.value.favorited !== undefined) {
-      items = items.filter(item => item.favorited === filter.value.favorited);
+      items = items.filter((item) => item.favorited === filter.value.favorited);
     }
 
     return items.sort((a, b) => b.timestamp - a.timestamp);
   });
 
   const favoritedItems = computed(() => {
-    return history.value.filter(item => item.favorited);
+    return history.value.filter((item) => item.favorited);
   });
 
   // Actions
   function addToHistory(context: RequestContext) {
     const request = context.request;
     const response = context.response;
-    
+
     // Check if similar request exists
     const existingIndex = history.value.findIndex(
-      item =>
-        item.request.method === request.method &&
-        item.request.url === request.url &&
-        !item.favorited
+      (item) => item.request.method === request.method && item.request.url === request.url && !item.favorited
     );
 
     const historyItem: HistoryItem = {
@@ -78,7 +73,7 @@ export const useHistoryStore = defineStore('history', () => {
       timestamp: Date.now(),
       favorited: false,
       executionCount: 1,
-      lastExecutionAt: Date.now()
+      lastExecutionAt: Date.now(),
     };
 
     if (existingIndex !== -1) {
@@ -96,14 +91,14 @@ export const useHistoryStore = defineStore('history', () => {
     }
 
     // Keep favorited items
-    const favorited = history.value.filter(item => item.favorited);
-    history.value = [...favorited, ...history.value.filter(item => !item.favorited).slice(0, maxItems)];
+    const favorited = history.value.filter((item) => item.favorited);
+    history.value = [...favorited, ...history.value.filter((item) => !item.favorited).slice(0, maxItems)];
 
     saveToStore();
   }
 
   function getHistoryItem(id: string): HistoryItem | undefined {
-    return history.value.find(item => item.id === id);
+    return history.value.find((item) => item.id === id);
   }
 
   function loadFromHistory(id: string): Request | null {
@@ -112,7 +107,7 @@ export const useHistoryStore = defineStore('history', () => {
   }
 
   function toggleFavorite(id: string) {
-    const item = history.value.find(item => item.id === id);
+    const item = history.value.find((item) => item.id === id);
     if (item) {
       item.favorited = !item.favorited;
       saveToStore();
@@ -120,13 +115,13 @@ export const useHistoryStore = defineStore('history', () => {
   }
 
   function deleteFromHistory(id: string) {
-    history.value = history.value.filter(item => item.id !== id);
+    history.value = history.value.filter((item) => item.id !== id);
     saveToStore();
   }
 
   function clearHistory() {
     // Keep favorited items
-    history.value = history.value.filter(item => item.favorited);
+    history.value = history.value.filter((item) => item.favorited);
     saveToStore();
   }
 
@@ -149,8 +144,8 @@ export const useHistoryStore = defineStore('history', () => {
 
   function importHistory(items: HistoryItem[]) {
     // Merge with existing history
-    const existingIds = new Set(history.value.map(item => item.id));
-    items.forEach(item => {
+    const existingIds = new Set(history.value.map((item) => item.id));
+    items.forEach((item) => {
       if (!existingIds.has(item.id)) {
         history.value.push(item);
       }
@@ -165,9 +160,9 @@ export const useHistoryStore = defineStore('history', () => {
   async function saveToStore() {
     try {
       const api = tauriApi;
-      
+
       // Save only non-favorited items and basic info to save space
-      const toSave = history.value.map(item => ({
+      const toSave = history.value.map((item) => ({
         id: item.id,
         name: item.name,
         request: item.request,
@@ -175,7 +170,7 @@ export const useHistoryStore = defineStore('history', () => {
         timestamp: item.timestamp,
         favorited: item.favorited,
         executionCount: item.executionCount,
-        lastExecutionAt: item.lastExecutionAt
+        lastExecutionAt: item.lastExecutionAt,
       }));
 
       if (api) {
@@ -189,13 +184,13 @@ export const useHistoryStore = defineStore('history', () => {
   async function loadFromStore() {
     try {
       const api = tauriApi;
-      
+
       if (api) {
         const stored = await api.store.get('history');
         if (stored) {
           history.value = stored.map((item: any) => ({
             ...item,
-            response: item.response || undefined
+            response: item.response || undefined,
           }));
         }
       }
@@ -225,6 +220,6 @@ export const useHistoryStore = defineStore('history', () => {
     exportHistory,
     importHistory,
     saveToStore,
-    loadFromStore
+    loadFromStore,
   };
 });

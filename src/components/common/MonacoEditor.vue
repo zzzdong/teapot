@@ -1,30 +1,17 @@
 <template>
-  <div ref="editorRef" class="monaco-editor-container"></div>
+  <div
+    ref="editorRef"
+    class="monaco-editor-container"
+  ></div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import * as monaco from 'monaco-editor';
+import loader from '@monaco-editor/loader';
 
 // 配置 Monaco Editor Web Worker
-// 这个配置解决了 "You must define a function MonacoEnvironment.getWorkerUrl" 警告
-(window as any).MonacoEnvironment = {
-  getWorker: function(workerId: string, label: string) {
-    if (label === 'json') {
-      return new Worker(new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url))
-    }
-    if (label === 'css' || label === 'scss' || label === 'less') {
-      return new Worker(new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url))
-    }
-    if (label === 'html' || label === 'handlebars' || label === 'razor') {
-      return new Worker(new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url))
-    }
-    if (label === 'typescript' || label === 'javascript') {
-      return new Worker(new URL('monaco-editor/esm/vs/language/typescript/ts.worker.js', import.meta.url))
-    }
-    return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url))
-  }
-};
+// 使用 @monaco-editor/loader 处理 worker 加载
+// loader 会自动检测本地安装的 monaco-editor 包
 
 interface Props {
   value: string;
@@ -41,25 +28,29 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  theme: 'vs-dark',
-  height: '100%'
+  theme: 'vs',
+  height: '100%',
 });
 
 const emit = defineEmits<Emits>();
 
 const editorRef = ref<HTMLElement>();
-let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null;
+let editorInstance: any = null;
+let monaco: any = null;
 
-function initEditor() {
+async function initEditor() {
   if (!editorRef.value) return;
 
   try {
-    // Create editor using local monaco-editor package
+    // 使用 loader 加载 Monaco Editor
+    monaco = await loader.init();
+
+    // Create editor
     editorInstance = monaco.editor.create(editorRef.value, {
       value: props.value,
       language: props.language,
       theme: props.theme,
-      ...props.options
+      ...props.options,
     });
 
     // Handle value changes
@@ -85,7 +76,6 @@ function initEditor() {
 
     // Store observer for cleanup
     (editorRef.value as any)._resizeObserver = resizeObserver;
-
   } catch (error) {
     console.error('Failed to initialize Monaco Editor:', error);
   }
@@ -108,46 +98,60 @@ onUnmounted(() => {
 });
 
 // Watch for value changes from parent
-watch(() => props.value, (newValue) => {
-  if (editorInstance && newValue !== editorInstance.getValue()) {
-    const position = editorInstance.getPosition();
-    editorInstance.setValue(newValue);
-    if (position) {
-      editorInstance.setPosition(position);
+watch(
+  () => props.value,
+  (newValue) => {
+    if (editorInstance && newValue !== editorInstance.getValue()) {
+      const position = editorInstance.getPosition();
+      editorInstance.setValue(newValue);
+      if (position) {
+        editorInstance.setPosition(position);
+      }
     }
   }
-});
+);
 
 // Watch for language changes
-watch(() => props.language, (newLanguage) => {
-  if (editorInstance) {
-    const model = editorInstance.getModel();
-    if (model) {
-      monaco.editor.setModelLanguage(model, newLanguage);
+watch(
+  () => props.language,
+  (newLanguage) => {
+    if (editorInstance && monaco) {
+      const model = editorInstance.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, newLanguage);
+      }
     }
   }
-});
+);
 
 // Watch for theme changes
-watch(() => props.theme, (newTheme) => {
-  monaco.editor.setTheme(newTheme);
-});
+watch(
+  () => props.theme,
+  (newTheme) => {
+    if (monaco) {
+      monaco.editor.setTheme(newTheme);
+    }
+  }
+);
 
 // Watch for options changes
-watch(() => props.options, (newOptions) => {
-  if (editorInstance) {
-    editorInstance.updateOptions(newOptions);
-  }
-}, { deep: true });
+watch(
+  () => props.options,
+  (newOptions) => {
+    if (editorInstance) {
+      editorInstance.updateOptions(newOptions);
+    }
+  },
+  { deep: true }
+);
 
 // Expose editor methods
 defineExpose({
   getEditor: () => editorInstance,
   getValue: () => editorInstance?.getValue(),
   setValue: (value: string) => editorInstance?.setValue(value),
-  format: () => editorInstance?.getAction('editor.action.formatDocument')?.run()
+  format: () => editorInstance?.getAction('editor.action.formatDocument')?.run(),
 });
-
 </script>
 
 <style scoped>

@@ -59,8 +59,8 @@ const columns = [
         'onUpdate:checked': (checked: boolean) => {
           row.enabled = checked;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Key',
@@ -73,8 +73,8 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.key = value;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Value',
@@ -87,8 +87,8 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.value = value;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Description',
@@ -101,23 +101,27 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.description = value;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: '',
     key: 'actions',
     width: 50,
     render: (_row: RequestParam, index: number) =>
-      h(NButton, {
-        text: true,
-        type: 'error',
-        size: 'small',
-        onClick: () => handleRemoveParam(index)
-      }, {
-        icon: () => h(NIcon, null, { default: () => h(TrashIcon) })
-      })
-  }
+      h(
+        NButton,
+        {
+          text: true,
+          type: 'error',
+          size: 'small',
+          onClick: () => handleRemoveParam(index),
+        },
+        {
+          icon: () => h(NIcon, null, { default: () => h(TrashIcon) }),
+        }
+      ),
+  },
 ];
 
 function handleAddParam() {

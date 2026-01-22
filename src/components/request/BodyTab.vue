@@ -1,6 +1,9 @@
 <template>
   <div class="body-tab">
-    <n-radio-group v-model:value="bodyType" size="medium">
+    <n-radio-group
+      v-model:value="bodyType"
+      size="medium"
+    >
       <n-space>
         <n-radio-button value="none">None</n-radio-button>
         <n-radio-button value="form-data">Form Data</n-radio-button>
@@ -13,32 +16,54 @@
 
     <div class="body-content">
       <!-- None -->
-      <div v-if="body.type === 'none'" class="empty-body">
+      <div
+        v-if="body.type === 'none'"
+        class="empty-body"
+      >
         <p>This request does not have a body.</p>
       </div>
 
       <!-- Form Data -->
-      <div v-else-if="body.type === 'form-data'" class="form-data-body">
+      <div
+        v-else-if="body.type === 'form-data'"
+        class="form-data-body"
+      >
         <FormDataEditor v-model:form-data="localFormData" />
       </div>
 
       <!-- URL Encoded -->
-      <div v-else-if="body.type === 'x-www-form-urlencoded'" class="urlencoded-body">
+      <div
+        v-else-if="body.type === 'x-www-form-urlencoded'"
+        class="urlencoded-body"
+      >
         <UrlEncodedEditor v-model:urlencoded="localUrlencoded" />
       </div>
 
       <!-- Raw -->
-      <div v-else-if="body.type === 'raw'" class="raw-body">
-        <RawEditor v-model:raw="localRaw" :raw-type="body.rawType || 'text'" @update:raw-type="handleRawTypeUpdate" />
+      <div
+        v-else-if="body.type === 'raw'"
+        class="raw-body"
+      >
+        <RawEditor
+          v-model:raw="localRaw"
+          :raw-type="body.rawType || 'text'"
+          @update:raw-type="handleRawTypeUpdate"
+        />
       </div>
 
       <!-- Binary -->
-      <div v-else-if="body.type === 'binary'" class="binary-body">
+      <div
+        v-else-if="body.type === 'binary'"
+        class="binary-body"
+      >
         <BinaryEditor v-model:binary="localBinary" />
       </div>
 
       <!-- GraphQL -->
-      <div v-else-if="body.type === 'graphql'" class="graphql-body">
+      <div
+        v-else-if="body.type === 'graphql'"
+        class="graphql-body"
+      >
         <GraphQLEditor v-model:graphql="localGraphQL" />
       </div>
     </div>
@@ -56,7 +81,7 @@ import BinaryEditor from './BinaryEditor.vue';
 import GraphQLEditor from './GraphQLEditor.vue';
 
 const body = defineModel<RequestBody>('body', {
-  default: () => ({ type: 'none' })
+  default: () => ({ type: 'none' }),
 });
 
 // 使用 computed 创建响应式引用，直接修改会触发 defineModel 的更新
@@ -65,9 +90,9 @@ const bodyType = computed({
   set: (type: string) => {
     body.value = {
       ...body.value,
-      type: type as RequestBody['type']
+      type: type as RequestBody['type'],
     };
-  }
+  },
 });
 
 const localFormData = computed({
@@ -76,9 +101,9 @@ const localFormData = computed({
     body.value = {
       ...body.value,
       type: 'form-data',
-      formData: value
+      formData: value,
     };
-  }
+  },
 });
 
 const localUrlencoded = computed({
@@ -87,9 +112,9 @@ const localUrlencoded = computed({
     body.value = {
       ...body.value,
       type: 'x-www-form-urlencoded',
-      urlencoded: value
+      urlencoded: value,
     };
-  }
+  },
 });
 
 const localRaw = computed({
@@ -99,9 +124,9 @@ const localRaw = computed({
       ...body.value,
       type: 'raw',
       raw: value,
-      rawType: body.value.rawType || 'json'
+      rawType: body.value.rawType || 'json',
     };
-  }
+  },
 });
 
 function handleRawTypeUpdate(rawType: RawBodyType) {
@@ -109,7 +134,7 @@ function handleRawTypeUpdate(rawType: RawBodyType) {
     ...body.value,
     type: 'raw',
     rawType,
-    raw: body.value.raw
+    raw: body.value.raw,
   };
 }
 
@@ -119,9 +144,9 @@ const localBinary = computed({
     body.value = {
       ...body.value,
       type: 'binary',
-      binary: value
+      binary: value,
     };
-  }
+  },
 });
 
 const localGraphQL = computed({
@@ -130,9 +155,9 @@ const localGraphQL = computed({
     body.value = {
       ...body.value,
       type: 'graphql',
-      graphql: value
+      graphql: value,
     };
-  }
+  },
 });
 </script>
 

@@ -20,7 +20,10 @@
       + Add Header
     </n-button>
 
-    <div v-if="commonHeaders.length > 0" class="common-headers">
+    <div
+      v-if="commonHeaders.length > 0"
+      class="common-headers"
+    >
       <div class="section-title">Common Headers</div>
       <n-space>
         <n-tag
@@ -29,7 +32,7 @@
           size="small"
           checkable
           :checked="hasHeader(header.key)"
-          @update:checked="checked => handleToggleCommonHeader(header.key, checked)"
+          @update:checked="(checked) => handleToggleCommonHeader(header.key, checked)"
         >
           {{ header.key }}
         </n-tag>
@@ -39,16 +42,16 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, watch, computed, onMounted, onUnmounted } from 'vue';
-import { NButton, NCheckbox, NInput, NDataTable, NIcon, NSpace, NTag } from 'naive-ui';
-import { AddOutline as AddIcon, TrashOutline as TrashIcon } from '@vicons/ionicons5';
+import { h, ref, onMounted, onUnmounted } from 'vue';
+import { NButton, NCheckbox, NInput, NDataTable, NSpace, NTag, NIcon } from 'naive-ui';
+import { TrashOutline as TrashIcon } from '@vicons/ionicons5';
 import type { RequestHeader } from '@/types/request';
 
 const headers = defineModel<RequestHeader[]>('headers', {
   default: () => [
     { key: 'Content-Type', value: 'application/json', enabled: true },
-    { key: 'Accept', value: 'application/json', enabled: true }
-  ]
+    { key: 'Accept', value: 'application/json', enabled: true },
+  ],
 });
 
 const tableHeight = ref(300);
@@ -79,7 +82,7 @@ const commonHeaders = [
   { key: 'Accept-Language', value: 'en-US,en;q=0.9' },
   { key: 'Cache-Control', value: 'no-cache' },
   { key: 'User-Agent', value: 'Teapot/1.0.0' },
-  { key: 'Referer', value: '' }
+  { key: 'Referer', value: '' },
 ];
 
 const columns = [
@@ -93,8 +96,8 @@ const columns = [
         'onUpdate:checked': (checked: boolean) => {
           row.enabled = checked;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Key',
@@ -107,8 +110,8 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.key = value;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Value',
@@ -121,8 +124,8 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.value = value;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Description',
@@ -135,39 +138,43 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.description = value;
           debouncedEmit();
-        }
-      })
+        },
+      }),
   },
   {
     title: '',
     key: 'actions',
     width: 50,
     render: (_row: RequestHeader, index: number) =>
-      h(NButton, {
-        text: true,
-        type: 'error',
-        size: 'small',
-        onClick: () => handleRemoveHeader(index)
-      }, {
-        icon: () => h(NIcon, null, { default: () => h(TrashIcon) })
-      })
-  }
+      h(
+        NButton,
+        {
+          text: true,
+          type: 'error',
+          size: 'small',
+          onClick: () => handleRemoveHeader(index),
+        },
+        {
+          icon: () => h(NIcon, null, { default: () => h(TrashIcon) }),
+        }
+      ),
+  },
 ];
 
 function hasHeader(key: string): boolean {
-  return headers.value.some(h => h.key === key && h.enabled);
+  return headers.value.some((h) => h.key === key && h.enabled);
 }
 
 function handleToggleCommonHeader(key: string, checked: boolean) {
-  const index = headers.value.findIndex(h => h.key === key);
-  const commonHeader = commonHeaders.find(h => h.key === key);
+  const index = headers.value.findIndex((h) => h.key === key);
+  const commonHeader = commonHeaders.find((h) => h.key === key);
 
   if (checked) {
     if (index === -1) {
       headers.value.push({
         key,
         value: commonHeader?.value || '',
-        enabled: true
+        enabled: true,
       });
     } else {
       headers.value[index].enabled = true;

@@ -2,14 +2,24 @@
   <div class="tests-panel">
     <div class="panel-header">
       <span>Test Results</span>
-      <n-button text size="small" @click="handleClearResults">
+      <n-button
+        text
+        size="small"
+        @click="handleClearResults"
+      >
         Clear
       </n-button>
     </div>
 
     <div class="tests-content">
-      <div v-if="testResults.length === 0" class="empty-state">
-        <n-icon size="48" :color="'#ccc'">
+      <div
+        v-if="testResults.length === 0"
+        class="empty-state"
+      >
+        <n-icon
+          size="48"
+          :color="'#ccc'"
+        >
           <CheckmarkCircleOutline />
         </n-icon>
         <p>No test results</p>
@@ -39,13 +49,21 @@
             class="test-item"
             :class="{ failed: !result.passed }"
           >
-            <n-icon :size="20" :color="result.passed ? '#18a058' : '#d03050'">
+            <n-icon
+              :size="20"
+              :color="result.passed ? '#18a058' : '#d03050'"
+            >
               <CheckmarkCircleOutline v-if="result.passed" />
               <CloseCircleOutline v-else />
             </n-icon>
             <div class="test-info">
               <div class="test-name">{{ result.name }}</div>
-              <div v-if="!result.passed" class="test-error">{{ result.message }}</div>
+              <div
+                v-if="!result.passed"
+                class="test-error"
+              >
+                {{ result.message }}
+              </div>
               <div class="test-duration">{{ result.duration }}ms</div>
             </div>
           </div>
@@ -64,12 +82,17 @@ import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
 const testResults = ref([
   { name: 'Status code is 200', passed: true, duration: 5 },
   { name: 'Response has data property', passed: true, duration: 3 },
-  { name: 'Response time < 200ms', passed: false, duration: 2, message: 'Expected response time to be below 200ms, but was 350ms' }
+  {
+    name: 'Response time < 200ms',
+    passed: false,
+    duration: 2,
+    message: 'Expected response time to be below 200ms, but was 350ms',
+  },
 ]);
 
 const totalTests = computed(() => testResults.value.length);
-const passedTests = computed(() => testResults.value.filter(t => t.passed).length);
-const failedTests = computed(() => testResults.value.filter(t => !t.passed).length);
+const passedTests = computed(() => testResults.value.filter((t) => t.passed).length);
+const failedTests = computed(() => testResults.value.filter((t) => !t.passed).length);
 
 function handleClearResults() {
   testResults.value = [];

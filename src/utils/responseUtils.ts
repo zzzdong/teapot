@@ -1,6 +1,5 @@
 import type { Response, Cookie } from '@/types/response';
 
-
 /**
  * Extract cookies from response headers
  * @param response - The response object
@@ -9,10 +8,10 @@ import type { Response, Cookie } from '@/types/response';
 export function extractCookies(response: Response): Cookie[] {
   const cookies: Cookie[] = [];
   const setCookieHeader = response.headers['set-cookie'];
-  
+
   if (setCookieHeader) {
     const cookiesArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
-    cookiesArray.forEach(cookieString => {
+    cookiesArray.forEach((cookieString) => {
       const parts = cookieString.split(';');
       const [name, value] = parts[0].split('=');
       const cookie: Cookie = {
@@ -21,7 +20,7 @@ export function extractCookies(response: Response): Cookie[] {
         domain: '',
         path: '/',
         httpOnly: false,
-        secure: false
+        secure: false,
       };
 
       parts.slice(1).forEach((part: string) => {
@@ -51,7 +50,6 @@ export function getFormattedBody(response: Response | undefined): string {
   if (!response) return '';
 
   const body = response.body;
-
 
   if (typeof body === 'object') {
     return JSON.stringify(body, null, 2);
@@ -167,9 +165,7 @@ export function isJsonResponse(response: Response | undefined): boolean {
  */
 export function isXmlResponse(response: Response | undefined): boolean {
   const contentType = getContentType(response);
-  return contentType === 'application/xml' ||
-         contentType === 'text/xml' ||
-         contentType === 'application/atom+xml';
+  return contentType === 'application/xml' || contentType === 'text/xml' || contentType === 'application/atom+xml';
 }
 
 /**
@@ -199,7 +195,7 @@ export function isImageResponse(response: Response | undefined): boolean {
  */
 export function formatJsonResponse(response: Response | undefined): string {
   if (!response) return '';
-  
+
   const body = response.body;
   if (typeof body === 'string') {
     try {
@@ -218,12 +214,14 @@ export function formatJsonResponse(response: Response | undefined): string {
  */
 export function headersToArray(response: Response | undefined): Array<{ key: string; value: string }> {
   const headers = response?.headers || {};
-  return Object.entries(headers).map(([key, value]) => {
-    if (Array.isArray(value)) {
-      return value.map(v => ({ key, value: v }));
-    }
-    return { key, value: String(value) };
-  }).flat();
+  return Object.entries(headers)
+    .map(([key, value]) => {
+      if (Array.isArray(value)) {
+        return value.map((v) => ({ key, value: v }));
+      }
+      return { key, value: String(value) };
+    })
+    .flat();
 }
 
 /**
@@ -233,7 +231,7 @@ export function headersToArray(response: Response | undefined): Array<{ key: str
  */
 export function getImageSource(response: Response | undefined): string {
   if (!response) return '';
-  
+
   const body = response.body;
   if (typeof body === 'string' && body.startsWith('data:')) {
     return body;

@@ -16,7 +16,7 @@ export const useConsoleStore = defineStore('console', () => {
       type,
       message,
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Keep only last 100 logs to prevent memory issues
@@ -52,6 +52,6 @@ export const useConsoleStore = defineStore('console', () => {
     info,
     warn,
     error,
-    clear
+    clear,
   };
 });

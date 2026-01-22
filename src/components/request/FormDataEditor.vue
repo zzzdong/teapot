@@ -50,9 +50,14 @@ function initLocalFormData() {
 initLocalFormData();
 
 // Watch for prop changes
-watch(() => props.formData, (newFormData) => {
-  localFormData.value = newFormData && newFormData.length > 0 ? [...newFormData] : [{ key: '', value: '', type: 'text', enabled: true }];
-}, { deep: true });
+watch(
+  () => props.formData,
+  (newFormData) => {
+    localFormData.value =
+      newFormData && newFormData.length > 0 ? [...newFormData] : [{ key: '', value: '', type: 'text', enabled: true }];
+  },
+  { deep: true }
+);
 
 const columns = [
   {
@@ -65,8 +70,8 @@ const columns = [
         'onUpdate:checked': (checked: boolean) => {
           row.enabled = checked;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Key',
@@ -79,29 +84,38 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.key = value;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Type',
     key: 'type',
     width: 100,
     render: (row: FormDataItem, index: number) =>
-      h(NRadioGroup, {
-        value: row.type,
-        size: 'small',
-        'onUpdate:value': (value: 'text' | 'file') => {
-          row.type = value;
-          emitUpdate();
+      h(
+        NRadioGroup,
+        {
+          value: row.type,
+          size: 'small',
+          'onUpdate:value': (value: 'text' | 'file') => {
+            row.type = value;
+            emitUpdate();
+          },
+        },
+        {
+          default: () =>
+            h(
+              NSpace,
+              { size: 'small' },
+              {
+                default: () => [
+                  h(NRadio, { value: 'text' }, { default: () => 'Text' }),
+                  h(NRadio, { value: 'file' }, { default: () => 'File' }),
+                ],
+              }
+            ),
         }
-      }, {
-        default: () => h(NSpace, { size: 'small' }, {
-          default: () => [
-            h(NRadio, { value: 'text' }, { default: () => 'Text' }),
-            h(NRadio, { value: 'file' }, { default: () => 'File' })
-          ]
-        })
-      })
+      ),
   },
   {
     title: 'Value / File',
@@ -117,7 +131,7 @@ const columns = [
               row.value = target.files[0].name;
               emitUpdate();
             }
-          }
+          },
         });
       }
       return h(NInput, {
@@ -127,9 +141,9 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.value = value;
           emitUpdate();
-        }
+        },
       });
-    }
+    },
   },
   {
     title: 'Description',
@@ -142,23 +156,27 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.description = value;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: '',
     key: 'actions',
     width: 50,
     render: (_row: FormDataItem, index: number) =>
-      h(NButton, {
-        text: true,
-        type: 'error',
-        size: 'small',
-        onClick: () => handleRemoveItem(index)
-      }, {
-        icon: () => h(NIcon, null, { default: () => h(TrashIcon) })
-      })
-  }
+      h(
+        NButton,
+        {
+          text: true,
+          type: 'error',
+          size: 'small',
+          onClick: () => handleRemoveItem(index),
+        },
+        {
+          icon: () => h(NIcon, null, { default: () => h(TrashIcon) }),
+        }
+      ),
+  },
 ];
 
 function emitUpdate() {

@@ -50,9 +50,14 @@ function initLocalUrlencoded() {
 initLocalUrlencoded();
 
 // Watch for prop changes
-watch(() => props.urlencoded, (newUrlencoded) => {
-  localUrlencoded.value = newUrlencoded && newUrlencoded.length > 0 ? [...newUrlencoded] : [{ key: '', value: '', enabled: true }];
-}, { deep: true });
+watch(
+  () => props.urlencoded,
+  (newUrlencoded) => {
+    localUrlencoded.value =
+      newUrlencoded && newUrlencoded.length > 0 ? [...newUrlencoded] : [{ key: '', value: '', enabled: true }];
+  },
+  { deep: true }
+);
 
 const columns = [
   {
@@ -65,8 +70,8 @@ const columns = [
         'onUpdate:checked': (checked: boolean) => {
           row.enabled = checked;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Key',
@@ -79,8 +84,8 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.key = value;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Value',
@@ -93,8 +98,8 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.value = value;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: 'Description',
@@ -107,23 +112,27 @@ const columns = [
         'onUpdate:value': (value: string) => {
           row.description = value;
           emitUpdate();
-        }
-      })
+        },
+      }),
   },
   {
     title: '',
     key: 'actions',
     width: 50,
     render: (_row: RequestParam, index: number) =>
-      h(NButton, {
-        text: true,
-        type: 'error',
-        size: 'small',
-        onClick: () => handleRemoveParam(index)
-      }, {
-        icon: () => h(NIcon, null, { default: () => h(TrashIcon) })
-      })
-  }
+      h(
+        NButton,
+        {
+          text: true,
+          type: 'error',
+          size: 'small',
+          onClick: () => handleRemoveParam(index),
+        },
+        {
+          icon: () => h(NIcon, null, { default: () => h(TrashIcon) }),
+        }
+      ),
+  },
 ];
 
 function emitUpdate() {

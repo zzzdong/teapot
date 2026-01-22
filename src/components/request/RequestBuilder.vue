@@ -1,44 +1,70 @@
 <template>
   <div class="request-builder">
-    <n-tabs class="tab-container" v-model:value="activeTab" type="line" animated>
-      <template #suffix>
-        <n-button text @click="codeGeneratorVisible = true">
-          <template #icon>
-            <n-icon>
-              <CodeSlashOutline />
-            </n-icon>
-          </template>
-          Code
-        </n-button>
-      </template>
-      <n-tab-pane name="params" tab="Params">
-        <ParamsTab :params="request.params" @update:params="handleParamsUpdate" />
+    <n-tabs
+      class="tab-container"
+      v-model:value="activeTab"
+      type="line"
+      animated
+    >
+      <n-tab-pane
+        name="params"
+        tab="Params"
+      >
+        <ParamsTab
+          :params="request.params"
+          @update:params="handleParamsUpdate"
+        />
       </n-tab-pane>
-      <n-tab-pane name="headers" tab="Headers">
-        <HeadersTab :headers="request.headers" @update:headers="handleHeadersUpdate" />
+      <n-tab-pane
+        name="headers"
+        tab="Headers"
+      >
+        <HeadersTab
+          :headers="request.headers"
+          @update:headers="handleHeadersUpdate"
+        />
       </n-tab-pane>
-      <n-tab-pane name="body" tab="Body">
+      <n-tab-pane
+        name="body"
+        tab="Body"
+      >
         <BodyTab v-model:body="request.body" />
       </n-tab-pane>
-      <n-tab-pane name="auth" tab="Authorization">
-        <AuthTab :auth="request.auth" @update:auth="handleAuthUpdate" />
+      <n-tab-pane
+        name="auth"
+        tab="Authorization"
+      >
+        <AuthTab
+          :auth="request.auth"
+          @update:auth="handleAuthUpdate"
+        />
       </n-tab-pane>
-      <n-tab-pane name="pre-request" tab="Pre-request Script">
-        <PreRequestScriptTab :script="request.preRequestScript" @update="handlePreRequestScriptUpdate" />
+      <n-tab-pane
+        name="pre-request"
+        tab="Pre-request Script"
+      >
+        <PreRequestScriptTab
+          :script="request.preRequestScript"
+          @update="handlePreRequestScriptUpdate"
+        />
       </n-tab-pane>
-      <n-tab-pane name="tests" tab="Tests">
-        <TestsTab :script="request.testScript" @update="handleTestScriptUpdate" />
+      <n-tab-pane
+        name="tests"
+        tab="Tests"
+      >
+        <TestsTab
+          :script="request.testScript"
+          @update="handleTestScriptUpdate"
+        />
       </n-tab-pane>
     </n-tabs>
-
-    <CodeGeneratorDrawer v-model:show="codeGeneratorVisible" :context="context" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { NTabs, NTabPane, NButton, NIcon } from 'naive-ui';
-import { CodeSlashOutline } from '@vicons/ionicons5';
+import { NTabs, NTabPane } from 'naive-ui';
+
 import { useWorkspaceStore } from '@/stores/workspace';
 import type { RequestContext, TestScript, PreRequestScript, RequestParam, RequestHeader, AuthConfig } from '@/types';
 import ParamsTab from './ParamsTab.vue';
@@ -47,7 +73,6 @@ import HeadersTab from './HeadersTab.vue';
 import BodyTab from './BodyTab.vue';
 import PreRequestScriptTab from './PreRequestScriptTab.vue';
 import TestsTab from './TestsTab.vue';
-import CodeGeneratorDrawer from './CodeGeneratorDrawer.vue';
 
 const props = defineProps<{
   tabId: string;
@@ -65,7 +90,7 @@ function handleTestScriptUpdate(newTestScript: TestScript) {
 
     if (props.tabId) {
       workspaceStore.updateTabContext(props.tabId, {
-        request: context.value.request
+        request: context.value.request,
       });
     }
   }
@@ -78,7 +103,7 @@ function handlePreRequestScriptUpdate(newPreRequestScript: PreRequestScript) {
 
     if (props.tabId) {
       workspaceStore.updateTabContext(props.tabId, {
-        request: context.value.request
+        request: context.value.request,
       });
     }
   }
@@ -91,7 +116,7 @@ function handleParamsUpdate(newParams: RequestParam[]) {
 
     if (props.tabId) {
       workspaceStore.updateTabContext(props.tabId, {
-        request: context.value.request
+        request: context.value.request,
       });
     }
   }
@@ -104,7 +129,7 @@ function handleHeadersUpdate(newHeaders: RequestHeader[]) {
 
     if (props.tabId) {
       workspaceStore.updateTabContext(props.tabId, {
-        request: context.value.request
+        request: context.value.request,
       });
     }
   }
@@ -117,15 +142,13 @@ function handleAuthUpdate(newAuth: AuthConfig) {
 
     if (props.tabId) {
       workspaceStore.updateTabContext(props.tabId, {
-        request: context.value.request
+        request: context.value.request,
       });
     }
   }
 }
 
 const activeTab = ref('body');
-const codeGeneratorVisible = ref(false);
-
 </script>
 
 <style scoped>

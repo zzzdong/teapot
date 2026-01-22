@@ -22,13 +22,21 @@
         @sort="handleSort"
       >
         <template #sort-icon-key>
-          <n-icon v-if="sortKey === 'key'" :size="14" :color="'#2080f0'">
+          <n-icon
+            v-if="sortKey === 'key'"
+            :size="14"
+            :color="'#2080f0'"
+          >
             <ArrowUpOutline v-if="sortOrder === 'asc'" />
             <ArrowDownOutline v-else />
           </n-icon>
         </template>
         <template #sort-icon-value>
-          <n-icon v-if="sortKey === 'value'" :size="14" :color="'#2080f0'">
+          <n-icon
+            v-if="sortKey === 'value'"
+            :size="14"
+            :color="'#2080f0'"
+          >
             <ArrowUpOutline v-if="sortOrder === 'asc'" />
             <ArrowDownOutline v-else />
           </n-icon>
@@ -70,38 +78,50 @@ const columns: Column[] = [
     key: 'key',
     width: 200,
     sortable: true,
-    render: (row: any) => h('span', {
-      style: 'font-weight: 500; color: #2080f0;'
-    }, row.key)
+    render: (row: any) =>
+      h(
+        'span',
+        {
+          style: 'font-weight: 500; color: #2080f0;',
+        },
+        row.key
+      ),
   },
   {
     title: 'Value',
     key: 'value',
     sortable: true,
-    ellipsis: true
+    ellipsis: true,
   },
   {
     title: '',
     key: 'actions',
     width: 60,
-    render: (row: any) => h(NButton, {
-      text: true,
-      size: 'small',
-      onClick: () => handleCopyValue(row.key, row.value)
-    }, {
-      icon: () => h(NIcon, null, { default: () => h(CopyOutline) })
-    })
-  }
+    render: (row: any) =>
+      h(
+        NButton,
+        {
+          text: true,
+          size: 'small',
+          onClick: () => handleCopyValue(row.key, row.value),
+        },
+        {
+          icon: () => h(NIcon, null, { default: () => h(CopyOutline) }),
+        }
+      ),
+  },
 ];
 
 const headersArray = computed(() => {
   const headers = props.context?.response?.headers || {};
-  return Object.entries(headers).map(([key, value]) => {
-    if (Array.isArray(value)) {
-      return value.map(v => ({ key, value: v }));
-    }
-    return { key, value: String(value) };
-  }).flat();
+  return Object.entries(headers)
+    .map(([key, value]) => {
+      if (Array.isArray(value)) {
+        return value.map((v) => ({ key, value: v }));
+      }
+      return { key, value: String(value) };
+    })
+    .flat();
 });
 
 const sortedHeaders = computed(() => {
@@ -109,7 +129,7 @@ const sortedHeaders = computed(() => {
   return headers.sort((a, b) => {
     const aValue = a[sortKey.value].toLowerCase();
     const bValue = b[sortKey.value].toLowerCase();
-    
+
     if (sortOrder.value === 'asc') {
       return aValue.localeCompare(bValue);
     } else {
@@ -120,19 +140,20 @@ const sortedHeaders = computed(() => {
 
 const filteredHeaders = computed(() => {
   let headers = sortedHeaders.value;
-  
+
   if (!searchText.value) {
     return headers;
   }
 
   const search = searchText.value.toLowerCase();
-  return headers.filter(header =>
-    header.key.toLowerCase().includes(search) ||
-    header.value.toLowerCase().includes(search)
+  return headers.filter(
+    (header) => header.key.toLowerCase().includes(search) || header.value.toLowerCase().includes(search)
   );
 });
 
-function handleSort(key: 'key' | 'value') {
+function handleSort(key: string) {
+  if (key !== 'key' && key !== 'value') return;
+
   if (sortKey.value === key) {
     // 切换排序顺序
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';

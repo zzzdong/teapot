@@ -11,7 +11,11 @@
           <n-icon><SearchOutline /></n-icon>
         </template>
       </n-input>
-      <n-button text size="small" @click="handleClearHistory">
+      <n-button
+        text
+        size="small"
+        @click="handleClearHistory"
+      >
         <template #icon>
           <n-icon><TrashOutline /></n-icon>
         </template>
@@ -19,14 +23,23 @@
     </div>
 
     <n-scrollbar style="max-height: calc(100vh - 140px)">
-      <div v-if="filteredItems.length === 0" class="empty-state">
-        <n-icon size="48" :color="'#ccc'">
+      <div
+        v-if="filteredItems.length === 0"
+        class="empty-state"
+      >
+        <n-icon
+          size="48"
+          :color="'#ccc'"
+        >
           <TimeOutline />
         </n-icon>
         <p>No history</p>
       </div>
 
-      <div v-else class="history-list">
+      <div
+        v-else
+        class="history-list"
+      >
         <div
           v-for="item in filteredItems"
           :key="item.id"
@@ -34,10 +47,17 @@
           @click="handleLoadHistory(item)"
         >
           <div class="history-header">
-            <span class="method-badge" :class="'method-' + item.request.method">
+            <span
+              class="method-badge"
+              :class="'method-' + item.request.method"
+            >
               {{ item.request.method }}
             </span>
-            <n-icon v-if="item.favorited" :size="16" :color="'#f0a020'">
+            <n-icon
+              v-if="item.favorited"
+              :size="16"
+              :color="'#f0a020'"
+            >
               <StarOutline />
             </n-icon>
           </div>
@@ -45,7 +65,11 @@
           <div class="history-url">{{ truncateText(item.request.url, 30) }}</div>
           <div class="history-meta">
             {{ formatTime(item.timestamp) }}
-            <span v-if="item.response" class="response-status" :class="getStatusClass(item.response.status)">
+            <span
+              v-if="item.response"
+              class="response-status"
+              :class="getStatusClass(item.response.status)"
+            >
               {{ item.response.status }}
             </span>
           </div>
@@ -56,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue';
+import { ref, computed } from 'vue';
 import { NButton, NIcon, NInput, NScrollbar, useDialog } from 'naive-ui';
 import { SearchOutline, TrashOutline, TimeOutline, StarOutline } from '@vicons/ionicons5';
 import { useHistoryStore } from '@/stores/history';
@@ -80,10 +104,11 @@ const filteredItems = computed(() => {
   }
 
   const search = searchText.value.toLowerCase();
-  return historyStore.filteredHistory.filter(item =>
-    item.request.url.toLowerCase().includes(search) ||
-    item.request.method.toLowerCase().includes(search) ||
-    item.name.toLowerCase().includes(search)
+  return historyStore.filteredHistory.filter(
+    (item) =>
+      item.request.url.toLowerCase().includes(search) ||
+      item.request.method.toLowerCase().includes(search) ||
+      item.name.toLowerCase().includes(search)
   );
 });
 
@@ -99,7 +124,7 @@ function handleClearHistory() {
     negativeText: 'Cancel',
     onPositiveClick: () => {
       historyStore.clearHistory();
-    }
+    },
   });
 }
 
@@ -182,13 +207,27 @@ function getStatusClass(status: number): string {
   font-weight: 600;
 }
 
-.method-GET { color: #18a058; }
-.method-POST { color: #2080f0; }
-.method-PUT { color: #f0a020; }
-.method-DELETE { color: #d03050; }
-.method-PATCH { color: #18a058; }
-.method-HEAD { color: #8a2be2; }
-.method-OPTIONS { color: #8a2be2; }
+.method-GET {
+  color: #18a058;
+}
+.method-POST {
+  color: #2080f0;
+}
+.method-PUT {
+  color: #f0a020;
+}
+.method-DELETE {
+  color: #d03050;
+}
+.method-PATCH {
+  color: #18a058;
+}
+.method-HEAD {
+  color: #8a2be2;
+}
+.method-OPTIONS {
+  color: #8a2be2;
+}
 
 .history-name {
   font-size: 13px;
@@ -220,8 +259,16 @@ function getStatusClass(status: number): string {
   font-weight: 600;
 }
 
-.response-status.success { color: #18a058; }
-.response-status.redirect { color: #f0a020; }
-.response-status.client-error { color: #d03050; }
-.response-status.server-error { color: #d03050; }
+.response-status.success {
+  color: #18a058;
+}
+.response-status.redirect {
+  color: #f0a020;
+}
+.response-status.client-error {
+  color: #d03050;
+}
+.response-status.server-error {
+  color: #d03050;
+}
 </style>

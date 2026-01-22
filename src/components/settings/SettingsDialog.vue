@@ -7,25 +7,57 @@
     :style="{ width: '800px', maxWidth: '90vw' }"
     @close="handleClose"
   >
-    <n-tabs type="line" size="large">
-      <n-tab-pane name="httpClient" tab="HTTP客户端">
+    <n-tabs
+      type="line"
+      size="large"
+    >
+      <n-tab-pane
+        name="httpClient"
+        tab="HTTP客户端"
+      >
         <HttpClientSettingsTab />
       </n-tab-pane>
-      <n-tab-pane name="general" tab="通用" disabled>
+      <n-tab-pane
+        name="general"
+        tab="通用"
+        disabled
+      >
         <p>通用设置（待实现）</p>
       </n-tab-pane>
-      <n-tab-pane name="network" tab="网络" disabled>
+      <n-tab-pane
+        name="network"
+        tab="网络"
+        disabled
+      >
         <p>网络设置（待实现）</p>
       </n-tab-pane>
-      <n-tab-pane name="editor" tab="编辑器" disabled>
+      <n-tab-pane
+        name="editor"
+        tab="编辑器"
+        disabled
+      >
         <p>编辑器设置（待实现）</p>
+      </n-tab-pane>
+      <n-tab-pane
+        name="about"
+        tab="关于"
+      >
+        <AboutTab />
       </n-tab-pane>
     </n-tabs>
 
     <template #action>
-      <n-space justify="end" style="width: 100%;">
+      <n-space
+        justify="end"
+        style="width: 100%"
+      >
         <n-button @click="handleClose">取消</n-button>
-        <n-button type="primary" @click="handleSave" :loading="saving">保存</n-button>
+        <n-button
+          type="primary"
+          @click="handleSave"
+          :loading="saving"
+          >保存</n-button
+        >
       </n-space>
     </template>
   </n-modal>
@@ -35,6 +67,7 @@
 import { ref, watch } from 'vue';
 import { NModal, NTabs, NTabPane, NButton, NSpace, useMessage } from 'naive-ui';
 import HttpClientSettingsTab from './HttpClientSettingsTab.vue';
+import AboutTab from './AboutTab.vue';
 import { useSettingsStore } from '@/stores/settings';
 
 const emit = defineEmits<{

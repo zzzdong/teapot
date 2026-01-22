@@ -1,14 +1,23 @@
 <template>
   <div class="response-tests">
-    <div v-if="testResults.length === 0" class="no-tests">
-      <n-icon size="48" :color="'#ccc'">
+    <div
+      v-if="testResults.length === 0"
+      class="no-tests"
+    >
+      <n-icon
+        size="48"
+        :color="'#ccc'"
+      >
         <CheckmarkCircleOutline />
       </n-icon>
       <p>No tests executed</p>
       <p class="hint">Add tests in the Tests tab of the request builder</p>
     </div>
 
-    <div v-else class="test-results">
+    <div
+      v-else
+      class="test-results"
+    >
       <div class="test-summary">
         <n-space :size="20">
           <span class="summary-item">
@@ -27,15 +36,29 @@
       </div>
 
       <n-list>
-        <n-list-item v-for="(result, index) in testResults" :key="index">
-          <div class="test-item" :class="{ failed: !result.passed }">
-            <n-icon :size="20" :color="result.passed ? '#18a058' : '#d03050'">
+        <n-list-item
+          v-for="(result, index) in testResults"
+          :key="index"
+        >
+          <div
+            class="test-item"
+            :class="{ failed: !result.passed }"
+          >
+            <n-icon
+              :size="20"
+              :color="result.passed ? '#18a058' : '#d03050'"
+            >
               <CheckmarkCircleOutline v-if="result.passed" />
               <CloseCircleOutline v-else />
             </n-icon>
             <div class="test-content">
               <div class="test-name">{{ result.name }}</div>
-              <div v-if="!result.passed" class="test-message">{{ result.message }}</div>
+              <div
+                v-if="!result.passed"
+                class="test-message"
+              >
+                {{ result.message }}
+              </div>
             </div>
             <div class="test-duration">{{ result.duration }}ms</div>
           </div>
@@ -74,7 +97,7 @@ const testResults = computed(() => {
     const passedMatch = message.match(/^✓ Test passed: (.+)$/);
     if (passedMatch) {
       console.log('Passed match:', passedMatch[1]);
-      const existingTest = results.find(r => r.name === passedMatch[1]);
+      const existingTest = results.find((r) => r.name === passedMatch[1]);
       if (existingTest) {
         existingTest.passed = true;
       } else {
@@ -87,7 +110,7 @@ const testResults = computed(() => {
     const failedMatch = message.match(/^✗ Test failed: (.+) - (.+)$/);
     if (failedMatch) {
       console.log('Failed match:', failedMatch[1], failedMatch[2]);
-      const existingTest = results.find(r => r.name === failedMatch[1]);
+      const existingTest = results.find((r) => r.name === failedMatch[1]);
       if (existingTest) {
         existingTest.passed = false;
         existingTest.message = failedMatch[2];
@@ -99,7 +122,7 @@ const testResults = computed(() => {
 
     // Check for test started (only add if not already in results)
     const testMatch = message.match(/^Test: (.+)$/);
-    if (testMatch && !results.find(r => r.name === testMatch[1])) {
+    if (testMatch && !results.find((r) => r.name === testMatch[1])) {
       console.log('Test start match:', testMatch[1]);
       results.push({ name: testMatch[1], passed: true, duration: 0 });
     }
@@ -113,7 +136,7 @@ const testResults = computed(() => {
         const testInErrorMatch = errorText.match(/Expected (.+), but got/);
         if (testInErrorMatch) {
           const testName = `Assertion: ${testInErrorMatch[1]}`;
-          if (!results.find(r => r.name === testName)) {
+          if (!results.find((r) => r.name === testName)) {
             results.push({ name: testName, passed: false, duration: 0, message: errorText });
           }
         }
@@ -126,8 +149,8 @@ const testResults = computed(() => {
 });
 
 const totalTests = computed(() => testResults.value.length);
-const passedTests = computed(() => testResults.value.filter(t => t.passed).length);
-const failedTests = computed(() => testResults.value.filter(t => !t.passed).length);
+const passedTests = computed(() => testResults.value.filter((t) => t.passed).length);
+const failedTests = computed(() => testResults.value.filter((t) => !t.passed).length);
 </script>
 
 <style scoped>

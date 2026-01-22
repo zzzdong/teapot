@@ -20,7 +20,10 @@
 
     <div class="editor-actions">
       <n-space>
-        <n-button text @click="handlePrettify">
+        <n-button
+          text
+          @click="handlePrettify"
+        >
           <template #icon>
             <n-icon><FormatIcon /></n-icon>
           </template>
@@ -54,17 +57,21 @@ const query = ref(props.graphql?.query || '');
 const variables = ref(props.graphql?.variables || '');
 
 // Watch for prop changes
-watch(() => props.graphql, (newGraphql) => {
-  if (newGraphql) {
-    query.value = newGraphql.query || '';
-    variables.value = newGraphql.variables || '';
-  }
-}, { deep: true });
+watch(
+  () => props.graphql,
+  (newGraphql) => {
+    if (newGraphql) {
+      query.value = newGraphql.query || '';
+      variables.value = newGraphql.variables || '';
+    }
+  },
+  { deep: true }
+);
 
 function emitUpdate() {
   emit('update', {
     query: query.value,
-    variables: variables.value
+    variables: variables.value,
   });
 }
 

@@ -2,12 +2,21 @@
   <div class="tree-item">
     <template v-if="item.type === 'folder'">
       <div class="folder-item">
-        <div class="item-content" @click="handleToggle(item.id)">
-          <n-icon :size="14" :color="'#f0a020'">
+        <div
+          class="item-content"
+          @click="handleToggle(item.id)"
+        >
+          <n-icon
+            :size="14"
+            :color="'#f0a020'"
+          >
             <ChevronDownOutline v-if="isExpanded" />
             <ChevronForwardOutline v-else />
           </n-icon>
-          <n-icon :size="16" :color="'#f0a020'">
+          <n-icon
+            :size="16"
+            :color="'#f0a020'"
+          >
             <FolderOutline />
           </n-icon>
           <span class="item-name">{{ item.name }}</span>
@@ -18,12 +27,19 @@
           trigger="click"
           @select="handleFolderAction"
         >
-          <n-button text size="tiny" @click.stop>
+          <n-button
+            text
+            size="tiny"
+            @click.stop
+          >
             <n-icon><EllipsisVerticalOutline /></n-icon>
           </n-button>
         </n-dropdown>
       </div>
-      <div v-if="isExpanded" class="folder-content">
+      <div
+        v-if="isExpanded"
+        class="folder-content"
+      >
         <CollectionTreeItem
           v-for="child in getChildren(item.id)"
           :key="child.id"
@@ -40,11 +56,20 @@
 
     <template v-else-if="item.type === 'request'">
       <div class="request-item">
-        <div class="item-content" @click="$emit('select', item)">
-          <n-icon :size="16" :color="'#18a058'">
+        <div
+          class="item-content"
+          @click="$emit('select', item)"
+        >
+          <n-icon
+            :size="16"
+            :color="'#18a058'"
+          >
             <DocumentTextOutline />
           </n-icon>
-          <span class="method-badge" :class="'method-' + item.request.method">
+          <span
+            class="method-badge"
+            :class="'method-' + item.request.method"
+          >
             {{ item.request.method }}
           </span>
           <span class="item-name">{{ item.name }}</span>
@@ -55,7 +80,11 @@
           trigger="click"
           @select="handleRequestAction"
         >
-          <n-button text size="tiny" @click.stop>
+          <n-button
+            text
+            size="tiny"
+            @click.stop
+          >
             <n-icon><EllipsisVerticalOutline /></n-icon>
           </n-button>
         </n-dropdown>
@@ -75,7 +104,7 @@ import {
   EllipsisVerticalOutline,
   CreateOutline,
   TrashOutline,
-  AddCircleOutline
+  AddCircleOutline,
 } from '@vicons/ionicons5';
 import { useCollectionsStore } from '@/stores/collections';
 
@@ -103,43 +132,43 @@ const folderOptions = [
   {
     label: 'Add Folder',
     key: 'add-folder',
-    icon: () => h(AddCircleOutline)
+    icon: () => h(AddCircleOutline),
   },
   {
     label: 'Add Request',
     key: 'add-request',
-    icon: () => h(DocumentTextOutline)
+    icon: () => h(DocumentTextOutline),
   },
   {
-    type: 'divider'
+    type: 'divider',
   },
   {
     label: 'Rename',
     key: 'rename',
-    icon: () => h(CreateOutline)
+    icon: () => h(CreateOutline),
   },
   {
     label: 'Delete',
     key: 'delete',
-    icon: () => h(TrashOutline)
-  }
+    icon: () => h(TrashOutline),
+  },
 ];
 
 const requestOptions = [
   {
     label: 'Rename',
     key: 'rename',
-    icon: () => h(CreateOutline)
+    icon: () => h(CreateOutline),
   },
   {
     label: 'Delete',
     key: 'delete',
-    icon: () => h(TrashOutline)
-  }
+    icon: () => h(TrashOutline),
+  },
 ];
 
 function getChildren(parentId: string) {
-  return collectionsStore.collections.filter(item => item.parentId === parentId);
+  return collectionsStore.collections.filter((item) => item.parentId === parentId);
 }
 
 function handleToggle(id: string) {
@@ -174,18 +203,19 @@ function handleDelete(item: any) {
     negativeText: 'Cancel',
     onPositiveClick: () => {
       emit('delete', item);
-    }
+    },
   });
 }
 
 function handleCreateFolder(parentId: string) {
   dialog.create({
     title: 'Create Folder',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'Folder name',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'Folder name',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Create',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -193,7 +223,7 @@ function handleCreateFolder(parentId: string) {
       if (input && input.value) {
         collectionsStore.createFolder(parentId, input.value);
       }
-    }
+    },
   });
 }
 
@@ -244,13 +274,27 @@ function handleCreateRequest(parentId: string) {
   font-weight: 600;
 }
 
-.method-GET { color: #18a058; }
-.method-POST { color: #2080f0; }
-.method-PUT { color: #f0a020; }
-.method-DELETE { color: #d03050; }
-.method-PATCH { color: #18a058; }
-.method-HEAD { color: #8a2be2; }
-.method-OPTIONS { color: #8a2be2; }
+.method-GET {
+  color: #18a058;
+}
+.method-POST {
+  color: #2080f0;
+}
+.method-PUT {
+  color: #f0a020;
+}
+.method-DELETE {
+  color: #d03050;
+}
+.method-PATCH {
+  color: #18a058;
+}
+.method-HEAD {
+  color: #8a2be2;
+}
+.method-OPTIONS {
+  color: #8a2be2;
+}
 
 .item-name {
   font-size: 12px;

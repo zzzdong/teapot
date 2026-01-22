@@ -22,7 +22,7 @@ class PostmanApi {
     this.modifiedRequest = {
       url: this.context.request.url,
       method: this.context.request.method,
-      headers: { ...this.context.request.headers }
+      headers: { ...this.context.request.headers },
     };
   }
 
@@ -34,7 +34,7 @@ class PostmanApi {
     this.logs.push({
       level,
       message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -65,7 +65,7 @@ class PostmanApi {
       },
       toString(): string {
         return JSON.stringify(self.context.environment);
-      }
+      },
     };
   }
 
@@ -96,7 +96,7 @@ class PostmanApi {
       },
       toString(): string {
         return JSON.stringify(self.context.globals);
-      }
+      },
     };
   }
 
@@ -110,7 +110,7 @@ class PostmanApi {
         set(url: string) {
           self.addLog('info', `pm.request.url.set('${url}')`);
           self.modifiedRequest.url = url;
-        }
+        },
       },
       headers: {
         add(header: { key: string; value: string }) {
@@ -131,7 +131,7 @@ class PostmanApi {
         upsert(header: { key: string; value: string }) {
           self.addLog('info', `pm.request.headers.upsert(${JSON.stringify(header)})`);
           self.modifiedRequest.headers[header.key] = header.value;
-        }
+        },
       },
       method: {
         get(): string {
@@ -140,7 +140,7 @@ class PostmanApi {
         set(method: string) {
           self.addLog('info', `pm.request.method.set('${method}')`);
           self.modifiedRequest.method = method;
-        }
+        },
       },
       body: {
         get(): any {
@@ -153,8 +153,8 @@ class PostmanApi {
         update(options: any) {
           self.addLog('info', 'pm.request.body.update(...)');
           Object.assign(self.context.request.body, options);
-        }
-      }
+        },
+      },
     };
   }
 
@@ -187,7 +187,7 @@ class PostmanApi {
         },
         has(headerName: string): boolean {
           return headerName in (self.context.response?.headers || {});
-        }
+        },
       },
       code: () => self.context.response?.status || 0,
       status: () => {
@@ -210,9 +210,10 @@ class PostmanApi {
             self.addLog('info', `Assertion passed: response status is ${code}`);
           },
           property: (prop: string) => {
-            const body = typeof self.context.response?.body === 'string'
-              ? JSON.parse(self.context.response?.body || '{}')
-              : self.context.response?.body || {};
+            const body =
+              typeof self.context.response?.body === 'string'
+                ? JSON.parse(self.context.response?.body || '{}')
+                : self.context.response?.body || {};
             if (typeof body !== 'object' || body === null || !(prop in body)) {
               throw new Error(`Expected response body to have property ${prop}`);
             }
@@ -225,14 +226,15 @@ class PostmanApi {
             self.addLog('info', `Assertion passed: response has header ${headerName}`);
           },
           body: (expectedBody: string) => {
-            const actualBody = typeof self.context.response?.body === 'string'
-              ? self.context.response.body
-              : JSON.stringify(self.context.response?.body);
+            const actualBody =
+              typeof self.context.response?.body === 'string'
+                ? self.context.response.body
+                : JSON.stringify(self.context.response?.body);
             if (actualBody !== expectedBody) {
               throw new Error(`Expected response body to be ${expectedBody}, but got ${actualBody}`);
             }
             self.addLog('info', `Assertion passed: response body matches expected`);
-          }
+          },
         },
         be: {
           ok: () => {
@@ -246,9 +248,9 @@ class PostmanApi {
             // This is used with pm.expect(), so value is passed through pm.expect()
             // The actual check is done in pm.expect()
             self.addLog('info', `Assertion: value is an ${type}`);
-          }
-        }
-      }
+          },
+        },
+      },
     };
   }
 
@@ -331,7 +333,7 @@ class PostmanApi {
                 throw new Error(`Expected ${value} to be below ${max}`);
               }
               self.addLog('info', `Assertion passed: value is below ${max}`);
-            }
+            },
           },
           have: {
             property: (prop: string) => {
@@ -345,7 +347,7 @@ class PostmanApi {
                 throw new Error('Expected value to be an object');
               }
               const objKeys = Object.keys(value);
-              const missingKeys = keys.filter(k => !objKeys.includes(k));
+              const missingKeys = keys.filter((k) => !objKeys.includes(k));
               if (missingKeys.length > 0) {
                 throw new Error(`Expected object to have keys: ${missingKeys.join(', ')}`);
               }
@@ -374,7 +376,7 @@ class PostmanApi {
                 throw new Error(`Expected status ${code}, but got ${value}`);
               }
               self.addLog('info', `Assertion passed: status is ${code}`);
-            }
+            },
           },
           include: (expected: any) => {
             if (Array.isArray(value)) {
@@ -417,7 +419,7 @@ class PostmanApi {
               throw new Error('Cannot test containment on this type');
             }
             self.addLog('info', `Assertion passed: value contains expected`);
-          }
+          },
         },
         not: {
           be: {
@@ -438,7 +440,7 @@ class PostmanApi {
                 throw new Error(`Expected ${JSON.stringify(value)} to not equal ${JSON.stringify(expected)}`);
               }
               self.addLog('info', `Assertion passed: value does not equal expected`);
-            }
+            },
           },
           have: {
             property: (prop: string) => {
@@ -446,7 +448,7 @@ class PostmanApi {
                 throw new Error(`Expected object to not have property ${prop}`);
               }
               self.addLog('info', `Assertion passed: object does not have property ${prop}`);
-            }
+            },
           },
           include: (expected: any) => {
             if (Array.isArray(value) && value.includes(expected)) {
@@ -456,8 +458,8 @@ class PostmanApi {
               throw new Error(`Expected string to not include ${expected}`);
             }
             self.addLog('info', `Assertion passed: value does not include expected`);
-          }
-        }
+          },
+        },
       };
 
       return assertions;
@@ -489,29 +491,21 @@ class PostmanApi {
     const self = this;
     return {
       log: (...args: any[]) => {
-        const message = args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-        ).join(' ');
+        const message = args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
         self.addLog('log', message);
       },
       info: (...args: any[]) => {
-        const message = args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-        ).join(' ');
+        const message = args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
         self.addLog('info', message);
       },
       warn: (...args: any[]) => {
-        const message = args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-        ).join(' ');
+        const message = args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
         self.addLog('warn', message);
       },
       error: (...args: any[]) => {
-        const message = args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-        ).join(' ');
+        const message = args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
         self.addLog('error', message);
-      }
+      },
     };
   }
 
@@ -541,7 +535,7 @@ class PostmanApi {
         self.addLog('info', 'pm.variables.clear()');
         self.context.environment = {};
         self.context.globals = {};
-      }
+      },
     };
   }
 
@@ -564,7 +558,7 @@ class PostmanApi {
       },
       list() {
         return [];
-      }
+      },
     };
   }
 
@@ -584,7 +578,7 @@ class PostmanApi {
           status: 200,
           headers: {},
           json: () => ({}),
-          text: () => ''
+          text: () => '',
         });
         return undefined;
       }
@@ -593,7 +587,7 @@ class PostmanApi {
         status: 200,
         headers: {},
         json: () => ({}),
-        text: () => ''
+        text: () => '',
       });
     };
   }
@@ -609,8 +603,8 @@ class PostmanApi {
         url: this.modifiedRequest.url,
         method: this.modifiedRequest.method,
         headers: this.modifiedRequest.headers,
-        body: this.context.request.body
-      }
+        body: this.context.request.body,
+      },
     };
   }
 
@@ -625,10 +619,7 @@ class PostmanApi {
 /**
  * Execute a pre-request or test script in an isolated environment
  */
-export async function executeScript(
-  script: string,
-  context: ScriptContext
-): Promise<ScriptResult> {
+export async function executeScript(script: string, context: ScriptContext): Promise<ScriptResult> {
   const logs: ScriptLogEntry[] = [];
   let success = true;
   let error: string | undefined;
@@ -651,9 +642,15 @@ export async function executeScript(
       console: pm.console,
 
       // Forbidden functions (use non-reserved names to avoid strict mode errors)
-      _require: () => { throw new Error('require() is not allowed in scripts'); },
-      _eval: () => { throw new Error('eval() is not allowed in scripts'); },
-      _Function: () => { throw new Error('Function constructor is not allowed in scripts'); },
+      _require: () => {
+        throw new Error('require() is not allowed in scripts');
+      },
+      _eval: () => {
+        throw new Error('eval() is not allowed in scripts');
+      },
+      _Function: () => {
+        throw new Error('Function constructor is not allowed in scripts');
+      },
 
       // Timers (disabled for security)
       setTimeout: () => {},
@@ -673,7 +670,7 @@ export async function executeScript(
       Array: {
         from: Array.from,
         isArray: Array.isArray,
-        of: Array.of
+        of: Array.of,
       },
       Object: {
         assign: Object.assign,
@@ -683,7 +680,7 @@ export async function executeScript(
         keys: Object.keys,
         values: Object.values,
         getOwnPropertyNames: Object.getOwnPropertyNames,
-        getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor
+        getOwnPropertyDescriptor: Object.getOwnPropertyDescriptor,
       },
       Error: Error,
       isNaN: isNaN,
@@ -697,27 +694,67 @@ export async function executeScript(
       Map: Map,
       Set: Set,
       RegExp: RegExp,
-      Promise: Promise
+      Promise: Promise,
     };
 
     // Create function from script with sandbox
-    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
     const sandboxKeys = Object.keys(sandbox);
 
     // JavaScript reserved keywords that cannot be used as variable names
     const reservedKeywords = new Set([
-      'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
-      'default', 'delete', 'do', 'else', 'export', 'extends', 'false', 'finally',
-      'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null',
-      'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof',
-      'var', 'void', 'while', 'with', 'yield', 'await', 'enum', 'implements',
-      'interface', 'let', 'package', 'private', 'protected', 'public', 'static'
+      'break',
+      'case',
+      'catch',
+      'class',
+      'const',
+      'continue',
+      'debugger',
+      'default',
+      'delete',
+      'do',
+      'else',
+      'export',
+      'extends',
+      'false',
+      'finally',
+      'for',
+      'function',
+      'if',
+      'import',
+      'in',
+      'instanceof',
+      'new',
+      'null',
+      'return',
+      'super',
+      'switch',
+      'this',
+      'throw',
+      'true',
+      'try',
+      'typeof',
+      'var',
+      'void',
+      'while',
+      'with',
+      'yield',
+      'await',
+      'enum',
+      'implements',
+      'interface',
+      'let',
+      'package',
+      'private',
+      'protected',
+      'public',
+      'static',
     ]);
 
     // Skip reserved keywords when creating const declarations
     const sandboxVars = sandboxKeys
-      .filter(key => !reservedKeywords.has(key))
-      .map(key => `const ${key} = sandbox.${key};`)
+      .filter((key) => !reservedKeywords.has(key))
+      .map((key) => `const ${key} = sandbox.${key};`)
       .join('\n');
 
     // Wrap script in IIFE to prevent variable leakage
@@ -737,14 +774,13 @@ export async function executeScript(
     // Get results
     modifiedContext = pm.getModifiedContext();
     logs.push(...pm.getLogs());
-
   } catch (err) {
     success = false;
     error = err instanceof Error ? err.message : String(err);
     logs.push({
       level: 'error',
       message: `Script execution error: ${error}`,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -752,7 +788,7 @@ export async function executeScript(
     success,
     error,
     logs,
-    modifiedContext
+    modifiedContext,
   };
 }
 
@@ -782,7 +818,10 @@ export function validateScriptSyntax(script: string): { valid: boolean; error?: 
       // Match navigator object access
       { pattern: /(?:^|[^\w.$])navigator\s*\./, message: 'navigator object is not allowed in scripts' },
       // Match XMLHttpRequest usage
-      { pattern: /(?:^|[^\w.$])XMLHttpRequest(?:$|[^\w])/g, message: 'XMLHttpRequest is not allowed in scripts, use pm.sendRequest instead' },
+      {
+        pattern: /(?:^|[^\w.$])XMLHttpRequest(?:$|[^\w])/g,
+        message: 'XMLHttpRequest is not allowed in scripts, use pm.sendRequest instead',
+      },
       // Match fetch() function call
       { pattern: /(?:^|[^\w.$])fetch\s*\(/, message: 'fetch() is not allowed in scripts, use pm.sendRequest instead' },
     ];
@@ -799,7 +838,7 @@ export function validateScriptSyntax(script: string): { valid: boolean; error?: 
   } catch (err) {
     return {
       valid: false,
-      error: err instanceof Error ? err.message : String(err)
+      error: err instanceof Error ? err.message : String(err),
     };
   }
 }

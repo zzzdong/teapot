@@ -2,11 +2,17 @@
   <div class="tests-tab">
     <div class="script-header">
       <n-space>
-        <n-switch :value="scriptEnabled" @update:value="handleEnabledChange">
+        <n-switch
+          :value="scriptEnabled"
+          @update:value="handleEnabledChange"
+        >
           <template #checked>Enabled</template>
           <template #unchecked>Disabled</template>
         </n-switch>
-        <n-button text @click="handleInsertSnippet">
+        <n-button
+          text
+          @click="handleInsertSnippet"
+        >
           <template #icon>
             <n-icon><CodeIcon /></n-icon>
           </template>
@@ -15,22 +21,32 @@
       </n-space>
     </div>
 
-    <div class="script-editor-container" v-show="scriptEnabled">
+    <div
+      class="script-editor-container"
+      v-show="scriptEnabled"
+    >
       <MonacoEditor
         v-model:value="scriptContent"
         language="javascript"
-        theme="vs-dark"
+        theme="vs"
         :options="editorOptions"
         :completionItems="completionItems"
         @change="handleContentChange"
       />
     </div>
 
-    <div class="script-disabled-message" v-show="!scriptEnabled">
+    <div
+      class="script-disabled-message"
+      v-show="!scriptEnabled"
+    >
       <n-empty description="Test script is disabled. Enable it to edit and run tests." />
     </div>
 
-    <n-drawer v-model:show="showSnippets" placement="right" :width="400">
+    <n-drawer
+      v-model:show="showSnippets"
+      placement="right"
+      :width="400"
+    >
       <n-drawer-content title="Code Snippets">
         <div class="snippets">
           <div
@@ -100,71 +116,75 @@ const editorOptions = computed(() => ({
   bracketPairColorization: { enabled: true },
   guides: {
     bracketPairs: true,
-    indentation: true
+    indentation: true,
   },
-  lightbulb: { enabled: true }
+  lightbulb: { enabled: true },
 }));
 
 const snippets = [
   {
     name: 'Status code is 200',
     description: 'Check if response status code is 200',
-    code: "pm.test('Status code is 200', function () {\n    pm.response.to.have.status(200);\n});"
+    code: "pm.test('Status code is 200', function () {\n    pm.response.to.have.status(200);\n});",
   },
   {
     name: 'Status code is 201',
     description: 'Check if response status code is 201',
-    code: "pm.test('Status code is 201', function () {\n    pm.response.to.have.status(201);\n});"
+    code: "pm.test('Status code is 201', function () {\n    pm.response.to.have.status(201);\n});",
   },
   {
     name: 'Response time < 200ms',
     description: 'Check if response time is less than 200ms',
-    code: "pm.test('Response time is less than 200ms', function () {\n    pm.expect(pm.response.responseTime()).to.be.below(200);\n});"
+    code: "pm.test('Response time is less than 200ms', function () {\n    pm.expect(pm.response.responseTime()).to.be.below(200);\n});",
   },
   {
     name: 'Response body has property',
     description: 'Check if response body has specific property',
-    code: "pm.test('Response has property', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('propertyName');\n});"
+    code: "pm.test('Response has property', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('propertyName');\n});",
   },
   {
     name: 'Response body is correct',
     description: 'Validate entire response body',
-    code: "pm.test('Response body is correct', function () {\n    pm.response.to.have.body('{\"response\":\"success\"}');\n});"
+    code: 'pm.test(\'Response body is correct\', function () {\n    pm.response.to.have.body(\'{"response":"success"}\');\n});',
   },
   {
     name: 'Response headers contain value',
     description: 'Check if response headers contain specific value',
-    code: "pm.test('Content-Type header is present', function () {\n    pm.response.to.have.header('Content-Type');\n});"
+    code: "pm.test('Content-Type header is present', function () {\n    pm.response.to.have.header('Content-Type');\n});",
   },
   {
     name: 'Successful POST request',
     description: 'Test for successful POST request',
-    code: "pm.test('Status code is 201', function () {\n    pm.response.to.have.status(201);\n});\n\npm.test('Response has data', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('id');\n});"
+    code: "pm.test('Status code is 201', function () {\n    pm.response.to.have.status(201);\n});\n\npm.test('Response has data', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('id');\n});",
   },
   {
     name: 'Array length check',
     description: 'Check if response array has specific length',
-    code: "pm.test('Array has 5 items', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.items).to.have.lengthOf(5);\n});"
+    code: "pm.test('Array has 5 items', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.items).to.have.lengthOf(5);\n});",
   },
   {
     name: 'Check response JSON structure',
     description: 'Validate JSON response structure',
-    code: "pm.test('Response has correct structure', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('data');\n    pm.expect(jsonData.data).to.be.an('array');\n    pm.expect(jsonData.data[0]).to.have.property('id');\n});"
+    code: "pm.test('Response has correct structure', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('data');\n    pm.expect(jsonData.data).to.be.an('array');\n    pm.expect(jsonData.data[0]).to.have.property('id');\n});",
   },
   {
     name: 'Multiple assertions',
     description: 'Run multiple test cases',
-    code: "pm.test('Status is 200', function () {\n    pm.expect(pm.response.code()).to.eql(200);\n});\n\npm.test('Content-Type is JSON', function () {\n    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\n});\n\npm.test('Response has data', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('data');\n});"
-  }
+    code: "pm.test('Status is 200', function () {\n    pm.expect(pm.response.code()).to.eql(200);\n});\n\npm.test('Content-Type is JSON', function () {\n    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\n});\n\npm.test('Response has data', function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData).to.have.property('data');\n});",
+  },
 ];
 
 // Watch for prop changes
-watch(() => props.script, (newScript) => {
-  if (newScript) {
-    scriptEnabled.value = newScript.enabled;
-    scriptContent.value = newScript.content;
-  }
-}, { deep: true, immediate: true });
+watch(
+  () => props.script,
+  (newScript) => {
+    if (newScript) {
+      scriptEnabled.value = newScript.enabled;
+      scriptContent.value = newScript.content;
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 function handleEnabledChange(enabled: boolean) {
   scriptEnabled.value = enabled;
@@ -179,7 +199,7 @@ function handleContentChange(content: string) {
 function emitUpdate() {
   emit('update', {
     enabled: scriptEnabled.value,
-    content: scriptContent.value
+    content: scriptContent.value,
   } as TestScript);
 }
 
@@ -192,7 +212,10 @@ function truncateCode(code: string): string {
 }
 
 function handleInsertSnippetCode(code: string) {
-  const newContent = scriptContent.value + (scriptContent.value.length > 0 && !scriptContent.value.endsWith('\n') ? '\n\n' : '\n') + code;
+  const newContent =
+    scriptContent.value +
+    (scriptContent.value.length > 0 && !scriptContent.value.endsWith('\n') ? '\n\n' : '\n') +
+    code;
   scriptContent.value = newContent;
   emitUpdate();
   showSnippets.value = false;
@@ -214,57 +237,57 @@ const completionItems = computed(() => {
       kind: 3, // monaco.languages.CompletionItemKind.Function,
       insertText: 'pm.test("name", () => {\n  // test code\n});',
       detail: 'Define a test',
-      documentation: 'Define a test case'
+      documentation: 'Define a test case',
     },
     {
       label: 'pm.response.code',
       kind: 3, // monaco.languages.CompletionItemKind.Function,
       insertText: 'pm.response.code()',
       detail: 'Response status code',
-      documentation: 'Get response status code'
+      documentation: 'Get response status code',
     },
     {
       label: 'pm.response.json',
       kind: 3, // monaco.languages.CompletionItemKind.Function,
       insertText: 'pm.response.json()',
       detail: 'Parse response as JSON',
-      documentation: 'Parse response body as JSON'
+      documentation: 'Parse response body as JSON',
     },
     {
       label: 'pm.response.text',
       kind: 3, // monaco.languages.CompletionItemKind.Function,
       insertText: 'pm.response.text()',
       detail: 'Get response as text',
-      documentation: 'Get response body as text'
+      documentation: 'Get response body as text',
     },
     {
       label: 'pm.response.headers',
       kind: 2, // monaco.languages.CompletionItemKind.Module,
       insertText: 'pm.response.headers',
       detail: 'Response headers API',
-      documentation: 'Access response headers'
+      documentation: 'Access response headers',
     },
     {
       label: 'pm.expect',
       kind: 3, // monaco.languages.CompletionItemKind.Function,
       insertText: 'pm.expect(value)',
       detail: 'Assertion helper',
-      documentation: 'Create an assertion'
+      documentation: 'Create an assertion',
     },
     {
       label: 'pm.cookies',
       kind: 2, // monaco.languages.CompletionItemKind.Module,
       insertText: 'pm.cookies',
       detail: 'Cookies API',
-      documentation: 'Access response cookies'
+      documentation: 'Access response cookies',
     },
     {
       label: 'pm.response.time',
       kind: 3, // monaco.languages.CompletionItemKind.Function,
       insertText: 'pm.response.time()',
       detail: 'Response time',
-      documentation: 'Get response time in milliseconds'
-    }
+      documentation: 'Get response time in milliseconds',
+    },
   ];
 });
 

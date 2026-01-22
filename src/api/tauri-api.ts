@@ -143,7 +143,7 @@ export const store = {
 
     // Fallback to localStorage
     return localStorage.getItem(key) !== null;
-  }
+  },
 };
 
 // HTTP request operations - using custom Tauri command for maximum flexibility
@@ -158,7 +158,7 @@ export const request = {
       }
 
       // Load global settings and merge with request config
-      const globalSettings = await store.get('http_client_config') || { };
+      const globalSettings = (await store.get('http_client_config')) || {};
       const mergedConfig = mergeRequestConfig(config, globalSettings);
 
       // Ensure URL has protocol
@@ -169,7 +169,7 @@ export const request = {
 
       // Build headers - always create object (empty if no headers)
       const headers: Record<string, string> = {};
-      
+
       // Add configured headers
       if (mergedConfig.headers) {
         if (Array.isArray(mergedConfig.headers)) {
@@ -290,12 +290,12 @@ export const request = {
         method: mergedConfig.method,
         headers,
         body: bodyBytes,
-        timeout: mergedConfig.timeout || undefined,  // Let Rust use default if not specified
+        timeout: mergedConfig.timeout || undefined, // Let Rust use default if not specified
         verify_ssl: mergedConfig.sslVerification !== false,
         follow_redirects: mergedConfig.followRedirects !== false,
         user_agent: mergedConfig.userAgent || undefined,
         ca_cert_paths: mergedConfig.caCertPaths || undefined,
-        proxy: mergedConfig.proxy || undefined
+        proxy: mergedConfig.proxy || undefined,
       };
 
       // Call custom Tauri command
@@ -316,10 +316,12 @@ export const request = {
           const textDecoder = new TextDecoder('utf-8');
           responseBody = textDecoder.decode(new Uint8Array(response.body));
         }
-      } else if (contentType.includes('application/octet-stream') ||
-                 contentType.includes('image/') ||
-                 contentType.includes('video/') ||
-                 contentType.includes('audio/')) {
+      } else if (
+        contentType.includes('application/octet-stream') ||
+        contentType.includes('image/') ||
+        contentType.includes('video/') ||
+        contentType.includes('audio/')
+      ) {
         // Keep as byte array for binary content
         responseBody = response.body;
       } else {
@@ -337,13 +339,13 @@ export const request = {
         body: responseBody,
         size: response.size,
         duration: response.duration,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     } else {
       // Fallback to browser fetch when not in Tauri context (development)
       throw new Error('Tauri HTTP plugin not available. Use browser fetch for development.');
     }
-  }
+  },
 };
 
 interface HttpResponse {
@@ -359,7 +361,7 @@ interface HttpResponse {
 export const websocket = {
   connect: (url: string) => Promise.reject('WebSocket not implemented'),
   send: (id: string, data: string) => Promise.reject('WebSocket not implemented'),
-  close: (id: string) => Promise.reject('WebSocket not implemented')
+  close: (id: string) => Promise.reject('WebSocket not implemented'),
 };
 
 // File operations
@@ -376,9 +378,9 @@ export const file = {
           filters: [
             {
               name: 'JSON',
-              extensions: ['json']
-            }
-          ]
+              extensions: ['json'],
+            },
+          ],
         });
       } catch (e) {
         console.warn('Tauri file save dialog failed:', e);
@@ -395,9 +397,9 @@ export const file = {
           filters: [
             {
               name: 'JSON',
-              extensions: ['json']
-            }
-          ]
+              extensions: ['json'],
+            },
+          ],
         });
       } catch (e) {
         console.warn('Tauri file open dialog failed:', e);
@@ -430,12 +432,12 @@ export const file = {
     } else {
       throw new Error('File operations not available');
     }
-  }
+  },
 };
 
 // Script execution - placeholder (not implemented)
 export const script = {
-  execute: (code: string, context: any) => Promise.reject('Script execution not implemented')
+  execute: (code: string, context: any) => Promise.reject('Script execution not implemented'),
 };
 
 // Default configuration constants
@@ -443,7 +445,7 @@ const DEFAULT_CONFIG = {
   USER_AGENT: 'Teapot/1.0',
   TIMEOUT: 30000,
   VERIFY_SSL: true,
-  FOLLOW_REDIRECTS: true
+  FOLLOW_REDIRECTS: true,
 };
 
 /**
@@ -464,14 +466,14 @@ export const mergeRequestConfig = (requestConfig: any, globalSettings: any = {})
     // Merge CA certificate paths
     caCertPaths: requestConfig.caCertPaths ?? globalSettings.caCertPaths ?? undefined,
     // Merge proxy settings - request-level proxy can override global settings
-    proxy: requestConfig.proxy ?? globalSettings.proxy ?? undefined
+    proxy: requestConfig.proxy ?? globalSettings.proxy ?? undefined,
   };
 };
 
 // Environment operations - placeholder (not implemented)
 export const env = {
   get: (key: string) => Promise.reject('Environment variables not implemented'),
-  set: (key: string, value: any) => Promise.reject('Environment variables not implemented')
+  set: (key: string, value: any) => Promise.reject('Environment variables not implemented'),
 };
 
 // HTTP Client configuration management
@@ -486,14 +488,16 @@ export const httpClient = {
         follow_redirects: config.followRedirects !== false,
         user_agent: config.defaultUserAgent || 'Teapot/1.0',
         ca_cert_paths: config.caCertPaths || [],
-        proxy: config.proxy ? {
-          enabled: config.proxy.enabled || false,
-          host: config.proxy.host || '',
-          port: config.proxy.port || 8080,
-          protocol: config.proxy.protocol || 'http',
-          username: config.proxy.username,
-          password: config.proxy.password
-        } : undefined
+        proxy: config.proxy
+          ? {
+              enabled: config.proxy.enabled || false,
+              host: config.proxy.host || '',
+              port: config.proxy.port || 8080,
+              protocol: config.proxy.protocol || 'http',
+              username: config.proxy.username,
+              password: config.proxy.password,
+            }
+          : undefined,
       };
       await invoke('update_config', { config: rustConfig });
     }
@@ -535,5 +539,5 @@ export const httpClient = {
       const { invoke } = await import('@tauri-apps/api/core');
       await invoke('init_cookie_storage');
     }
-  }
+  },
 };

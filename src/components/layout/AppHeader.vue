@@ -2,17 +2,32 @@
   <div class="app-header">
     <div class="header-left">
       <div class="logo">
-        <img src="@/assets/teapot-icon.svg" alt="Teapot" class="logo-icon" />
+        <img
+          src="@/assets/teapot-icon.svg"
+          alt="Teapot"
+          class="logo-icon"
+        />
         <span class="logo-text">Teapot</span>
       </div>
     </div>
 
     <div class="header-center">
       <n-space align="center">
-        <n-select v-model:value="currentEnvironmentId" :options="environmentOptions" placeholder="Select Environment"
-          size="small" style="width: 200px" clearable @update:value="handleEnvironmentChange">
+        <n-select
+          v-model:value="currentEnvironmentId"
+          :options="environmentOptions"
+          placeholder="Select Environment"
+          size="small"
+          style="width: 200px"
+          clearable
+          @update:value="handleEnvironmentChange"
+        >
           <template #action>
-            <n-button text size="small" @click="handleAddEnvironment">
+            <n-button
+              text
+              size="small"
+              @click="handleAddEnvironment"
+            >
               <template #icon>
                 <n-icon>
                   <AddOutline />
@@ -22,7 +37,12 @@
             </n-button>
           </template>
         </n-select>
-        <n-button quaternary circle size="small" @click="environmentDrawerVisible = true">
+        <n-button
+          quaternary
+          circle
+          size="small"
+          @click="environmentDrawerVisible = true"
+        >
           <template #icon>
             <n-icon>
               <OptionsOutline />
@@ -34,7 +54,10 @@
 
     <div class="header-right">
       <n-space align="center">
-        <n-button text @click="handleImport">
+        <n-button
+          text
+          @click="handleImport"
+        >
           <template #icon>
             <n-icon>
               <ImportIcon />
@@ -42,7 +65,10 @@
           </template>
           Import
         </n-button>
-        <n-button text @click="handleExport">
+        <n-button
+          text
+          @click="handleExport"
+        >
           <template #icon>
             <n-icon>
               <ExportIcon />
@@ -50,7 +76,12 @@
           </template>
           Export
         </n-button>
-        <n-button quaternary circle size="small" @click="handleSettings">
+        <n-button
+          quaternary
+          circle
+          size="small"
+          @click="handleSettings"
+        >
           <template #icon>
             <n-icon>
               <SettingsIcon />
@@ -60,9 +91,17 @@
       </n-space>
     </div>
 
-    <SettingsDialog v-model:show="settingsVisible" @close="handleSettingsClose" />
+    <SettingsDialog
+      v-model:show="settingsVisible"
+      @close="handleSettingsClose"
+    />
 
-    <n-drawer v-model:show="environmentDrawerVisible" title="Environment Editor" placement="right" :width="400">
+    <n-drawer
+      v-model:show="environmentDrawerVisible"
+      title="Environment Editor"
+      placement="right"
+      :width="400"
+    >
       <EnvironmentPanel />
     </n-drawer>
 
@@ -73,14 +112,19 @@
 <script setup lang="ts">
 import { computed, h, ref } from 'vue';
 import { NButton, NIcon, NSelect, NSpace, useMessage, useDialog, NDrawer } from 'naive-ui';
-import { DownloadOutline as ImportIcon, CloudUploadOutline as ExportIcon, SettingsOutline as SettingsIcon, AddOutline, OptionsOutline } from '@vicons/ionicons5';
+import {
+  DownloadOutline as ImportIcon,
+  CloudUploadOutline as ExportIcon,
+  SettingsOutline as SettingsIcon,
+  AddOutline,
+  OptionsOutline,
+} from '@vicons/ionicons5';
 import { useEnvironmentStore } from '@/stores/environment';
 import { useCollectionsStore } from '@/stores/collections';
 import * as tauriApi from '@/api/tauri-api';
 import SettingsDialog from '@/components/settings/SettingsDialog.vue';
 import EnvironmentPanel from './EnvironmentPanel.vue';
 import ImportModal from '@/components/common/ImportModal.vue';
-
 
 const dialog = useDialog();
 const message = useMessage();
@@ -93,13 +137,13 @@ const importModalVisible = ref(false);
 
 const currentEnvironmentId = computed({
   get: () => environmentStore.currentEnvironmentId || null,
-  set: (value) => environmentStore.setCurrentEnvironment(value)
+  set: (value) => environmentStore.setCurrentEnvironment(value),
 });
 
 const environmentOptions = computed(() => {
-  const options = environmentStore.environments.map(env => ({
+  const options = environmentStore.environments.map((env) => ({
     label: env.name,
-    value: env.id
+    value: env.id,
   }));
 
   return options;
@@ -112,11 +156,12 @@ function handleEnvironmentChange(value: string | null) {
 function handleAddEnvironment() {
   dialog.create({
     title: 'Create Environment',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'Environment name',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'Environment name',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Create',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -125,7 +170,7 @@ function handleAddEnvironment() {
         const newEnv = environmentStore.createEnvironment(input.value);
         environmentStore.setCurrentEnvironment(newEnv.id);
       }
-    }
+    },
   });
 }
 
@@ -144,7 +189,7 @@ async function handleExport() {
       version: '1.0.0',
       exportedAt: new Date().toISOString(),
       environments: environmentStore.environments,
-      collections: collectionStore.collections
+      collections: collectionStore.collections,
     };
 
     await tauriApi.file.writeText(filePath, JSON.stringify(exportData, null, 2));

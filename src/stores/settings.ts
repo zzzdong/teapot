@@ -35,8 +35,8 @@ export const useSettingsStore = defineStore('settings', () => {
       enabled: false,
       host: '',
       port: 8080,
-      protocol: 'http'
-    }
+      protocol: 'http',
+    },
   });
 
   // Actions
@@ -91,6 +91,6 @@ export const useSettingsStore = defineStore('settings', () => {
     httpClient,
     load,
     save,
-    updateHttpClient
+    updateHttpClient,
   };
 });

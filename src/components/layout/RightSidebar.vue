@@ -6,10 +6,16 @@
       animated
       :bar-width="40"
     >
-      <n-tab-pane name="environment" tab="Environment">
+      <n-tab-pane
+        name="environment"
+        tab="Environment"
+      >
         <EnvironmentPanel />
       </n-tab-pane>
-      <n-tab-pane name="console" tab="Console">
+      <n-tab-pane
+        name="console"
+        tab="Console"
+      >
         <ConsolePanel />
       </n-tab-pane>
     </n-tabs>

@@ -7,34 +7,69 @@
             <TerminalIcon />
           </n-icon>
           <span class="log-title">Script Console</span>
-          <n-tag :type="hasErrors ? 'error' : hasWarnings ? 'warning' : 'success'" size="small">
+          <n-tag
+            :type="hasErrors ? 'error' : hasWarnings ? 'warning' : 'success'"
+            size="small"
+          >
             {{ logs.length }} logs
           </n-tag>
         </n-space>
       </div>
       <div class="log-header-right">
         <n-space align="center">
-          <n-switch v-model:value="autoScroll" size="small">
+          <n-switch
+            v-model:value="autoScroll"
+            size="small"
+          >
             <template #checked>Auto-scroll</template>
             <template #unchecked>Manual</template>
           </n-switch>
-          <n-button text size="small" @click="filterLevel = 'all'" :type="filterLevel === 'all' ? 'primary' : 'default'">
+          <n-button
+            text
+            size="small"
+            @click="filterLevel = 'all'"
+            :type="filterLevel === 'all' ? 'primary' : 'default'"
+          >
             All
           </n-button>
-          <n-button text size="small" @click="filterLevel = 'info'" :type="filterLevel === 'info' ? 'primary' : 'default'">
+          <n-button
+            text
+            size="small"
+            @click="filterLevel = 'info'"
+            :type="filterLevel === 'info' ? 'primary' : 'default'"
+          >
             Info
           </n-button>
-          <n-button text size="small" @click="filterLevel = 'log'" :type="filterLevel === 'log' ? 'primary' : 'default'">
+          <n-button
+            text
+            size="small"
+            @click="filterLevel = 'log'"
+            :type="filterLevel === 'log' ? 'primary' : 'default'"
+          >
             Log
           </n-button>
-          <n-button text size="small" @click="filterLevel = 'warn'" :type="filterLevel === 'warn' ? 'primary' : 'default'">
+          <n-button
+            text
+            size="small"
+            @click="filterLevel = 'warn'"
+            :type="filterLevel === 'warn' ? 'primary' : 'default'"
+          >
             Warn
           </n-button>
-          <n-button text size="small" @click="filterLevel = 'error'" :type="filterLevel === 'error' ? 'primary' : 'default'">
+          <n-button
+            text
+            size="small"
+            @click="filterLevel = 'error'"
+            :type="filterLevel === 'error' ? 'primary' : 'default'"
+          >
             Error
           </n-button>
           <n-divider vertical />
-          <n-button text size="small" @click="handleClear">
+          <n-button
+            text
+            size="small"
+            @click="handleClear"
+          >
             <template #icon>
               <n-icon><TrashIcon /></n-icon>
             </template>
@@ -44,11 +79,23 @@
       </div>
     </div>
 
-    <div class="log-content" ref="logContentRef">
-      <div v-if="filteredLogs.length === 0" class="log-empty">
-        <n-empty description="No logs yet" size="small" />
+    <div
+      class="log-content"
+      ref="logContentRef"
+    >
+      <div
+        v-if="filteredLogs.length === 0"
+        class="log-empty"
+      >
+        <n-empty
+          description="No logs yet"
+          size="small"
+        />
       </div>
-      <div v-else class="log-entries">
+      <div
+        v-else
+        class="log-entries"
+      >
         <div
           v-for="(log, index) in filteredLogs"
           :key="index"
@@ -66,10 +113,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
 import { NButton, NDivider, NEmpty, NIcon, NSpace, NSwitch, NTag } from 'naive-ui';
-import {
-  TerminalOutline as TerminalIcon,
-  TrashOutline as TrashIcon
-} from '@vicons/ionicons5';
+import { TerminalOutline as TerminalIcon, TrashOutline as TrashIcon } from '@vicons/ionicons5';
 import type { ScriptLogEntry } from '@/utils/scriptExecutor';
 
 interface Props {
@@ -86,11 +130,11 @@ const filteredLogs = computed(() => {
   if (filterLevel.value === 'all') {
     return props.logs;
   }
-  return props.logs.filter(log => log.level === filterLevel.value);
+  return props.logs.filter((log) => log.level === filterLevel.value);
 });
 
-const hasErrors = computed(() => props.logs.some(log => log.level === 'error'));
-const hasWarnings = computed(() => props.logs.some(log => log.level === 'warn'));
+const hasErrors = computed(() => props.logs.some((log) => log.level === 'error'));
+const hasWarnings = computed(() => props.logs.some((log) => log.level === 'warn'));
 
 function formatTimestamp(timestamp: number): string {
   const date = new Date(timestamp);
@@ -111,12 +155,15 @@ const emit = defineEmits<{
 }>();
 
 // Auto-scroll to bottom when logs change
-watch(() => props.logs.length, async () => {
-  if (autoScroll.value && logContentRef.value) {
-    await nextTick();
-    logContentRef.value.scrollTop = logContentRef.value.scrollHeight;
+watch(
+  () => props.logs.length,
+  async () => {
+    if (autoScroll.value && logContentRef.value) {
+      await nextTick();
+      logContentRef.value.scrollTop = logContentRef.value.scrollHeight;
+    }
   }
-});
+);
 </script>
 
 <style scoped>

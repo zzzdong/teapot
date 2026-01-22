@@ -1,7 +1,10 @@
 <template>
   <div class="response-body">
     <div class="body-header">
-      <n-radio-group v-model:value="viewType" size="small">
+      <n-radio-group
+        v-model:value="viewType"
+        size="small"
+      >
         <n-space>
           <n-radio-button value="pretty">Pretty</n-radio-button>
           <n-radio-button value="raw">Raw</n-radio-button>
@@ -12,8 +15,14 @@
 
     <div class="body-content">
       <!-- Pretty View -->
-      <div v-if="viewType === 'pretty'" class="pretty-view">
-        <div v-if="isJson" class="code-viewer">
+      <div
+        v-if="viewType === 'pretty'"
+        class="pretty-view"
+      >
+        <div
+          v-if="isJson"
+          class="code-viewer"
+        >
           <MonacoEditor
             :value="formattedJson"
             language="json"
@@ -22,7 +31,10 @@
             height="100%"
           />
         </div>
-        <div v-else-if="isXml" class="code-viewer">
+        <div
+          v-else-if="isXml"
+          class="code-viewer"
+        >
           <MonacoEditor
             :value="formattedXml"
             language="xml"
@@ -31,7 +43,10 @@
             height="100%"
           />
         </div>
-        <div v-else class="text-viewer">
+        <div
+          v-else
+          class="text-viewer"
+        >
           <MonacoEditor
             :value="bodyText"
             language="plaintext"
@@ -43,7 +58,10 @@
       </div>
 
       <!-- Raw View -->
-      <div v-else-if="viewType === 'raw'" class="raw-view">
+      <div
+        v-else-if="viewType === 'raw'"
+        class="raw-view"
+      >
         <MonacoEditor
           :value="bodyText"
           language="plaintext"
@@ -54,17 +72,29 @@
       </div>
 
       <!-- Preview View -->
-      <div v-else-if="viewType === 'preview'" class="preview-view">
+      <div
+        v-else-if="viewType === 'preview'"
+        class="preview-view"
+      >
         <iframe
           v-if="isHtml"
           :srcdoc="bodyText"
           class="html-preview"
           sandbox="allow-same-origin"
         />
-        <div v-else-if="isImage" class="image-preview">
-          <img :src="imageSrc" alt="Response preview" />
+        <div
+          v-else-if="isImage"
+          class="image-preview"
+        >
+          <img
+            :src="imageSrc"
+            alt="Response preview"
+          />
         </div>
-        <div v-else class="no-preview">
+        <div
+          v-else
+          class="no-preview"
+        >
           <p>Preview not available for this content type</p>
         </div>
       </div>
@@ -104,8 +134,8 @@ const editorOptions = {
   scrollbar: {
     useShadows: false,
     verticalScrollbarSize: 10,
-    horizontalScrollbarSize: 10
-  }
+    horizontalScrollbarSize: 10,
+  },
 };
 
 const body = computed(() => {
@@ -133,9 +163,11 @@ const isJson = computed(() => {
 });
 
 const isXml = computed(() => {
-  return contentType.value === 'application/xml' ||
-         contentType.value === 'text/xml' ||
-         contentType.value === 'application/atom+xml';
+  return (
+    contentType.value === 'application/xml' ||
+    contentType.value === 'text/xml' ||
+    contentType.value === 'application/atom+xml'
+  );
 });
 
 const isHtml = computed(() => {

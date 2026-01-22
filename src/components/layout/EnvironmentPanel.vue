@@ -9,7 +9,12 @@
         @update:value="handleScopeChange"
       />
       <div class="header-actions">
-        <n-button text size="small" @click="handleAddVariable" :disabled="!canAddVariable">
+        <n-button
+          text
+          size="small"
+          @click="handleAddVariable"
+          :disabled="!canAddVariable"
+        >
           <template #icon>
             <n-icon><AddOutline /></n-icon>
           </template>
@@ -21,7 +26,10 @@
           trigger="click"
           @select="handleMoreAction"
         >
-          <n-button text size="small">
+          <n-button
+            text
+            size="small"
+          >
             <template #icon>
               <n-icon><EllipsisVerticalOutline /></n-icon>
             </template>
@@ -32,20 +40,29 @@
 
     <div class="env-content">
       <!-- Global Variables -->
-      <div v-if="selectedScope === 'global'" class="variables-section">
+      <div
+        v-if="selectedScope === 'global'"
+        class="variables-section"
+      >
         <div class="section-header">
           <span>Global Variables</span>
           <span class="var-count">{{ globalVariables.length }}</span>
         </div>
-        <div v-if="globalVariables.length === 0" class="empty-state">
+        <div
+          v-if="globalVariables.length === 0"
+          class="empty-state"
+        >
           <p>No global variables</p>
         </div>
-        <div v-else class="variable-list">
+        <div
+          v-else
+          class="variable-list"
+        >
           <div
             v-for="(variable, index) in globalVariables"
             :key="index"
             class="variable-row"
-            :class="{ 'disabled': !variable.enabled }"
+            :class="{ disabled: !variable.enabled }"
           >
             <div class="var-checkbox">
               <input
@@ -87,7 +104,10 @@
                 trigger="click"
                 @select="(key) => handleVarAction(key, 'global', index)"
               >
-                <n-button text size="tiny">
+                <n-button
+                  text
+                  size="tiny"
+                >
                   <template #icon>
                     <n-icon><EllipsisHorizontalOutline /></n-icon>
                   </template>
@@ -99,11 +119,25 @@
       </div>
 
       <!-- Environment Variables -->
-      <div v-if="selectedScope === 'environment'" class="variables-section">
-        <div v-if="!currentEnvironment" class="no-env">
-          <n-icon :size="48" :color="'#ccc'"><CloudOutline /></n-icon>
+      <div
+        v-if="selectedScope === 'environment'"
+        class="variables-section"
+      >
+        <div
+          v-if="!currentEnvironment"
+          class="no-env"
+        >
+          <n-icon
+            :size="48"
+            :color="'#ccc'"
+            ><CloudOutline
+          /></n-icon>
           <p>No environment selected</p>
-          <n-button type="primary" size="small" @click="handleCreateEnvironment">
+          <n-button
+            type="primary"
+            size="small"
+            @click="handleCreateEnvironment"
+          >
             Create Environment
           </n-button>
         </div>
@@ -111,17 +145,30 @@
           <div class="env-info">
             <div class="env-name">{{ currentEnvironment.name }}</div>
             <div class="env-actions">
-              <n-button text size="tiny" @click="handleRenameEnvironment">
+              <n-button
+                text
+                size="tiny"
+                @click="handleRenameEnvironment"
+              >
                 <template #icon>
                   <n-icon><PencilOutline /></n-icon>
                 </template>
               </n-button>
-              <n-button text size="tiny" @click="handleDuplicateEnvironment">
+              <n-button
+                text
+                size="tiny"
+                @click="handleDuplicateEnvironment"
+              >
                 <template #icon>
                   <n-icon><CopyOutline /></n-icon>
                 </template>
               </n-button>
-              <n-button text size="tiny" type="error" @click="handleDeleteEnvironment">
+              <n-button
+                text
+                size="tiny"
+                type="error"
+                @click="handleDeleteEnvironment"
+              >
                 <template #icon>
                   <n-icon><TrashOutline /></n-icon>
                 </template>
@@ -132,15 +179,21 @@
             <span>Variables</span>
             <span class="var-count">{{ environmentVariables.length }}</span>
           </div>
-          <div v-if="environmentVariables.length === 0" class="empty-state">
+          <div
+            v-if="environmentVariables.length === 0"
+            class="empty-state"
+          >
             <p>No variables</p>
           </div>
-          <div v-else class="variable-list">
+          <div
+            v-else
+            class="variable-list"
+          >
             <div
               v-for="(variable, index) in environmentVariables"
               :key="index"
               class="variable-row"
-              :class="{ 'disabled': !variable.enabled }"
+              :class="{ disabled: !variable.enabled }"
             >
               <div class="var-checkbox">
                 <input
@@ -182,7 +235,10 @@
                   trigger="click"
                   @select="(key) => handleVarAction(key, 'environment', index)"
                 >
-                  <n-button text size="tiny">
+                  <n-button
+                    text
+                    size="tiny"
+                  >
                     <template #icon>
                       <n-icon><EllipsisHorizontalOutline /></n-icon>
                     </template>
@@ -195,7 +251,10 @@
       </div>
 
       <!-- Dynamic Variables -->
-      <div v-if="selectedScope === 'dynamic'" class="dynamic-section">
+      <div
+        v-if="selectedScope === 'dynamic'"
+        class="dynamic-section"
+      >
         <div class="section-title">Dynamic Variables</div>
         <div class="section-desc">Auto-generated values that change on each request</div>
         <div class="dynamic-list">
@@ -207,7 +266,11 @@
             <div class="variable-key">{{ variable.key }}</div>
             <div class="variable-desc">{{ variable.description }}</div>
             <div class="variable-preview">{{ variable.preview }}</div>
-            <n-button text size="tiny" @click="handleCopyVariable(variable.key)">
+            <n-button
+              text
+              size="tiny"
+              @click="handleCopyVariable(variable.key)"
+            >
               <template #icon>
                 <n-icon><CopyOutline /></n-icon>
               </template>
@@ -235,7 +298,7 @@ import {
   KeyOutline,
   LockClosedOutline,
   PencilOutline,
-  CloudOutline
+  CloudOutline,
 } from '@vicons/ionicons5';
 import { useEnvironmentStore } from '@/stores/environment';
 import type { EnvironmentVariable } from '@/types/environment';
@@ -250,7 +313,7 @@ const showSecrets = ref<Record<string, boolean>>({});
 const scopeOptions = [
   { label: 'Environment', value: 'environment' },
   { label: 'Global', value: 'global' },
-  { label: 'Dynamic', value: 'dynamic' }
+  { label: 'Dynamic', value: 'dynamic' },
 ];
 
 const canAddVariable = computed(() => {
@@ -265,13 +328,17 @@ const environmentVariables = computed(() => currentEnvironment.value?.variables 
 
 const dynamicVariables = computed(() => [
   { key: '{{$timestamp}}', description: 'Current timestamp in milliseconds', preview: String(Date.now()) },
-  { key: '{{$randomInt}}', description: 'Random integer between 0-999', preview: String(Math.floor(Math.random() * 1000)) },
+  {
+    key: '{{$randomInt}}',
+    description: 'Random integer between 0-999',
+    preview: String(Math.floor(Math.random() * 1000)),
+  },
   { key: '{{$guid}}', description: 'Random GUID/UUID', preview: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx' },
   { key: '{{$randomUserName}}', description: 'Random username', preview: 'user_x7k2m' },
   { key: '{{$randomEmail}}', description: 'Random email address', preview: 'user_x7k2m@example.com' },
   { key: '{{$randomBoolean}}', description: 'Random true/false', preview: 'true' },
   { key: '{{$randomDate}}', description: 'Random ISO date', preview: new Date().toISOString().split('T')[0] },
-  { key: '{{$randomTime}}', description: 'Current time', preview: new Date().toTimeString().split(' ')[0] }
+  { key: '{{$randomTime}}', description: 'Current time', preview: new Date().toTimeString().split(' ')[0] },
 ]);
 
 const moreOptions = computed(() => {
@@ -281,18 +348,18 @@ const moreOptions = computed(() => {
     options.push({
       label: 'Import',
       key: 'import',
-      icon: () => h(NIcon, null, { default: () => h(CloudUploadOutline) })
+      icon: () => h(NIcon, null, { default: () => h(CloudUploadOutline) }),
     });
     options.push({
       label: 'Export',
       key: 'export',
-      icon: () => h(NIcon, null, { default: () => h(DownloadOutline) })
+      icon: () => h(NIcon, null, { default: () => h(DownloadOutline) }),
     });
     options.push({ type: 'divider' });
     options.push({
       label: 'Clear All',
       key: 'clear',
-      icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
+      icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
     });
   }
 
@@ -307,7 +374,12 @@ function handleAddVariable() {
   if (selectedScope.value === 'global') {
     environmentStore.addGlobalVariable({ key: '', value: '', enabled: true, secret: false });
   } else if (selectedScope.value === 'environment' && currentEnvironment.value) {
-    environmentStore.addVariableToEnvironment(currentEnvironment.value.id, { key: '', value: '', enabled: true, secret: false });
+    environmentStore.addVariableToEnvironment(currentEnvironment.value.id, {
+      key: '',
+      value: '',
+      enabled: true,
+      secret: false,
+    });
   }
 }
 
@@ -318,7 +390,10 @@ function toggleGlobalVariable(index: number, e: Event) {
 
 function toggleEnvVariable(index: number, e: Event) {
   const enabled = (e.target as HTMLInputElement).checked;
-  environmentStore.updateVariableInEnvironment(currentEnvironment.value!.id, index, { ...environmentVariables.value[index], enabled });
+  environmentStore.updateVariableInEnvironment(currentEnvironment.value!.id, index, {
+    ...environmentVariables.value[index],
+    enabled,
+  });
 }
 
 function updateGlobalVariable(index: number, variable: EnvironmentVariable) {
@@ -338,20 +413,20 @@ function getVarActionOptions(variable: EnvironmentVariable, scope: string, index
     {
       label: 'Mark as Secret',
       key: 'toggle-secret',
-      icon: () => h(NIcon, null, { default: () => h(variable.secret ? LockClosedOutline : KeyOutline) })
+      icon: () => h(NIcon, null, { default: () => h(variable.secret ? LockClosedOutline : KeyOutline) }),
     },
     {
       label: 'Duplicate',
       key: 'duplicate',
-      icon: () => h(NIcon, null, { default: () => h(CopyOutline) })
+      icon: () => h(NIcon, null, { default: () => h(CopyOutline) }),
     },
     { type: 'divider' },
     {
       label: 'Delete',
       key: 'delete',
       icon: () => h(NIcon, null, { default: () => h(TrashOutline) }),
-      props: { style: 'color: #d03050;' }
-    }
+      props: { style: 'color: #d03050;' },
+    },
   ];
 }
 
@@ -368,9 +443,15 @@ function handleVarAction(key: string, scope: string, index: number) {
   } else if (scope === 'environment') {
     const variable = environmentVariables.value[index];
     if (key === 'toggle-secret') {
-      environmentStore.updateVariableInEnvironment(currentEnvironment.value!.id, index, { ...variable, secret: !variable.secret });
+      environmentStore.updateVariableInEnvironment(currentEnvironment.value!.id, index, {
+        ...variable,
+        secret: !variable.secret,
+      });
     } else if (key === 'duplicate') {
-      environmentStore.addVariableToEnvironment(currentEnvironment.value!.id, { ...variable, key: `${variable.key}_copy` });
+      environmentStore.addVariableToEnvironment(currentEnvironment.value!.id, {
+        ...variable,
+        key: `${variable.key}_copy`,
+      });
     } else if (key === 'delete') {
       environmentStore.deleteVariableFromEnvironment(currentEnvironment.value!.id, index);
     }
@@ -390,11 +471,12 @@ function handleMoreAction(key: string) {
 function handleCreateEnvironment() {
   dialog.create({
     title: 'Create Environment',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'Environment name',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'Environment name',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Create',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -404,19 +486,20 @@ function handleCreateEnvironment() {
         environmentStore.setCurrentEnvironment(newEnv.id);
         message.success(`Environment "${input.value}" created`);
       }
-    }
+    },
   });
 }
 
 function handleRenameEnvironment() {
   dialog.create({
     title: 'Rename Environment',
-    content: () => h('input', {
-      type: 'text',
-      placeholder: 'New name',
-      value: currentEnvironment.value?.name || '',
-      style: 'width: 100%; padding: 8px; margin-top: 8px;'
-    }),
+    content: () =>
+      h('input', {
+        type: 'text',
+        placeholder: 'New name',
+        value: currentEnvironment.value?.name || '',
+        style: 'width: 100%; padding: 8px; margin-top: 8px;',
+      }),
     positiveText: 'Rename',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -425,14 +508,14 @@ function handleRenameEnvironment() {
         environmentStore.updateEnvironment(currentEnvironment.value.id, { name: input.value });
         message.success(`Environment renamed to "${input.value}"`);
       }
-    }
+    },
   });
 }
 
 function handleDuplicateEnvironment() {
   if (currentEnvironment.value) {
     const newEnv = environmentStore.createEnvironment(`${currentEnvironment.value.name} (Copy)`);
-    environmentStore.addVariableToEnvironment(newEnv.id, ...currentEnvironment.value.variables.map(v => ({ ...v })));
+    environmentStore.addVariableToEnvironment(newEnv.id, ...currentEnvironment.value.variables.map((v) => ({ ...v })));
     message.success(`Environment duplicated`);
   }
 }
@@ -448,7 +531,7 @@ function handleDeleteEnvironment() {
         environmentStore.deleteEnvironment(currentEnvironment.value.id);
         message.success(`Environment deleted`);
       }
-    }
+    },
   });
 }
 
@@ -465,10 +548,11 @@ function handleImportVariables() {
   const scope = selectedScope.value === 'global' ? 'global' : 'environment';
   dialog.create({
     title: `Import ${scope === 'global' ? 'Global' : 'Environment'} Variables`,
-    content: () => h('textarea', {
-      placeholder: 'Paste JSON variables (e.g., {"key": "value"})',
-      style: 'width: 100%; height: 150px; padding: 8px; margin-top: 8px; font-family: monospace;'
-    }),
+    content: () =>
+      h('textarea', {
+        placeholder: 'Paste JSON variables (e.g., {"key": "value"})',
+        style: 'width: 100%; height: 150px; padding: 8px; margin-top: 8px; font-family: monospace;',
+      }),
     positiveText: 'Import',
     negativeText: 'Cancel',
     onPositiveClick: () => {
@@ -486,7 +570,7 @@ function handleImportVariables() {
           message.error('Invalid JSON format');
         }
       }
-    }
+    },
   });
 }
 
@@ -515,7 +599,7 @@ function handleClearAll() {
         }
       }
       message.success('All variables cleared');
-    }
+    },
   });
 }
 </script>
@@ -639,7 +723,7 @@ function handleClearAll() {
   opacity: 0.5;
 }
 
-.var-checkbox input[type="checkbox"] {
+.var-checkbox input[type='checkbox'] {
   cursor: pointer;
   width: 16px;
   height: 16px;

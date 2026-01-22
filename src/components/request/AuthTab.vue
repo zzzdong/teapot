@@ -9,12 +9,18 @@
 
     <div class="auth-content">
       <!-- No Auth -->
-      <div v-if="authType === 'noauth'" class="no-auth">
+      <div
+        v-if="authType === 'noauth'"
+        class="no-auth"
+      >
         <p>This request does not use any authentication.</p>
       </div>
 
       <!-- Bearer Token -->
-      <div v-else-if="authType === 'bearer'" class="bearer-auth">
+      <div
+        v-else-if="authType === 'bearer'"
+        class="bearer-auth"
+      >
         <n-form-item label="Token">
           <n-input
             v-model:value="bearerToken"
@@ -34,7 +40,10 @@
       </div>
 
       <!-- Basic Auth -->
-      <div v-else-if="authType === 'basic'" class="basic-auth">
+      <div
+        v-else-if="authType === 'basic'"
+        class="basic-auth"
+      >
         <n-form-item label="Username">
           <n-input
             v-model:value="basicUsername"
@@ -54,7 +63,10 @@
       </div>
 
       <!-- API Key -->
-      <div v-else-if="authType === 'apikey'" class="apikey-auth">
+      <div
+        v-else-if="authType === 'apikey'"
+        class="apikey-auth"
+      >
         <n-form-item label="Key">
           <n-input
             v-model:value="apiKeyKey"
@@ -72,7 +84,10 @@
           />
         </n-form-item>
         <n-form-item label="Add to">
-          <n-radio-group v-model:value="apiKeyAddTo" @update:value="handleApiKeyAddToChange">
+          <n-radio-group
+            v-model:value="apiKeyAddTo"
+            @update:value="handleApiKeyAddToChange"
+          >
             <n-space>
               <n-radio value="header">Header</n-radio>
               <n-radio value="query">Query Params</n-radio>
@@ -82,7 +97,10 @@
       </div>
 
       <!-- Other Auth Types -->
-      <div v-else class="coming-soon">
+      <div
+        v-else
+        class="coming-soon"
+      >
         <p>{{ authType }} authentication coming soon.</p>
       </div>
     </div>
@@ -113,7 +131,7 @@ const authOptions = [
   { label: 'Digest Auth', value: 'digest' },
   { label: 'OAuth 1.0', value: 'oauth1' },
   { label: 'OAuth 2.0', value: 'oauth2' },
-  { label: 'AWS Signature', value: 'aws4' }
+  { label: 'AWS Signature', value: 'aws4' },
 ];
 
 const authType = computed(() => props.auth.type);
@@ -132,15 +150,19 @@ const apiKeyValue = ref(props.auth.config.value || '');
 const apiKeyAddTo = ref<'header' | 'query'>(props.auth.config.addTo || 'header');
 
 // Watch for prop changes
-watch(() => props.auth, (newAuth) => {
-  bearerToken.value = newAuth.config.token || '';
-  bearerPrefix.value = newAuth.config.prefix || 'Bearer';
-  basicUsername.value = newAuth.config.username || '';
-  basicPassword.value = newAuth.config.password || '';
-  apiKeyKey.value = newAuth.config.key || '';
-  apiKeyValue.value = newAuth.config.value || '';
-  apiKeyAddTo.value = newAuth.config.addTo || 'header';
-}, { deep: true });
+watch(
+  () => props.auth,
+  (newAuth) => {
+    bearerToken.value = newAuth.config.token || '';
+    bearerPrefix.value = newAuth.config.prefix || 'Bearer';
+    basicUsername.value = newAuth.config.username || '';
+    basicPassword.value = newAuth.config.password || '';
+    apiKeyKey.value = newAuth.config.key || '';
+    apiKeyValue.value = newAuth.config.value || '';
+    apiKeyAddTo.value = newAuth.config.addTo || 'header';
+  },
+  { deep: true }
+);
 
 function handleAuthTypeChange(type: AuthConfig['type']) {
   updateAuth();
@@ -198,7 +220,7 @@ function updateAuth() {
 
   emit('update', {
     type: authType.value,
-    config
+    config,
   });
 }
 </script>
